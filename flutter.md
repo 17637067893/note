@@ -2037,16 +2037,6 @@ class _CheckBoxDemoState extends State<CheckBoxDemo> {
                 selected: this.sex==2,
             ),
 
-
-
-
-
-
-
-
-
-
-
  Radio(
           //       value: 1,
           //       onChanged: (v){
