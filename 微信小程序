@@ -1,0 +1,546 @@
+1 绑定事件使用bindtap=""
+2 访问数据使用this.data
+3 object.defineProperty("obj","属性","值")
+4 小程序的逻辑层虽然使用js写的，但是不是运行在浏览器中的，所以一些能力无法使用 window,document;
+5 每个小程序都需要在app.js中调用一次app方法注册小程序实例，再其他也可以通过getApp获取App实例上的数据，方法；
+##生命周期
+1 应用生命周期
+
+```
+1 用户初次打开小程序onLaunch(全局出发一次)
+2 显示应用 onShow()
+3 小程序进入后台onHide
+```
+2 页面周期
+```
+1 小程序注册完成后，加载页面，出发onLoad
+可以获取页面跳转传参
+onLoad:function(options){
+console.log(options.name1);
+}
+2 进入页面 onShow
+3 首次显示页面，onReady(),渲染页面，一个页面只会调用一次
+对页面内容的设置要在此后的函数内调用
+如果标题 颜色 内容
+4 小程序后台运行或跳转到其他页面，触发onHide
+5 onUnload 使用重定向wx.redirectTo(OBJECT)或关闭当前页面返回上一页wx.navigateBack(),
+6 下拉刷新
+需要在app.js中window配置enablePullDownRefresh:true或者页面配置中开始开启下拉
+onPullDownRefresh()
+ 
+```
+3 页面周期和应用周期不同
+```
+1 小程序 初始化完成后，页面首次加载触发onLoad,只会触发一次
+2 当小程序进入到后台，先执行页面onHide方法再执行应用onHide方法
+3 当小程序从后台进图到前台，先执行应用onShow方法再执行页面onShow方法。
+```
+##数据请求
+```
+app.util.request({
+'url':'url.com',
+'method':'post'
+'data':{
+car_id:id
+},
+success(res){
+if(res.data.message === 'ok'){
+wx.navigateTo({
+url:'../../pagess/album-edit?card_id='+that.data.card_id + '&album_id=0'
+})
+}else{
+
+}
+}
+})
+```
+##小程序分包
+小程序为了实现秒开，对文件大小做了限制加载时会现在加载主包的内容。如果用户进入分包内的某个页面时，客户端会把对应的分包下载下来
+```
+1 避免引用分包内的文件。不能确保一个分包加载时，另一个分包一定存在。
+2 公共自定义组件需要放在主包内。
+3 分包配置
+4 声明subPackages后，subpackages内的文件被打包进分包，其他的会被打包进主包内
+5 tabBar页面必须在app(主包)内
+{
+"pages":[
+'pages/index',
+'pages/logs'
+],
+'subPackages':[
+{
+'root':'packageA'  //分包根目录
+"name":"pack1"  //分包名字 下载时需要
+"pages":[
+'pages/cat'
+'pages/dog'
+]
+},{
+'root':"packageB',
+'name':'pack2',
+'pages':[
+'pages/apple',
+'pages/banana'
+]
+}
+]
+}
+
+```
+获取场景直
+```
+1 小程序可以在onlaunch 和 onShow中获取场景值
+onLaunch:function(options){
+console.log('场景值：'+options.scene)
+}
+onShow:function(options){
+console.log("本次场景值："+options.scene)
+}
+
+```
+微信扫一扫API
+```
+wx.sanCode({
+success:(res)=>{
+console.log(res);
+}
+})
+```
+##路由
+```
+1 navgateTo, redirectTo 只能打开费tabBar页面
+wx.navigateTo({
+url:'/page/logs/logs',   //目标页面
+success:function(res){},
+})
+
+<navigator open-type="navigateTo" />
+使用wx.redirectTo跳转 关闭原页面不能返回
+wx.redirectTo({
+url:"pages/logs/index",
+success:function(res){
+}
+})
+
+<navigator open-type="redirectTo" />
+
+2 使用组件跳转
+<navigator url="/pages/logs/index" >跳转</navigator>
+
+3 switch 只能打开tabBar页面
+wx.switchTab({
+url:'pages/index/index'
+})
+
+4 在目标 页面的onLoad中获取路由带的参数
+<navgator url="url?name1={{value1}}&name={{value2}}">
+目标页面
+onLoad:function(options){
+console.log(options.name1);
+console.log(options.name2)
+}
+5 返回
+wx.navigateBack({
+delta:1 //1 返回一页  2 返回两页
+})
+6 传值
+url?key1=value1&key3=value2
+```
+##文件引入
+common.js
+```
+function add(a,b){
+console.log(a+b);
+}
+module.exports.add=add;
+```
+引入文件
+```
+var common=require("相对路径")；
+onShow:function(){
+commom.add(3,4);
+}
+```
+##API
+以on开头的API监听事件是否出触发
+```
+wx.onSocketOpen
+wx.onCompaddChange
+```
+以Sync结尾的API都是同步API
+```
+wx.getStorageSync()
+wx.getSystemInfoSync()
+```
+大多说API都是异步API 
+```
+wx.request({
+success(res){
+}
+})
+wx.login({})
+```
+##事件
+冒泡阶段
+bind绑定事件不会阻止冒泡
+catch绑定事件可以阻止冒泡
+捕获阶段
+capture-bind   捕获阶段
+capture-catch  中断捕获和取消冒泡阶段
+组件上自定义属性需要使用data-开头
+```
+<view bindtap="click" data-key="1" data-name="xiaoming" id="btn">click me</view>
+```
+click:function(e){
+console.log(e)
+}
+![image.png](https://upload-images.jianshu.io/upload_images/16514325-664c47ae01b25d0d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+会把这些属性保存在dataset对象中
+##获取节点信息
+查询节点的位置，以及界面的滚动位置
+```
+var query=wx.createSelectorQuery();
+query.select("#btn").boundingClientRect(function(res){
+res.top
+})
+query.selectViewport().srcollOffset(function(res){
+res.scrollTop  //显示区域Dev数值滚动位置
+})
+query.exec(function(res){
+console.log()  //查询所有元素组成的数组
+})
+```
+##响应显示区域变化
+1 配置
+```
+1 app.json  window字段配置
+pageOrientation:"auto"
+2 媒体查询
+@media (min-width:480px){
+.my-class {
+
+}
+}
+```
+监听屏幕尺寸变化
+```
+onResize(res){
+console.log(res) //屏幕尺寸信息
+}
+```
+##小程序运行机制
+小程序没有重启概念
+热启动：原先已经运行过小程序在内存中没有被销毁再次进入小程序被称为热启动
+冷启动：首次打开或打开已经被销毁后的小程序。
+##小程序更新机制
+小程序每次冷启动都会检测更新如果有新版本就是先运行本地版本后台下载更新新版本(下次启动才会运行新版本)
+如果想要马上运行新版本
+```
+const updateManage  = wx.getUpdateManager()
+updataManage.onCheckForUpdate(function(res){
+console.log(res.hasUpdate)  //新版的信息回调
+})
+updateManage.onUpdateReady(function(){
+wx.showModal({
+title:"更新提示",
+content:"是否立即更新",
+success(res){
+if(res.confirm){
+updateManager.applyUpdate()
+}
+}
+})
+})
+
+updateManage.onUpdateFailed(function(){
+wx.showModal({
+title:"更新提示",
+content:"更新失败"
+})
+})
+```
+##组件
+组件也要新建是四种格式文件
+```
+组件使用class写样式
+json文件中
+"component":true
+js文件中
+Component({
+options:{
+multipleSlots:true  //开启多slot支持
+}
+propertie:{
+innerText:{
+type:Stirng,
+value:"默认值"
+}
+}
+})
+wxml组件中
+<view>{{innerText}}
+<slot>承载组件的子节点</slot>
+</view>
+
+引用组件
+json文件中
+component:{
+zujian:"../component/zujian/zujian"
+}
+wxml文件中
+<zujian innerText="覆盖默认值"></zujian>
+```
+也可以接受页面传参
+/page/index/index?key1=123&key2=456
+如果组件声明有key1,key2属性就可以接受参数
+```
+Component({
+properties:{
+key1:"",
+key2:""
+}
+})
+methods:{
+onLoad:function(){
+this.data.key1,
+this.data.key2
+}
+]
+```
+组件通信
+1 WXML数据绑定：用于父组件向子组件通信
+2 事件： 子组件向父组件传递数据
+组件内
+```
+组件内定义事件
+<button bindtap="click">向父级传参</button>
+Component({
+ data:{
+dataA:"数据A",
+dataB:"数据B"
+},
+methods:{
+click:function(){
+var data={  //要传输的参数
+dataA:this.data.dataA,
+dataB:this.data.dataB
+}；
+this.triggerEvent("myEvent",data)
+}
+}
+})
+
+父级组件中
+<my-component bindmyEvent="onshow"></component>
+onshow(e){
+// e.detail 中可以获取数据
+console.log(e)
+}
+```
+3 父组件可以通过this.selectComponent方法获取子组件实例对象，就可以直接访问组件的任意数据和方法
+```
+var s = this.selectComponent("id/class")
+console.log(s.data)
+```
+组件的生命周期
+1 created 组件刚被触发时，此时this.data就是Component构造器中定义的data，此时不能调用setData,通常给组件this属性添加一些自定义属性字段
+2 attached组件初始化完毕，进入节点树
+3 detached组件离开节点树后
+```
+lifetimes:{
+created:function(){
+},
+attached:function(){
+
+},
+ready:function(){
+},
+detached:function(){
+
+}
+}
+```
+组件behaviors
+类似于 mixins 封装一些公用的组件和方法
+```
+behaviors.js
+module.exports=Behavors({
+properties:{
+textA:{
+type:String,
+value:'默认值'
+}
+}，
+data:{
+dataA:"数据A",
+dataB:"数据B"
+}
+})
+
+组件引入
+var mybehavior=require("../behaviors");
+Component({
+behaviors:[mybehaviors],
+properties:{
+      myProperty:{
+      type:String,
+      }
+}
+})
+```
+observers数据监听器
+可以监听属性和内部数据变化，可以同时监听多个，
+如果需要监听子数据字段变化，可以使用通配符**
+```
+Component({
+attached:function(){
+this.setData({
+numberA:1,
+numberB:2
+})
+},
+observers:{
+//numberA,numberB变化时执行
+"numberA,numberB":function(numberA,numberB){
+this.setData({
+sum:numberA+numberB
+           })
+       }
+   }
+})
+observers:{
+'some.**':function(field){
+}
+}
+
+1 数据监听器监听的是setData涉及到的数据字段，即使这些数据字段没有变化，数据监听器依然会被处罚
+2 如果在监听器内部使用setData设置本省的数据字段，可能会导致死循环
+3 数据监听器比observer更强大且具有更好的性能
+```
+抽象节点
+自定义组件模板中的一些节点，其中一些组件的节点并不是确定的，而是由调用者确定这个节点被称为"抽象节点"
+例如选择框组件(selectable-group)组件，他可以使用单选框(custom-radio)或者复选框(custon-checkbox)
+```
+<view wx:for="{{labels}}">
+  <label>
+    <selectable disabled="{{false}}"></selectable>  
+     {{item}}
+   </label>
+</view>
+selectable是一个抽象节点需要在配置中生命
+{
+ "componentGenerice":{
+"selectable":true   //开启抽象节点
+}
+}
+
+
+使用包含抽象节点的组件时
+<selectable-group generic:selectable="custom-radio" />
+节点生成custom-radio
+<select-group generic:selectable="custom-checkbox"/>
+节点生成custom-checkbox
+
+custom-radio   custom-checkbox需要在json中配置
+{
+"usingComponents":{
+"custom-radio":"路径",
+"custom-checkbox":"路径"
+}
+}
+
+tips
+节点的引用generic:xxx="YYY" YYY只能是静态值，不能包含抽象的数据绑定
+```
+##存储
+```
+异步版本
+wx.setStorage('key','value1');
+wx.getStorage('key')
+同步版本
+wx.setStorageSync("key2",{
+age:'12',
+name:"小青"
+})
+wx.getStorageSync("key2")
+清除key
+wx.removeStorage('key')
+wx.removeStorageSync()
+
+获取存储信息
+wx.getStorageInfo({
+success(res){
+console.log(res)
+}
+})
+
+const detail=wx.getStorageInfoSync();
+console.log(detail)
+
+清空本地缓存
+wx.clearStorage();
+wx.clearStorageSync();
+```
+画图 canvas
+```
+<canvas  canvas-id="myCanvas" style="border:1px solid"
+bindtouchestart='start' bindtouchemove='move' bindtouchend="end" />
+<view hidden="{{hidden}}">
+横坐标{{x}}
+纵坐标{{y}
+</view>
+data:{
+x:0,
+y:0,
+hidden:true
+}
+
+onLoad:function(){
+const ctx=wx.createCanvasContext('myCanvas');
+ctx.setFillStyle('red');
+ctx.fillRect(10,10,150,75);
+ctx.draw()
+},
+start:function(e){
+this.setData({
+hidden:false,
+x:e.touches[0].x,
+y:e.touches[0].y
+})
+move:function(e){
+this.setData({
+x:e.touches[0].x,
+y:e.touches[0].y
+})
+},
+end:function(){
+this.setData({
+hidden:true
+})
+}
+}
+```
+登陆
+```
+wx.login({
+success(res){
+if(res.code){
+wx.request({
+url:"https://test.com/onLogin",
+data:{
+code:res.code
+}
+})
+}else{
+console.log("登陆失败！" + res.errMsg)
+}
+}
+})
+检查登陆时效
+wx.checkSession({
+success(){},
+fail(){
+wx.login() //重新登陆
+}
+})
+```

@@ -1,0 +1,281 @@
+安装
+
+1 全局安装  
+
+    npm install gulp -g 全局安装
+
+2 项目文件夹下安装，作为当前项目的开发依赖
+
+    npm install gulp -s -d
+
+3 项目文件下创建gulpfile.js文件
+
+    var gulp = require('gulp');
+    gulp.task('default',function(){
+        console.log('函数内为执行的任务')
+    })
+
+4 运行 gulp
+
+API
+
+gulp.src(globs[, options])
+
+    gulp.src('views/libs/**/*.js') 获取要处理的文件路径转化为一种数据流
+    .pipe(jade())  .pipe接受处理的数据流 .pipe()传入一个函数(方法)处理上边的数据流
+    .pipe(gulp.dest('build/minified_templates'));定义处理后的文件路径
+
+gulp.task(name[,deps],fn)
+
+    deps 类型 Array
+    一个包含任务列表的数组，这些任务会在你当前任务运行之前完成。
+    gulp.task('mytask', ['array', 'of', 'task', 'names'],function(){
+        
+    })
+    gulp.task('somename',function(){
+        
+    })
+    somename 函数名
+    执行gulp somename 执行函数里代码
+
+gulp任务异步执行
+
+    var gulp = require('gulp');
+    定义任务one 返回一个参数cd 系统判断他是什么时候执行完成的
+    gulp.task('one',function(cd){
+      //其他任务代码
+        cd(err);
+        如果是err 不是null 或者undefined则会停止执行，这样代表任务执行失败了
+    })
+    任务two,必须在one任务完成之后执行
+    gulp.task('two',['one'],function(){
+        
+    })
+    在数组中的one two 执行完成后执行default任务
+    gulp.task('default',['one','two'],function(){
+        
+    })
+
+gulp.watch文件改动监视
+
+    gulp.watch('views/libs/**/*.js'function(){
+        处理文件的方法
+    })
+    
+    实例
+    gulp.task('watch',function(){
+        gulp.watch('views/libs/**/*.scss',['sass']);
+        gulp.watch('./index.html',['sass']);
+    })
+    gulp.task('views/libs/**/*.js',function(event){
+        console.log('File' +event.path +'was'+event.type+',runing tasks...');
+    })
+
+参数标记
+
+    gulp -v 版本号
+     -T 或者 --tasks显示所指定的gulpfile的task依赖树
+     --silent 禁止所有的gulp日志
+
+插件
+
+gulp-uglify(js压缩)
+
+    安装
+    1  npm install --save-dev gulp-uglify(丑化)
+    
+    var uglify = require('gulp-uglify');
+    gulp.task('compass',function(){
+        gulp.src('js/**/*.js','!js/*.min.js') //获取文件 排除.min.js文件
+        .pipe(uglify())
+        .pipe(gulp.dest('javascript/'));  //输出文件
+    })
+
+
+gulp-minigy-css（css压缩）
+
+    1 安装
+    npm install --save-dev gulp-minify-css
+    2 
+    var minigy = require('gulp-minify-css');
+    gulp.task('cssmini',function(){
+        gulp.src(['css/*.css','!css/*.min.css'])//压缩文件
+            .pipe(minify());
+            .pipe(gulp.dest('buildcss/'))
+    })
+
+gulp-minify-html(压缩html)
+
+    1 安装
+    npm install --save-dev gulp-minify-html
+    2 
+    var minihtml = require('gulp-minif-html');
+    gulp.html('minihtml',function(){
+        gulp.src('*.html');
+        .pipe(minihtml());
+        .pipe(gulp.dest('minihtml'));
+    })
+
+
+gulp-jshint  (js代码检查)
+
+    1 安装 npm install --save-dev gulp-jshint
+    2 
+    var jshint = require('gulp-jshint');
+    gulp.task('jshint',function(){
+        gulp.src('libs/**/*.js');
+        .pipe(jshint());
+        .pipe(gulp.reporter());
+    })
+
+gulp-concat(文件合并)
+
+    var concat = require('gulp-concat');
+    gulp.task('concat',function(){
+        gulp.src('js/*.js'); //要合并的文件
+        .pipe(concat('all.js'))//合并后的文件名为"all.js"
+        .pipe(gulp.dest('dest/js'));
+    })
+
+
+gulp-less(编译Less)
+
+    var less = require('gulp-less');
+    gulp.task('less',function(){
+        gulp.src('less/*.less');
+        .pipe(less());
+        .pipe(gulp.src('dist/css'));
+    })
+
+gulp-sass(编译sass)
+
+    var sass = require('gulp-sass');
+    gulp.task('sass',function(){
+        gulp.src('libs/**/*.sass');
+        .pipe(sass());
+        .pipe(gulp.dest('dist/css'));
+    })
+
+gulp-imagemin(压缩图片)
+
+imagemin-pngquant(压缩png)
+
+    1 安装
+    npm install --save-dev gulp-imagemin
+    npm install --save-dev imageming-pngquant
+    
+    2 
+    var imagemin = require('gulp-imagemin');
+    var pngquant = require('imagemin-pngquant');
+    
+    gulp.task('default',function(){
+        return gulp.src('src/imgaes/*')
+        .pipe(imagemin({
+            progressive:true,
+            use:[pngquant()]//使用pngquant来压缩图
+        }))
+        .pipe(gulp.dest('dist/image'));
+    })
+
+gulp-livereload(自动刷新)
+
+    var gulp =require('gulp');
+        less =require('gulp-less');
+        livereload = reuqire('gulp-livereload');
+    gulp.task('less',function(){
+        gulp.src('less/*.less');
+        .pipe(gulp.dest('css'));
+        .pipe(livereload());
+    })    
+    gulp.task('watch',function(){
+        livereload.listen(); //调用listen()方法
+        gulp.watch('less/*.less',['less']);//监听目录下的文件，若文件发变化，则调用less任务
+    })
+
+
+gulp-babel(es6变异成es5)
+
+     1 npm install --save-dev gulp-babel
+     
+     var babel = require('gulp-babel');
+     gulp.task('default',function(){
+         reutrn gulp.src("src/**/*.js")
+         .pipe(babel());
+         .pipe(gulp.dest('dist'))
+     })
+
+gulp-open（打开浏览器）
+
+    1 安装 npm install --save-dev gulp-open
+    var gulpOpen = require('gulp-open');
+    gulp.task('open',function(done){
+        gulp.src('')
+        .pipe(gulpOpen({
+            app:brower, //定义本地app
+            uri:''http://localhost:7654
+        }))
+        .on('end',done)
+    })
+    ```
+    
+    gulp-css-spriter （雪碧图/精灵图）
+    
+    ```
+    1 安装 npm install --save-dev gulp-css-spriter
+    var spriter = reuqire('gulp-css-spriter');
+    gulp.task('css',function(){
+        return gulp.src('./css/demo.css')/引用我要合并雪碧图的小图片的css
+        .pipe(spriter({
+            'spriteSheet':'./dist/image/spritesheent.png'//合并的雪碧图
+            'pathToSpriteSheetFromCss':'../images/spritesheet.png'//合并后css引用的图片路径
+        }))
+        .pipe(gulp.dest('./dist/css'))
+    })
+    
+    ```
+    
+    gulp-clean(打包前清理目标文件夹，保证每次打包生成的都是新文件)
+    
+    ```
+    1 安装
+     npm install --save-dev gulp-clean
+     2 var clean = require('gulp-clean');
+     gulp.task('clean',function(){
+         gulp.src('demo/dist');
+         .pipe(clean());
+     })
+    ```
+    
+    gulp-file-include
+    
+    ```
+    1 安装 npm install --save-dev gulp-file-include
+    2 
+    var fileinclude = require('gulp-file-include');
+    gulp.task('fileinclude',function(){
+        gulp.src(['index.html'])
+        .pipe(fileinclude([
+            prefix:'@@',
+            basepath:'@file'
+        ]))
+        .pipe(gulp.dest('demo/dist'));
+        .on('end',done)
+    })
+    ```
+    
+    gulp-change 过滤未被修改过的文件，只有修改过的文件才能通过
+    
+    ```
+    1 npm install --save-dev gulp-change
+    2 
+    gulp.task('change',function(){
+        gulp.src('demo/src')
+        .pipe(change(dest));//dest文件 ，必须穿参数
+        .pipe(gulp.dest('demo/dest'))
+    })
+    ```
+
+
+​    
+​    
+​    
