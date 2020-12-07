@@ -1,4 +1,4 @@
-1 基本框架
+#### 基本框架
 
 ```
 1 安装 react react-dom babel-standalone
@@ -20,7 +20,8 @@ ReactDOM.render(dom,document.getElementById('app'))
 </script>
 </body>
 ```
-props类型验证
+#### props类型验证
+
  ```
 import React from 'react';
 import propTypes from 'prop-types'
@@ -51,7 +52,8 @@ PropsTypeDemo.defaultProps = {
     val:'默认值'
 }
  ```
-组件父子传值
+##### 组件父子传值
+
 ```
 import React,{ Component } from 'react';
 
@@ -103,7 +105,8 @@ change=() => {
 	}
 ```
 
-控制元素显示隐藏
+#### 控制元素显示隐藏
+
 ```
 class Father extends Component{
 	//定义组件状态
@@ -130,7 +133,8 @@ class Father extends Component{
 	}
 }
 ```
-绑定事件
+#### 绑定事件
+
 ```
 <button onClick = {this.change.bind(this)}>改变颜色</button>
 change(){
@@ -142,7 +146,8 @@ change=() => {
 		console.log(666)
 	}
 ```
-条件渲染
+##### 条件渲染
+
 ```
 class Second extends Component{
     constructor(props){
@@ -167,7 +172,8 @@ class Second extends Component{
     }
 }
 ```
-列表渲染
+#### 列表渲染
+
 ```
   show(index){
         console.log(index)
@@ -182,14 +188,16 @@ class Second extends Component{
         </div>)
     }
 ```
-发送请求
+#### 发送请求
+
 ```
   componentDidMount(){
         axios.get('url')
     }
 ```
 
-路由
+#### 路由
+
 ```
 Router         总路由
 
@@ -267,11 +275,12 @@ let param = querystring.parse(props.location.search);
  <Redirect from="/amin" to="/page2"></Redirect>
 
 ```
-路由跳转之后的props 可以使用
+#### 路由跳转之后的props 可以使用
 跳转
 this.props.history.push("/page2",{a:'ssss'})
 ![image.png](https://upload-images.jianshu.io/upload_images/16514325-e51e685b7704dcb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 离开页面前的提示
+
 ```
 <Prompt when={!!this.state.val} message={"有数据没有保存"}></Prompt>
                 <input type="text" value={this.state.val} onChange={(e)=>{this.setState({val:e.target.value})}} name="" id=""/>
@@ -306,7 +315,8 @@ setState
     }
 ```
 
-ref 获取元素
+#### ref 获取元素
+
 ```
 import React from 'react';
 
@@ -329,7 +339,8 @@ export default class formDom extends React.Component{
     }
 }
 ```
-受控组件()
+#### 受控组件()
+
 ```
 元素的值来自于state 如要想要各边值要写对应的数据调用setState
 
@@ -366,7 +377,8 @@ export default class formDom extends React.Component{
     }
 }
 ```
-非受控组件
+#### 非受控组件
+
 ```
 不用绑定onChange 调用setState
 import React from 'react';
@@ -391,7 +403,8 @@ export default class formDom extends React.Component{
 }
 
 ```
-跨域解决
+##### 跨域解决
+
 ```
 1 原生js jsonp
 
@@ -443,7 +456,8 @@ Axios('/api/FingerUnion/list.php')
     })
 })
 ```
-请求封装
+#### 请求封装
+
 ```
 src下创建
 utils/https.js
@@ -481,7 +495,8 @@ const api = {
 export default api
 ```
 
-组件优化
+#### 组件优化
+
 ```
  <h2>组件优化</h2>
                     <h3>1 路由有事件监听 定时器 离开页面应把事件清除掉</h3>
@@ -499,7 +514,8 @@ export default api
 Component 不会对数据比较
 PureComponent 会对数据进行比较渲染页面
 ```
-高阶组件
+#### 高阶组件
+
 ```
 import React from 'react';
 
@@ -538,7 +554,8 @@ class Demo4 extends React.Component{
 
 export default Demo4;
 ```
-高阶组件的应用
+#### 高阶组件的应用
+
 ```
 import React from 'react'; 
 export const withFetch = (url) => (View) => {
@@ -594,7 +611,8 @@ export default Banner
 
 
 ```
-错误处理
+#### 错误处理
+
 ```
 import React from 'react';
 
@@ -627,7 +645,8 @@ export default class ErrorBoundary extends React.Component{
 </ErrorBoundary>
 ```
 
-权限登录
+##### 权限登录
+
 ```
 1 express 中 安装jsonwebtoken插件
 // 引入插件	
@@ -701,7 +720,8 @@ Info组件
 
 <Route path="/info" componet={Authenticate(Info)}></Route>
 ```
-上拉加载更多
+#### 上拉加载更多
+
 ```
 getboundingclientrect().top获取元素距离顶部的距离
 //获取视图的高度
@@ -767,7 +787,8 @@ export default class LoadMore extends React.Component {
 子传父事件
 <LoadMore   onLoadMore={外部请求数据事件}></LoadMore >
 ```
-数据还在请求的时候
+#### 数据还在请求的时候
+
 ```
 我们跳转到其他页面！导致接受的数据的data不存在会保存
 所以在
@@ -777,7 +798,8 @@ componentWillUnMount(){
  }
 }
 ```
-选中元素切换样式
+#### 选中元素切换样式
+
 ```
 import React from "react"
 import "./style.less"
@@ -854,7 +876,8 @@ export default class Tabs extends React.Component {
     }
 }
 ```
-react HOOK
+#### react HOOK
+
 ```
 强化了 函数式组件，是函数式组件也可以有状态
 
@@ -883,7 +906,7 @@ setArr([arr,...arr1])
 
 export default App;
 ```
-第二 Effect
+####  Effect
 ```
 //相当于 componentDidMount
 useEffect(()=>{
@@ -965,7 +988,7 @@ const TodoForm = ({eventHandle}) => {
     )
 }
 ```
-useCallback
+#### useCallback
 
 ```
 
@@ -990,8 +1013,8 @@ export default Demo1
 
 ```
 
+#### useReducer的使用
 
-useReducer的使用
 ```
 import React,{useState,useReducer} from 'react';
 
