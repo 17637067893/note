@@ -257,3 +257,114 @@ import css from './style.less'
 <div className={css.xx}></div>
 ```
 
+#### 获取数据
+
+###### 服务端渲染
+
+在访问路由前，向服务器要数据，把获取的数据和HTML直接返回前台展示
+
+###### 静态化
+
+在访问路由前，向服务器要数据，把获取的数据和HTML生成真正的html文件
+
+下次访问同一路由地址时，直接返回静态页面，减少服务器压力，达到性能优化
+
+获取数据的方式
+
+|        方法        | 静态化 | pages下生效 | 作用         | 异步 | 服务端请求 |
+| :----------------: | ------ | :---------: | ------------ | ---- | ---------- |
+|   getStaticProps   | 是     |     是      | 请求数据     | 是   | http       |
+|   getStaticPaths   | 是     |     是      | 生成动态路由 | 时   | 是         |
+| getServerSideProps | 否     |     是      | 请求数据     | 是   | 是         |
+
+getServerSideProps
+
+```jsx
+import {withRouter} from 'next/router'
+ const About=({data})=> {
+     console.log(data)
+  return (
+    <div>
+        <h1>about</h1>
+        <ul>
+           {data.map((item,index)=>{
+               return(
+               <li>{item.title}</li>
+               );
+           })}
+        </ul>
+    </div>
+  )
+}
+export default withRouter(About)
+
+export const getServerSideProps = async ()=>{
+    let res = await fetch("http://iwenwiki.com/api/FingerUnion/data.json");
+    let data = await res.json();
+    return {
+        props:{data}
+    }
+}
+```
+
+getStaticProps
+
+```
+export default (props)=>{
+    console.log(props)
+    return(
+        <div>
+            {props.data}
+        </div>
+    )
+}
+//生成动态路由
+export const getStaticPaths = async ()=>{
+    let res = await fetch("http://iwenwiki.com/api/FingerUnion/data.json");
+    let data = await res.json();
+    let paths = data.map((item)=>{
+        return {
+            params:{list:`${item.id}`}
+        }
+    })
+    console.log(paths)
+    return {
+        paths,
+        fallback:false
+    };
+}
+//获取数据
+export const getStaticProps = async ({params:{list}}) =>{
+    // let res = await fetch(`http://iwenwiki.com/api/FingerUnion/data.json/${list}`);
+    //  let data = await res.json();
+    let data = `${list}返回数据`;
+    return{
+        props:{data}
+    }
+}
+```
+
+#### api路由
+
+![image-20201207213941993](G:\note\image\image-20201207213941993.png)
+
+````
+import fetch from 'node-fetch';
+export default async (req,res)=>{
+    if(req.method === 'POST'){
+        res.status(403);
+        res.end('请求拒绝')
+        return;
+    }
+    console.log(777)
+    console.log(req.query.id)
+    let response = await fetch('http://iwenwiki.com/api/FingerUnion/data.json');
+    let res1 =await response.json();
+    let resData = res1.filter((item)=>(item.id == req.query.id));
+    res.setHeader('content-type','application/json');
+    res.status(200);
+    res.send(resData);
+}
+````
+
+此时访问 http://localhost:3000/api/list/868987    868987就是动态的id
