@@ -179,3 +179,81 @@ export default ()=>{
 }
 ```
 
+#### 预加载(生产模式有效)
+
+ 1 预加载是性能优化技术
+
+2 所有需要的资源提前请求加载到本地，以后从缓存读取资源
+
+方式一  Link 的属性prefetch
+
+```
+<Link href="/" prefetch>
+   <a>pageIndex</a>
+</Link>
+```
+
+方式二 Router的方式
+
+```
+Router.prefetch('/about')
+```
+
+#### css引入
+
+全局引入
+
+```
+import "./index.css"
+```
+
+模块引入
+
+```
+import css from './index.module.css'
+<H2 className={css.color}></h2>
+```
+
+#### less引入
+
+```
+yarn add @zeit/next-less less
+```
+
+在根路径创建配置文件next.config.js
+
+```
+//配置后重启项目
+const withLess = rquire("@zeit/next-less")
+module.exports = withLess({
+
+})
+```
+
+组件
+
+```
+import './style.less'
+
+<div className="example"></div>
+```
+
+模块用法
+
+next.config.js
+
+````
+//配置后重启项目
+const withLess = require('@zeit/next-less')
+module.exports = withLess({
+cssModules:true
+})
+````
+
+组件
+
+```
+import css from './style.less'
+<div className={css.xx}></div>
+```
+
