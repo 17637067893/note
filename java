@@ -1,4 +1,4 @@
-Java跨平台原理
+![image-20201208204129269](G:\note\image\image-20201208204129269.png)Java跨平台原理
 
 ![image-20201208105145946](G:\note\image\image-20201208105145946.png)
 
@@ -268,6 +268,12 @@ public class StudentDemo {
 #### this 关键字
 
 ![image-20201208185757860](G:\note\image\image-20201208185757860.png)
+
+#### 构造方法
+
+方法名 = 类名
+
+![image-20201208192842268](G:\note\image\image-20201208192842268.png)
 
 #### API 
 
