@@ -170,6 +170,9 @@ System.out.println(i);
 	Ctrl+Alt+space(内容提示，代码补全等
 ```
 #### 数组
+
+![image-20201208161412287](G:\note\image\image-20201208161412287.png)
+
 ```
 一个存储同类型的数据
 
@@ -183,7 +186,7 @@ System.out.println(i);
  System.out.println(arr[0])
  
  
- 静态初始化
+ 静态初始化(明确每项的值系统决定长度)
  int[] arr = new int[]{1,2,3}
  
  简化形式
@@ -196,19 +199,34 @@ System.out.println(i);
 ```
 #### 方法
 
-public static void 方法名(){
-    //方法体
+```
+public class ArrDemo {
+    public static void main(String[] args) {
+        int num = fn(6,7,8);
+        System.out.println("参数" + num + "个");
+    }
+    protected static int fn(int... arr){
+        System.out.println(arr[0]);
+        System.out.println(arr[1]);
+        return  arr.length;
+    }
 }
-调用
-![image](561C79041B274237B14B9482F4C0B50D)
-传参
-![image](CAD0837F48B843398A447270A49F893C)
-//代返回值
-![image](DB9B3E84597F43949E2CA48EE91F6BFD)
-//方法重载
-![image](A799D29AD97C4287A70CB088784A2EAD)
+```
+
+方法重载 
+
+![image-20201208165316643](G:\note\image\image-20201208165316643.png)
+
+![image-20201208165443938](G:\note\image\image-20201208165443938.png)
+
+![image-20201208171116367](G:\note\image\image-20201208171116367.png)
+
+#### Debug
+
+![image-20201208180903006](G:\note\image\image-20201208180903006.png)
 
 #### 类和对象
+
 ```
 类 是对现实生活中一类具有共同属性和行为的事物的抽象，确定对象将会拥有的属性和行为
 
