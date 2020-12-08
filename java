@@ -32,7 +32,7 @@ public class HelloWorld{
 
 ![image-20201208114710478](G:\note\image\image-20201208114710478.png)
 
-定义变量
+#### 定义变量
 
 ```
 // 声明类型 和 赋值
@@ -43,7 +43,8 @@ long m = 100000; //数据过大 整数默认为整型
 
 long m = 100000000L // 10000000L 表示L  long类型数据
 ```
-标识符定义规则
+#### 标识符定义规则
+
 ```
 1 由字母，数字，下划线(_)和$组成
 2 不能以数字开头
@@ -53,34 +54,43 @@ long m = 100000000L // 10000000L 表示L  long类型数据
 ```
 #### 类型转换
 
-#### 自动类型转换
-![image](30F308F3BCE34605BCB676643EEB2D58)
-强制类型转换
-![image](D17251A4770942CDA244D7F2683E5915)
+![image-20201208120027383](G:\note\image\image-20201208120027383.png)
 
-#### 字符 + 操作
-![image](FBF9BE8C64C14CF88E16496F6D90E67E)
-#### 字符串 + 操作
-![image](799A4BF7593348E9BCA997D7895C12B3)
 
-#### 赋值运算符
-![image](9321D16893A449C6912284C79B6F459E)
 
-#### 自增自减运算符
-![image](0CDE35142B13456781B042BF9CCA592A)
+![image-20201208120420535](G:\note\image\image-20201208120420535.png)
 
-#### 关系运算符
-![image](0F159AF2954945C195ACB16148B44B33)
+#### 运算符
 
-#### 逻辑运算符
-![image](5DE4C47B14D846EB87FAF977382EF7DD)
+![image-20201208120559933](G:\note\image\image-20201208120559933.png)
 
-![image](89D15D240F8E484F9162A0B72286CE08)
-#### 三元运算符
-![image](290C36F0AE9942AEBF6A8B9299F23DE8)
-#### Scanner 基本使用
-![image](878BC11A033044A9B02DA5D57F17D4B9)
+![image-20201208123944515](G:\note\image\image-20201208123944515.png)
+
+#### Scanner
+
+```java
+import java.util.Scanner;
+
+public class ScannerDemo{
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("输入第一个");
+        int x = sc.nextInt();
+        System.out.print("输入第二个");
+        int  y = sc.nextInt();
+        System.out.print("输入第三个");
+        int z = sc.nextInt();
+        int temp = x > y ? x : y;
+        int res = temp > z ? temp : z;
+        System.out.println("最大数字" + res);
+    }
+}
+```
+
+
+
 #### for循环
+
 ```
 for (int i = 1; i <= 5; i++) {   
 System.out.println(i);
@@ -89,12 +99,13 @@ System.out.println(i);
 
 ```
 #### Random
-![image](F9B73FCFF75A408286C5EECB8EED4FB2)
+![image-20201208131321478](G:\note\image\image-20201208131321478.png)
 
 #### IDEA使用
 1 创建文件
 ![image](65E9D282AEB64D3C99DAD334732A3FEB)
 2快捷键
+
 ```
 快速生成语句
 	快速生成main()方法：psvm，回车
