@@ -1,14 +1,20 @@
+Java跨平台原理
+
+![image-20201208105145946](G:\note\image\image-20201208105145946.png)
+
 1 JRE
 
 ```
 JRE Java Runtime Enviroment 运行环境
 ```
-2 JDK
+2 JDK![image-20201208105412786](G:\note\image\image-20201208105412786.png)
+
 ```
 Java程序开发工具包，包括JRE和开发人员使用的工具
 编译工具Javac.exe 运行环境 java.exe
 ```
 3 运行程序
+
 ```
 1 创建hello World.java文件
 public class HelloWorld{
@@ -18,28 +24,16 @@ public class HelloWorld{
 }
 
 2 编译 javac hello world.java
-3 运行 java hello world
+3 运行 java hello world //只跟类名
 ```
-常量
-常量类型	说明	举例
-```
+#### 常量![image-20201208113843534](G:\note\image\image-20201208113843534.png)
 
-字符串常量	用双引号括起来的内容	“HelloWorld”，“黑马程序员” 
+#### 数据类型
 
-整数常量	不带小数的数字	666，-88
-
-小数常量	带小数的数字	13.14，-5.21
-
-字符常量	用单引号括起来的内容	‘A’，‘0’，  ‘我’
-
-布尔常量	布尔值，表示真假	只有两个值：true，false
-
-空常量	一个特殊的值，空值	值是：null
-```
-数据类型
-![image](447B32CEDEB94CBEB4C7A48219852C4A)
+![image-20201208114710478](G:\note\image\image-20201208114710478.png)
 
 定义变量
+
 ```
 // 声明类型 和 赋值
 int a = 10
@@ -63,6 +57,7 @@ long m = 100000000L // 10000000L 表示L  long类型数据
 ![image](30F308F3BCE34605BCB676643EEB2D58)
 强制类型转换
 ![image](D17251A4770942CDA244D7F2683E5915)
+
 #### 字符 + 操作
 ![image](FBF9BE8C64C14CF88E16496F6D90E67E)
 #### 字符串 + 操作
@@ -2315,6 +2310,7 @@ e.printStackTrace();
 ```
 修改 UserServlet 程序继承 BaseServlet 程序。
 ![image](814DBA7BFD9A414BB6BB7C206F558BC5)
+
 #### 数据封装和抽取BeanUtils的使用
 ```
 BeanUtils工具类，一次性把所有请求参数注入到JavBean中。
