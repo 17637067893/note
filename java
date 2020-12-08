@@ -102,9 +102,63 @@ System.out.println(i);
 ![image-20201208131321478](G:\note\image\image-20201208131321478.png)
 
 #### IDEA使用
-1 创建文件
-![image](65E9D282AEB64D3C99DAD334732A3FEB)
-2快捷键
+![image-20201208153411987](G:\note\image\image-20201208153411987.png)
+
+![image-20201208153438127](G:\note\image\image-20201208153438127.png)
+
+<img src="G:\note\image\image-20201208153457339.png" alt="image-20201208153457339" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208153517632.png" alt="image-20201208153517632" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208153532624.png" alt="image-20201208153532624" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208153556127.png" alt="image-20201208153556127" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208153621366.png" alt="image-20201208153621366" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208153635230.png" alt="image-20201208153635230" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208153646237.png" alt="image-20201208153646237" style="zoom:50%;" />
+
+![image-20201208153703146](G:\note\image\image-20201208153703146.png)
+
+<img src="G:\note\image\image-20201208153727992.png" alt="image-20201208153727992" style="zoom:50%;" /><img src="G:\note\image\image-20201208153737955.png" alt="image-20201208153737955" /><img src="G:\note\image\image-20201208153737955.png" alt="image-20201208153737955" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208153807806.png" alt="image-20201208153807806" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208154407353.png" alt="image-20201208154407353" style="zoom:50%;" />
+
+#### 模块操作
+
+<img src="G:\note\image\image-20201208155426530.png" alt="image-20201208155426530" style="zoom:50%;" />
+
+<img src="G:\note\image\image-20201208155444906.png" alt="image-20201208155444906" style="zoom: 50%;" />![image-20201208155506888](G:\note\image\image-20201208155506888.png)<img src="G:\note\image\image-20201208155444906.png" alt="image-20201208155444906" style="zoom: 33%;" />![image-20201208155506888](G:\note\image\image-20201208155506888.png)<img src="G:\note\image\image-20201208155444906.png" alt="image-20201208155444906" style="zoom: 50%;" />![image-20201208155506888](G:\note\image\image-20201208155506888.png)<img src="G:\note\image\image-20201208155444906.png" alt="image-20201208155444906" style="zoom: 33%;" />![image-20201208155506888](G:\note\image\image-20201208155506888.png)
+
+![image-20201208155548760](G:\note\image\image-20201208155548760.png)
+
+![image-20201208155603298](G:\note\image\image-20201208155603298.png)
+
+
+
+2快捷键![image-20201208155618310](G:\note\image\image-20201208155618310.png)
+
+![image-20201208155705421](G:\note\image\image-20201208155705421.png)
+
+![image-20201208155723806](G:\note\image\image-20201208155723806.png)
+
+![image-20201208155736473](G:\note\image\image-20201208155736473.png)
+
+![image-20201208155751822](G:\note\image\image-20201208155751822.png)
+
+![image-20201208155806833](G:\note\image\image-20201208155806833.png)
+
+![image-20201208155820565](G:\note\image\image-20201208155820565.png)
+
+![image-20201208155831785](G:\note\image\image-20201208155831785.png)
+
+![image-20201208155845139](G:\note\image\image-20201208155845139.png)
+
+![image-20201208155904647](G:\note\image\image-20201208155904647.png)
 
 ```
 快速生成语句
