@@ -227,28 +227,28 @@ public class ArrDemo {
 
 #### 类和对象
 
-```
+```java
 类 是对现实生活中一类具有共同属性和行为的事物的抽象，确定对象将会拥有的属性和行为
+对象时根据类new 来的
 
-定义类
-public class 类名{
-    //成员变量
-    //成员方法
-}
+创建类
 
-publick class Student{
-    String name;
-    show(){
-        System.out.println("姓名:"+name)
+public class Student {
+    public String name="小明";
+    public int age=20;
+    public void study(){
+        System.out.println("学习");
     }
 }
-对象
-创建对象 
-类名 对象名 = new 类名();
-
-Student s = new Student();
-s.name = "小明";
-s.show();
+实现对象
+public class StudentDemo {
+    public static void main(String[] args) {
+        Student s = new Student();
+        System.out.println(s.name);
+        System.out.println(s.age);
+        s.study();
+    }
+}
 
 
 封装
@@ -257,7 +257,20 @@ s.show();
 提供“get变量名()”方法，用于获取成员变量的值，方法用public修饰
 提供“set变量名(参数)”方法，用于设置成员变量的值，方法用public修饰
 ```
+![image-20201208184954426](G:\note\image\image-20201208184954426.png)
+
+#### 成员变量 局部变量
+
+![image-20201208184736368](G:\note\image\image-20201208184736368.png)
+
+![image-20201208184622937](G:\note\image\image-20201208184622937.png)
+
+#### this 关键字
+
+![image-20201208185757860](G:\note\image\image-20201208185757860.png)
+
 #### API 
+
 ```
 API 应用程序编程接口
 
