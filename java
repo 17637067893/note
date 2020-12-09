@@ -294,12 +294,16 @@ Java API JDK中提供的功能类
  
  // public String()创建空白字符串
   String s1 = new String();
+  
   // public String(char[] chs) 根据字符数组内容，创建
   char[] chs = {'a','b','c'};
   String s2 = new String(chs); // abc
+  
   // public String(byte[] bys)根据字节数组的内容创建
- byte[] bys = {97,98,99};
+  byte[] bys = {97,98,99};
   String s3 = new String(bys) // abc
+  
+  
   // String s = "abc" 直接赋值创建
   String s = "abc";
   
@@ -307,7 +311,11 @@ Java API JDK中提供的功能类
   通过new 关键字创建的字符串对象，每次new 都会开辟新的内存空间，有时虽然相同但是地址不同
   String s = "abc";只要字符相同 就是一个String对象
   
-  #### 字符串比较 ==
+```
+#### 字符串比较 
+
+```java
+ #### 字符串比较 ==
   基本类型  比较数值
   引用类型  比较地址是否相同
   字符串对象 如果比较内容是否相同使用 equals
@@ -320,92 +328,123 @@ Java API JDK中提供的功能类
         Systeam.out.prinln(ss);
     }
 ```
+
+
+
    #### StringBuilder
-   ![image](D884888CC4C4448A9E88B2FAD1514D1B)
-   ![image](6EAFFFB2026648AB9B6F88917177602F)
-   StringBuilder 构造方法
-   public StringBuilder() 创建空白字符串对象
-   public StringBuilder(String str)创建指定内容字符串对象
 
-   // public StringBuilder append(任意类型) 添加数据，并返回对象本身
-   StringBuilder s1 = new StringBuilder();
-   StringBuilder s2 = s1.append("hello");
-   s1 == s1 //true
- //翻转数组
-   s2.revers();
+```
+由于String的不可变性  StringBuilder 可变
+创建StringBuilder 括号内可以传字符串初始值
+StringBuilder str1 = new StringBuilder();
+StringBuilder Str2 = new StringBuilder("123")
 
-   StringBuilder 转String
-   s1.toString();
-   String 转StringBuilder
-   s3 = StringBuilder(s1);
+添加字符串 
+str1.append("789");
 
-   #### 集合
+翻转字符串  str4.reverse();
+
+String转StringBuilder
+StringBuilder str3 = new StringBuilder(str3)
+
+StringBuilder 转 String
+String str4 = Str3.toString();
+```
+
+   ###  集合
+
+#### ArrayList
+
    ```
-   存储空间可变的存储模型 
-    ArrayList构造方法
-   //public ArrayList() 创建空集合
-   ArrayList<String> arr =new ArrayList<String>();
-   // 添加元素
-   arr.add('hello')
-   //指定位置插入元素
-   arr.add(1,"world");
-   //删除指定元素
-   arr.remove("hello");
-   //删除指定索元素
-   arr.remove(1);
-   //修改指定索引元素
-   arr.set(1,"change");
-   // 获取索引元素
-   arr.get(1);
-   //获取长度
-   arr.size();
-   
-   遍历集合
-   for(int i=0;i<arr.size();i++){
-       //集合对象get(i) 指定索引的元素
-   }
+  数组的长度是固定的 存储空间可变的存储模型 
+  
+创建集合
+ArrayList<String> stuArr = new ArrayList<>();
+
+集合长度   stuArr.size();
+
+增 
+stuArr.add("第一");
+StuArr.add(0,"第0");
+
+删
+stuArr.remove(0);
+
+改
+stuArr.set(0,"修改");
+
+查 
+stuArr.get(0);
    ```
    #### 继承
-   ```
+
    继承是面向对象的三大特征之一，可以使得子类具有父类得属性和方法，也可以在子类中重新定义，追加属性和方法
-   
-   
-   public class Fu{
-       String name;
-       int age;
-       public void show(){
-           Systeam.out.println("父类方法");
-       }
-   }
-   
-   public class Zi extend Fu{
-      String name = "子类name";
-       Fu f = new Fu();
-       Fu.show();
-       this.name //子类name
-       super.name //父类中name
-   }
-   
-   方法重写 
-    子类出现和父类一样的方法声明
-    public class Zi extends Fu{
-     Fu z = new Zi();
-        public show(){
-            Systeam.out.println("重写方法");
-            super.show();
-        }
+
+父类
+
+```java
+package com.继承;
+
+public class Zi extends Fu{
+    String ZiName = "子类";
+    public  void ZiMethod(){
+        System.out.println(super.FuName);
+        System.out.println("子类方法");
     }
-    
-@Override
-可以帮助我们检查重写方法的方法声明的正确性
+}
 
-方法重写注意
+```
 
-私有方法不能被重写(父类私有成员子类是不能继承的)
-子类方法访问权限不能更低(public > 默认 > 私有)
+子类
+
+```java
+package com.继承;
+
+//可以通过super访问父类属性
+public class Zi extends Fu{
+    String ZiName = "子类";
+    public  void ZiMethod(){
+        System.out.println(super.FuName);
+        System.out.println("子类方法");
+    }
+}
+
+```
+
+测试类
 
    ```
+package com.继承;
+
+public class Demo {
+    public static void main(String[] args) {
+        Zi z = new Zi();
+        System.out.println(z.FuName);
+        System.out.println(z.ZiName);
+        z.FuMethd();
+        z.ZiMethod();
+    }
+}
+
+   ```
+ 方法重写
+
+```
+子类有和父类相同方法名的方法
+@Override
+```
+
+#### package
+
+```
+包 就是文件夹
+作用 就是对文件的分类管理
+```
+
+![image-20201209141551728](G:\note\image\image-20201209141551728.png)
+
   #### 权限修饰符
+
  ![image](8FEBE407351249C1953123ECC7F44BEC)
 
  #### final
