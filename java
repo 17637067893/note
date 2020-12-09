@@ -633,15 +633,20 @@ public class 类名 implements 接口名{
  只能是抽象方法
  默认修饰符 public abstract
 ```
-#### 类和接口的关系
-![image](19A22E1CF8C746DCB751B6C947CC9E59)
-![image](42F3CCAF2E964CC69AE068A902B1F9A9)
 #### 形参和返回值
-![image](9C20DC2B1D034874B595AEADD9EEF518)
-![image](BA956880F40043A496B4808079346EE7)
-![image](DBBEB2D09F2C48F6BA6095D77D211FE9)
+![image-20201209194821615](G:\note\image\image-20201209194821615.png)
+
+![image-20201209194839347](G:\note\image\image-20201209194839347.png)
+
+![image-20201209194854947](G:\note\image\image-20201209194854947.png)
+
 #### 内部类
-```
+
+<img src="G:\note\image\image-20201209202939562.png" alt="image-20201209202939562" style="zoom: 80%;" />
+
+ //成员内部类
+
+```java
 public class A{
     //成员内部类
     public class B{
@@ -655,7 +660,11 @@ public class A{
         b.show();
     }
 }
+```
 
+成员内部类
+
+```java
 // 局部内部类
 public class A{
     public void method(){
@@ -669,7 +678,11 @@ public class A{
         b.show()
     }
 }
+```
 
+
+
+```java
 //匿名内部类
 首先有个类或者接口，这里的类可以是具体类也可以是抽象类
 public interface Jumpping{
@@ -698,17 +711,82 @@ public class Out{
 }
 
 ```
-![image](96357493E7C2446BB5FB6AC831B94982)
+内部类的作用
+
+```
+接口
+public interface Jumpping {
+    void jumpp();
+}
+
+一个操作类
+public class JumppingOperator { 
+需要这接口的实现类对象 以前我们需要 创建实现类
+    public void show(Jumpping j){
+        j.jumpp();
+    }
+}
+
+//使用JumppingOperator类
+public class JumppingDemo {
+    public static void main(String[] args) {
+        JumppingOperator jum = new JumppingOperator();
+        
+        //参数是一个Jumpping的实现类对象 现在用内部类 直接new 一个
+        jum.show(new Jumpping(){
+            @Override
+            public void jumpp(){
+                System.out.println("调高");
+            }
+        });
+    }
+}
+```
 
 #### 常用API
-![image](93E247D50AD94989A0DCED535E60B070)
+
+Math
+
+```
+  Math.abs() //绝对值
+  System.out.println(Math.abs(-88)); //88
+  Math.ceil(22.2)  23.0 返回右边的double数
+  Math.floor(22.2)  22.0 返回左侧的double数
+  Math.max(a,b)  返回最大值
+  Math.min(a,b)  小值
+  Math.pow(2.0,3.0) 2的3次方
+  Math.random();  [0.0,10.0)
+```
+
 System
-![image](6D5259F598FA493D80A7CFDDD1595496)
-![image](6A03E46E33584C2D9BE90CA9B06A082A)
-![image](727CD183EFCD4504A8B895ACCCEAA36B)
-![image](B9F3908861A14AA7B874244E150382B8)
-![image](86C107B93DF149B2A236CEF9CA2E945A)
-![image](4E95F9A7FA704C24AA61DCABFC7A3864)
+
+```
+ System.exit(1) //推出JVM虚拟机
+ System.currentTimeMillis(); 当前时间的毫秒值
+```
+
+Object类
+
+```
+所有类的最终父类
+比较对象两个对象
+
+首先要重写对象ALT+INS自动成
+a.equals(b)
+```
+
+Arrays
+
+```
+int[] arr = {1,5,6,7,9,4,3};
+
+Arrays.toString(arr) ;  
+
+Arrays.sort(arr);
+```
+
+![image-20201209212259239](G:\note\image\image-20201209212259239.png)
+
 ```
   // 获取时间戳
         Date d1 = new Date();
