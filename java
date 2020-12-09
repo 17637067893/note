@@ -787,30 +787,60 @@ Arrays.sort(arr);
 
 ![image-20201209212259239](G:\note\image\image-20201209212259239.png)
 
+Integer
+
+```
+获取Integer类型值
+Integer num1 = Integer.valueOf("100012"); //100012
+
+数字转字符串
+String str1 = String.valueOf(100); //100
+
+字符串转数字
+int y = Integer.parseInt("1231");//
+```
+
+![image-20201209222321674](G:\note\image\image-20201209222321674.png)
+
 ```
   // 获取时间戳
         Date d1 = new Date();
         //定义规则
         SimpleDateFormat val = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-        System.out.println(val.format(d1));
+        System.out.println(val.format(d1));   2020年12月09日 22:33:22
 
         //解析 从String 到 Date
         String str = "2020-04-08 11:22:33";
         SimpleDateFormat val2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        
         //如果异常 选中 alt+enter;
         Date dd = val2.parse(str);
         System.out.println(dd);
+```
+  Calendar类
+
+```
         //某一时刻和一组日历字段之间的转换
         Calendar c = Calendar.getInstance();
 //        System.out.println(c);
+
         c.add(Calendar.YEAR,+3); //三年后的今天
+        
         c.set(2048,11,20);//设置日历时间
+        
         int year=c.get(Calendar.YEAR);
+        
         int month=c.get(Calendar.MONTH)+1;
+        
         int date=c.get(Calendar.DATE);
+        
         System.out.println(year+"年"+month+"月"+date);
 ```
+
+
+
 #### 集合
+
 ![image](2DAB57E4260A42A0B32B98022F4E547E)
 ```
 集合遍历
