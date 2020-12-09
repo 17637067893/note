@@ -441,18 +441,25 @@ public class Demo {
 作用 就是对文件的分类管理
 ```
 
-![image-20201209141551728](G:\note\image\image-20201209141551728.png)
+<img src="G:\note\image\image-20201209141551728.png" alt="image-20201209141551728" style="zoom:50%;" />
 
-  #### 权限修饰符
+<img src="G:\note\image\image-20201209142316668.png" alt="image-20201209142316668" style="zoom:50%;" />
 
- ![image](8FEBE407351249C1953123ECC7F44BEC)
+  #### 权限修饰
+
+![image-20201209143435204](G:\note\image\image-20201209143435204.png)
 
  #### final
- ![image](D1DF2D4F1D0E4B30A5C3125DF20DC6D7)
- ![image](31CE16B72A6D4386AA08A58A12FEB703)
+![image-20201209144002380](G:\note\image\image-20201209144002380.png)
+
  #### static
- ![image](03CF3DDD3BDE46A09D5DF002D6AD7F4D)
- ![image](01BE6135CC424A78A1BDD7FFBB698BCF)
+
+![image-20201209144839487](G:\note\image\image-20201209144839487.png)
+
+访问特点
+
+![image-20201209144924442](G:\note\image\image-20201209144924442.png)
+
 #### 多态
 同一对象，在不同时刻表现出来的不同形态
 多态的前提和体现
@@ -461,28 +468,131 @@ public class Demo {
 2 有方法重写
 3 有父类引用指向子类对象
 多态成员访问特点
-![image](EDBB2A5E238A4D0991559B1A043AF0B4)
-#### 抽象类
+
+父类
+
 ```
-没有方法体的方法为抽象方法，而类中有抽象方法该类必须定义为抽象类
-publick abstract class 类名{
-    
-    //抽象方法
-    publick abstract void eat();
+public class Animal {
+    public  int age = 10;
+    public void  eat(){
+        System.out.println("动物吃");
+    }
 }
 
-成员方法
-可以有抽象方法：限定子类必须完成某些动作
-也可以有非抽象方法：提高代码复用性
-使用不能直接实例化 
-public class zi extends 抽象类型{
-    //重写方法
-  @overwrite
-  public void eat(){
+```
+
+子类
+
+```
+package com.demo3;
+
+public class Cat extends Animal{
+    public int age = 20;
+    public int weight = 10;
+    @Override
+    public void eat(){
+        System.out.println("猫吃鱼");
+    }
+    public void playGame(){
+        System.out.println("猫捉迷藏");
+    }
+}
+
+```
+
+测试类
+
+```
+package com.demo3;
+//导包
+import com.demo1.Teacher;
+
+public class Demo extends Teacher{
+    public static void main(String[] args) {
+        //父类         子类
+        Animal cat = new Cat();
+        //父类值
+        System.out.println(cat.age);
+
+        //方法
+        //父类中有方法名才能用
+      //  cat.playGame();
       
-  }
+      
+        //执行的是子类中的代码内容
+        cat.eat();
+
+    }
 }
 ```
+
+
+
+#### 抽象类
+
+父类
+
+```java
+package com.AbstractDemo;
+
+public abstract class  Animal {
+    //抽象类 只给定 属性名 方法名 不给具体内容 想要使用自己去实现
+    public String name = "动物";
+    public void sleep(){
+        System.out.println("动物睡觉");
+    }
+    public abstract void eat();
+}
+
+```
+
+子类
+
+```
+package com.AbstractDemo;
+
+public class Cat extends Animal {
+    //重写抽象方法
+    @Override
+    public void eat(){
+        System.out.println("猫吃鱼");
+    }
+}
+
+
+或者
+
+package com.AbstractDemo;
+ //子类 继承抽象父类   本身也是抽象类 可以不用写抽象方法
+public abstract class Dog extends Animal {
+
+}
+
+```
+
+测试类
+
+```
+package com.AbstractDemo;
+
+public class AnimalDemo {
+    public static void main(String[] args) {
+    
+        //类似多态
+        Animal a = new Cat();
+        System.out.println(a.name);
+        
+        
+        //子类重写了eat
+        a.eat();
+        //虽然子类没有方法 但是 继承父类中的sleep可以使用(特有的)
+        a.sleep();
+    }
+}
+```
+
+
+
 #### 接口
 ```
 public interface 接口名{
