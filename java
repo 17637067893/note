@@ -837,11 +837,30 @@ int y = Integer.parseInt("1231");//
         System.out.println(year+"年"+month+"月"+date);
 ```
 
+#### 异常
 
+![image-20201210105000779](G:\note\image\image-20201210105000779.png)
+
+![image-20201210105029616](G:\note\image\image-20201210105029616.png)
+
+![image-20201210105043304](G:\note\image\image-20201210105043304.png)
+
+![image-20201210105109923](G:\note\image\image-20201210105109923.png)
+
+
+
+![image-20201210105159676](G:\note\image\image-20201210105159676.png)
+
+![image-20201210105216024](G:\note\image\image-20201210105216024.png)
+
+![image-20201210105233057](G:\note\image\image-20201210105233057.png)
 
 #### 集合
 
-![image](2DAB57E4260A42A0B32B98022F4E547E)
+![image-20201210105709573](G:\note\image\image-20201210105709573.png)
+
+![image-20201210110815783](G:\note\image\image-20201210110815783.png)
+
 ```
 集合遍历
 
