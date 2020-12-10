@@ -351,8 +351,6 @@ StringBuilder 转 String
 String str4 = Str3.toString();
 ```
 
-   ###  集合
-
 #### ArrayList
 
    ```
@@ -855,54 +853,92 @@ int y = Integer.parseInt("1231");//
 
 ![image-20201210105233057](G:\note\image\image-20201210105233057.png)
 
-#### 集合
+### 集合
 
 ![image-20201210105709573](G:\note\image\image-20201210105709573.png)
 
 ![image-20201210110815783](G:\note\image\image-20201210110815783.png)
 
-```
+集合迭代器 Iterator
+
+```java
 集合遍历
 
 Collection<String> c = new ArrayList<String>();
+
 c.add("A");
 c.add("B");
 c.add("C");
+//创建迭代器
 Interator<String> it  = c.iterator();
+//遍历
 while(it.hasNext()){
     String s = it.next();
     System.out.println(s);
 }
 常用方法
 ```
-![image](2700458D2A60417C80DB49FA3681BBE6)
 #### List集合
 ```
+list属于Collection可使用Collection的方法
 可以精确元素插入的位置，可以通过索引访问元素，
+
 与set不同，元素可以 重复
 List集合方法
+
 add(int index,E element);
+
 remove(int index);
+
 set(int index,E element);
+
 get(int index);
+
 List特有迭代器ListIterator
+
 ListIterator<String> it = c.listIterator();
+
 ListIterator常用方法
+
 E next();下一个元素
 boolean hasNext();
 E previous(); 放回上一个元素
 boolean hasPrevious(); 是否有上一个元素
-add(E e);插入元素
+
+add(E e);插入元素 与Iterator()唯一区别遍历过程张可以添加元素
 ```
 #### 增强for循环
+
+![image-20201210121632273](G:\note\image\image-20201210121632273.png)
+
 ```
 简化数组和Collection集合的遍历
+
 int[] arr = {1,2,3,4};
 for(int i:arr){
     System.out.prinln(i);
 }
 ```
+#### 常见数据结构
+
+![image-20201210123049513](G:\note\image\image-20201210123049513.png)
+
+![image-20201210123114015](G:\note\image\image-20201210123114015.png)
+
+![image-20201210123131302](G:\note\image\image-20201210123131302.png)
+
+![image-20201210123205432](G:\note\image\image-20201210123205432.png)
+
+#### ArrayList LinkedList
+
+![image-20201210123443986](G:\note\image\image-20201210123443986.png)
+
+LinkedList特有的方法
+
+![image-20201210124320691](G:\note\image\image-20201210124320691.png)
+
 #### set集合
+
 ```
 1 元素不重复
 2 没有索引
