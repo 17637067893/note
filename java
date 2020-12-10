@@ -1201,6 +1201,11 @@ Collections.sort(list, new Comparator<Student>() {
 });
 ```
 ### IO流
+
+![image-20201210225842631](G:\note\image\image-20201210225842631.png)
+
+![image-20201210225903575](G:\note\image\image-20201210225903575.png)
+
 ```
 创建指定文件
 // 将路径名转坏为抽象的对象
@@ -1372,79 +1377,68 @@ bis.close();
 
 #### 字符串的编码 解码
 
-```
+```java
 getBytes() 使用默认字符集  编码String
 getBytes("编码名") 使用指定字符集将String　编码为字节
 
 String()使用 默认字符集解码字节数组 组成新的String
 String("编码集") 指定字符集  组成新String
 ```
-#### 字符缓冲流
-```
-package demo10;
+#### 字符流
 
-import java.io.*;
+字符流复制文件
 
-public class BufferStreamDemo {
-    public static void main(String[] agrs) throws IOException {
-        //bufferedWriter 将文本写入输出流，缓冲字符，以提供单个字符，数组和字符串的高校写入
-        BufferedWriter bw = new BufferedWriter(new FileWriter("Study\\bw.txt"));
-        bw.write("hellow\r\n");
-        bw.write("world\r\n");
-        //释放资源
-        bw.close();
-
-        BufferedReader br = new BufferedReader(new FileReader("Study\\bw.txt"));
-        //一次读取一个字符数据
-//        int ch;
-//        while ((ch=br.read())!=-1){
-//            System.out.println(ch); // 字节
-//            System.out.println((char)ch); //（char）ch 转换 101=>h
-//        }
-        //读取字符数组数据
+```java
+public class demo2 {
+    public static void main(String[] args) throws IOException {
+        InputStreamReader isr = new InputStreamReader(new FileInputStream("File\\demo1.txt"));
+        OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream("File\\copy.txt"));
         char[] chs = new char[1024];
         int len;
-        while ((len=br.read(chs))!=-1){
-            System.out.println(new String(chs,0,len));
+        while ((len = isr.read(chs))!=-1){
+            osw.write(chs,0,len);
         }
-        br.close();
+        isr.close();
+        osw.close();
     }
 }
+```
 
-复制文件
- //读取流
-        BufferedReader br = new BufferedReader(new FileReader("Study\\bw.txt"));.
-        //写入流
-        BufferedWriter fw = new BufferedWriter(new FileWriter("copt.txt"));
-       //一次复制一个字符
-        int ch;
-        while ((ch=br.read())!=-1){
-            //写入文件
-            fw.write(ch);
-        }
-        //一次复制一个数组字符
-//        int ch;
-        char[] chs =new char[1024];
+复制文件改进版
+
+```java
+public class copy {
+    public static void main(String[] args) throws IOException {
+        FileReader fr = new FileReader("File\\demo1.txt");
+        FileWriter fw = new FileWriter("File\\copy1.txt");
+        char[] chs = new char[1024];
         int len;
-        while ((len=br.read(chs))!=-1){
-            //写入文件
-            fw.write(chs,0,len);
+        while ((len = fr.read(chs))!=-1){
+            fw.write(chs);
         }
-        br.close();
+        fr.close();
         fw.close();
-        
-字符缓冲流  复制文件
+    }
+}
+```
 
-BufferedReader br = new BufferedReader(new FileReader("study\\bw.txt"));
-        BufferedWriter bw = new BufferedWriter(new FileWriter("copy.txt"));
-        String line;
-        while ((line= br.readLine())!=null){
-            bw.write(line);
-            //写入换行符
-            bw.newLine();
+字符缓冲流
+
+```java
+public class BufferCopy {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader("File\\demo1.txt"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter("File\\copy2.txt"));
+        char[] chs = new char[1024];
+        int len;
+        while ((len = br.read(chs))!=-1){
+            bw.write(chs);
+           //  bw.newLine(); 写入换行符
         }
         br.close();
         bw.close();
+    }
+}
 ```
 #### 字节打印流
 ```
