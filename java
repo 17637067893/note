@@ -1066,9 +1066,13 @@ List<? super Number>：它表示的类型是Number或者其父类型
 List<? super Number> list4 = new ArrayList<Object>();
 List<? super Number> list5 = new ArrayList<Object>();
 ```
-#### 可变参数
+#### 可变参数![image-20201210153215381](G:\note\image\image-20201210153215381.png)
+
+
+
 ```
-public static int sum(int...a){
+public static int sum(String s,int...a){
+   sout(s)
     int sum = 0;
     for(int i:a){
         sum+=i;
@@ -1092,33 +1096,44 @@ public static <T> List<T> asList(T... a)：返回由指定数组支持的固定�
         
 
 ```
-#### map
+### map
 ```
-map 集合存储的是键值对
+map 集合存储的是键值对  键值是唯一的
 Map<String,String> map = new HashMap<String,String>();
 添加/修改元素元素
 map.put("1","a");
+
 //根据键移除元素
 map.remove("1");
+
 //清除所有元素
 map.clear();
+
 //是否存在此键
 map.containsKey("1");
+
 // 是否存在此值
 map.containsValue("a");
+
 // 判断集合是否为空
 map.isEmpty();
+
 // 判断集合的长度
 map.size();
+
 //根据键获取元素
 map.get("1");
+
 // 根据所有键的集合
 Set<String> keySet = map.keySet();
+
 for(String key:keySet){
     System.out.println(key);
 }
+
 // 获取所有值的集合
 Collection<String> values = map.values();
+
 for(String value:values){
     System.out.println(value);
 }
@@ -1154,12 +1169,15 @@ list.add(10);
 list.add(40);
 list.add(50);
 System.out.println("原本数据"+list);
+
 //排序数组
 Collections.sort(list);
 System.out.println(list);
+
 //反转数组
 Collections.reverse(list);
 System.out.println(list);
+
 //随机排列数组
 Collections.shuffle(list);
 System.out.println(list);
@@ -1172,6 +1190,7 @@ Student s1 = new Student("小明",20);
 Student s2 = new Student("小红",30);
 Student s3 = new Student("小胖",50);
 Student s4 = new Student("小花",30);
+
 Collections.sort(list, new Comparator<Student>() {
     @Override
     public int compare(Student o1, Student o2) {
@@ -1181,7 +1200,7 @@ Collections.sort(list, new Comparator<Student>() {
     }
 });
 ```
-#### IO
+### IO流
 ```
 创建指定文件
 // 将路径名转坏为抽象的对象
@@ -1210,12 +1229,19 @@ f2.delete();
 File的获取和判断
 
 File f2 = new File("D:\\safe\\demo\\demo");
+
 f2.isDirectory(); //是否为目录
+
 f2.diFile();   //是否为文件
+
 f2.exists();   //是否存在
+
 f2.getAbsolutePath();   //获取绝对路径字符串
+
 f2.getPath();  将抽象路径名 转为路径字符串
+
 f2.getName();  返回抽象路径名的文件或目录名称
+
 list(); 获取目录文件夹下的文件字符串数组
 String[] strArray = f2.list();
 for(String str:strArray){
@@ -1243,21 +1269,24 @@ jc(int n){
     )
 }
 ```
-IO流
-```
+#### IO流
+
 按照数据类型分类
   字节流
   字符流
   区别 如果数据通过记事本能打开不乱码  字符流
   如果乱码 就是字节流 
   如果不知道属于什么类型，就用字节流(万能的流)
- 
-  字节流数据类型
+
+![image-20201210185934590](G:\note\image\image-20201210185934590.png)
+
+```
+字节流数据类型
   InputStream 所有输入流的超累 第二个参数为true时表示追加内容
   OutputStream 所有输出流的超类
   //写入数据
   //创建输出流
-        FileOutputStream fs = new FileOutputStream("demo1.txt");
+        FileOutputStream fs = new FileOutputStream("demo1.txt",);
          // write(字节)
         fs.write(100); // d
         
@@ -1269,35 +1298,58 @@ IO流
         //最后释放资源 关闭输出流 释放资源
         fs.close();
         
-        
-读取数据
-FileInputStream
- //创建写入流
-        FileInputStream fis = new FileInputStream("demo1.txt");
-        //创建字节数组
-        byte[] bys = new byte[1024];
-        int len=fis.read(bys);
-        new String(bys,0,len);
-        while (len!=-1){
-            System.out.println(new String(bys,0,len));
-        }
-        
-        fis.close();
-//字节流复制文件
-//创建写入流文件
-FileInputStream fis = new FileInputStream("D:\\safe\\demo.txt");
-//创建输出流
-FileOutputStrea fos = new FileOutputStream("D:\\safe\\demo1.txt");
-
-int by;
-while((by=fis.read())!=-1){
-    fos.write(by);
-}
-fos.close();
-fis.close();
+    
 
 ```
+字节流读数据
+
+```
+        
+  public class test3 {
+    public static void main(String[] args) throws IOException {
+        FileInputStream fis = new FileInputStream("File\\a.txt");
+        //定义字节数组 10个数据长度
+        byte[] bys = new byte[1024];
+
+        //读取数据，读取的结果为字节 存在bys中
+        int len =fis.read(bys);
+
+        // 把读取的字节转为字符串
+        System.out.println(new String(bys,0,len));
+        byte[] bys = new byte[1024];
+        int len;
+        while ((len=fis.read(bys))!= -1){
+            System.out.println(new String(bys,0,len));
+        }
+        fis.close();
+    }
+}
+```
+
+字节流复制文件
+
+```
+public class CopImg {
+    public static void main(String[] args) throws IOException {
+        FileInputStream fis = new FileInputStream("File\\Java学习路线图.png");
+        FileOutputStream fos = new FileOutputStream("File\\复制学习路线.png");
+        byte[] bys = new byte[1024];
+        int len;
+        // 如果len = -1 说明没有更多数据局
+        while ((len=fis.read(bys))!=-1){
+            fos.write(bys);
+        }
+        //释放资源
+        fis.close();
+        fos.close();
+    }
+}
+```
+
 #### buffered字节缓冲流
+
+![image-20201210194059255](G:\note\image\image-20201210194059255.png)
+
 ```
 字节缓冲输出流
 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("D:\\safe\\demo.txt"));
@@ -1314,7 +1366,12 @@ while((by=bis.read())!=-1){
 //释放资源
 bis.close();
 ```
+复制文件
+
+![image-20201210200331609](G:\note\image\image-20201210200331609.png)
+
 #### 字符串的编码 解码
+
 ```
 getBytes() 使用默认字符集  编码String
 getBytes("编码名") 使用指定字符集将String　编码为字节
