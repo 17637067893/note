@@ -940,51 +940,116 @@ LinkedList特有的方法
 #### set集合
 
 ```
+与list集合的区别
 1 元素不重复
 2 没有索引
+3 不能使用for(int i=0;i<x;i++) 遍历
+除此之外没有差别
+如果存储对象的保证唯一性，对象内要重写 equals hashCode方法
 ```
+#### HashSet
+
+![image-20201210125914120](G:\note\image\image-20201210125914120.png)
+
 #### 哈希值
-```
-根据对象的地址或字符串或数字算出的int数值
-Object类 获取对象的哈希值
-1 同一对象多次调用hasCode()放回的值相同
-2 默认不同对象的hasCode()不同
-```
-#### 泛型
+
+![image-20201210125445250](G:\note\image\image-20201210125445250.png)
+
+![image-20201210130818587](G:\note\image\image-20201210130818587.png)
+
+![image-20201210135823796](G:\note\image\image-20201210135823796.png)
+
+LinkedHashSet
+
+![image-20201210140548646](G:\note\image\image-20201210140548646.png).
+
+#### TreeSet
+
+![image-20201210141250948](G:\note\image\image-20201210141250948.png)
+
+自定义排序
+
+ 第一种  对象内部重写compareTo方法
 
 ```
-将类型由原来的具体的类型参数化，然后在使用/调用时传入具体的类型
+@Override
+    public int compareTo(Student d){
+        /*
+        0 元素重复不存
+        整数  递增
+        负数  递减
+        */
+//        按年龄排序
+       int num = this.age-d.age;
+       // 年龄相同比较名字
+       int num2 = num == 0? this.name.compareTo(d.name):num;
+        return num2;
+    }
+```
+
+第二种
+
+```
+                                                                                 //传入比较器
+TreeSet<Student> sArr = new TreeSet<Student>(new Comparator<Student>() {
+    @Override
+    public int compare(Student o1, Student o2) {
+       int num =o1.age-o2.age;
+       int num2 = num ==0 ?o1.name.compareTo(o2.name) : num;
+       return num2;
+    }
+});
+sArr.add(new Student("xishi",29));
+sArr.add(new Student("wangzhaojun",28));
+sArr.add(new Student("diaochan",30));
+sArr.add(new Student("yangyuhuan",33));
+sArr.add(new Student("bangyuhuan",33));
+System.out.println(sArr);
+```
+
+#### 泛型![image-20201210150338717](G:\note\image\image-20201210150338717.png)
+
 泛型类
-//创建时不规定类型，在创建对象时传入需要的类型
-public class a253泛型类<T> {
-    private T t;
 
-    public T getT() {
-        return t;
-    }
+![image-20201210150108585](G:\note\image\image-20201210150108585.png)
 
-    public void setT(T t) {
-        this.t = t;
-    }
+![image-20201210150127458](G:\note\image\image-20201210150127458.png)
 
-}
-//泛型方法
-//public class a253泛型类{
-//调用此方法时
-//    public<T> void method(T t){
-//     System.out.println(t);
-//    }
-//}
-    //调用方法时可以传入任意类数据
-//method(66);
-//method("666");
+泛型方法
+
+![image-20201210150809308](G:\note\image\image-20201210150809308.png)
+
+![image-20201210150926987](G:\note\image\image-20201210150926987.png)
+
 泛型接口
-public interface Generic<T> {
-void show();
-}
-实现接口
 
 ```
+接口
+
+public interface Interface<T> {
+    void show(T t);
+}
+
+实现类
+public class InterfaceImpl <T> implements Interface <T> {
+    @Override
+     public void show(T t){
+        System.out.println(t);
+    }
+}
+
+测试类
+public class InterfaceDemo {
+    public static void main(String[] args) {
+        Interface<String> stc = new InterfaceImpl<String>();
+        stc.show("你好");
+    }
+}
+
+```
+
+
+
 #### 类型通配符
 ```
 List<?> list = new ArraysList<String>();
