@@ -1440,7 +1440,50 @@ public class BufferCopy {
     }
 }
 ```
+复制多个文件
+
+```java
+package demo4;
+
+import java.io.*;
+
+public class CopyFile {
+    public static void main(String[] args) throws IOException {
+        //创建数据源
+        File srcFolder = new File("G:\\code\\java\\file");
+        //获取数据源文件夹名称
+        String srcFolderName = srcFolder.getName();
+        // 获取目的地文件
+        File destFoler=new File("File",srcFolderName);
+
+        File[] files = srcFolder.listFiles();
+        //如果目标文件夹不存在 创建
+        if(!destFoler.exists()){
+            destFoler.mkdir();
+        }
+        for(File file:files){
+            String destFileName=file.getName();
+         File destFile = new File(destFoler,destFileName);
+         copy(file,destFile);
+        }
+    }
+    public static void copy(File src,File dest) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(src));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest));
+        byte[] bys = new byte[1024];
+        int len;
+        while ((len=bis.read(bys))!=-1){
+            bos.write(bys);
+        }
+        bis.close();
+        bos.close();
+    }
+}
+
+```
+
 #### 字节打印流
+
 ```
 // 使用指定的文件名创建新的打印流
         PrintStream ps = new PrintStream("Study\\ps.txt");
@@ -1450,11 +1493,43 @@ public class BufferCopy {
         ps.println("你好啊");
         ps.close();
 ```
+字符打印流
+
+```
+   public static void copy2() throws IOException {
+        PrintWriter pw = new PrintWriter(new FileWriter("File\\pw.txt"),true);
+        //不换行
+        pw.print("fasdfasdf");
+        //换行
+        pw.println("fasdfasdf");
+        pw.close();
+    }
+```
+
+字符打印流复制文件
+
+```java
+public static void copy3() throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader("File\\pw.txt"));
+//        BufferedWriter bw = new BufferedWriter(new FileWriter("File\\pwss.txt"));
+        PrintWriter pw = new PrintWriter(new FileWriter("File\\pwss.txt"),true);
+        String line;
+        while ((line = br.readLine())!= null){
+            pw.print(line);
+        }
+        pw.close();
+        br.close();
+    }
+```
+
 #### 对象序列化
+
+![image-20201211141843901](G:\note\image\image-20201211141843901.png)
+
 ```
         //ObjectOutputStream 创建一个指定写入文件
 //        ObjectOutputStream oss = new ObjectOutputStream(new FileOutputStream("Study\\outObject.txt"));
-        //创建对象  序列化的对象要实现Serializable接口
+        //创建对象  序列化的对象要实现Serializable接口 只是一个标识！没有方法要重写
 //        Student s1 = new Student("小明",20);
         //写入对象
 //        oss.writeObject(s1);
@@ -1470,7 +1545,41 @@ public class BufferCopy {
         System.out.println(s.getAge()+s.getName());
         ois.close();
 ```
+![image-20201211144732056](G:\note\image\image-20201211144732056.png)
+
+```
+public class Student implements Serializable {
+    //对象的唯一标识，防止因对象修改 序列化反序列化过程出错
+    private final long serivalVersionUID = 42L;
+    private  String name;
+//    被transient修饰变量不参与序列化
+    private transient int age;
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public Student() {
+
+    }
+}
+```
+
+
+
 #### Properties最为map集合使用
+
+Properties作为map对象
+
 ```
 Properties prop = new Properties();
 // 添加元素
@@ -1482,6 +1591,11 @@ for(Object key:keySet){
     Object val = prop.get(key);
     System.out.println(val);
 }
+```
+
+properties 特有的方法遍历元素
+
+```
 // properties 特有的方法遍历元素
 //添加元素
 prop.setProperty("D","4");
@@ -1493,20 +1607,30 @@ for(String str:names){
     String str1 = prop.getProperty(str);
     System.out.println(str+"值为:"+str1);
 }
+```
 
+Properties 操作文件数据读取
 
+![image-20201211150218299](G:\note\image\image-20201211150218299.png)
+
+![image-20201211151130575](G:\note\image\image-20201211151130575.png)
+
+```
 Properties 操作文件数据读取
       //从文件中读取数据
         Properties prop = new Properties();
         //读取文件
         FileReader fr = new FileReader("Study\\copy.txt");
-        //
+        
         prop.load(fr);
         fr.close();
+        
         //获取count的值
         String count = prop.getProperty("count");
+        
         //转为number
         int number = Integer.parseInt(count);
+        
         //判断值
         if(number>3){
             System.out.println("count>3");
@@ -1523,36 +1647,57 @@ Properties 操作文件数据读取
         }
 ```
 #### 线程 进程
+
 ```
- 进程 正在运行的程序
+进程 正在运行的程序
  线程 进程中的单个顺序控制流
  单线程 一个进程只有一条执行路径
  多线程 一个进程有多个执行路径
- 
- 实现方式
- //定义thread类
- class MyThread extends Thread{
-     @Overwrite
+```
+
+![image-20201211155245649](G:\note\image\image-20201211155245649.png)
+
+![image-20201211152410208](G:\note\image\image-20201211152410208.png)
+
+![image-20201211152825936](G:\note\image\image-20201211152825936.png)
+
+```
+//线程类
+public class MyThread extends Thread{
+    @Override
     public void run(){
-         //代码
-         int num = 0;
-         num ++;
-     }
- }
+       for(int i = 0;i<100;i++){
+
+           System.out.println(Thread.currentThread().getName()+","+i);
+       }
+    }
+}
+
+
  
- MyThread th1 = new MyThread
- MyThread th2 = new MyThread();
- th1.start();
- th2.start();
+    MyThread myThread = new MyThread();
+        MyThread myThread2 = new MyThread();
+        
+        myThread.setName("线程一");
+        myThread2.setName("线程二");
+        
+        myThread.start();
+        myThread2.start();
+```
+
+![image-20201211154028451](G:\note\image\image-20201211154028451.png)
+
+```
+
  
  //获取线程的优先级10-1
  th1.getPriority();// 获取线程优先级
  th1.setPriority(5) //设置线程优先级
  
  th1.sleep(1000); //线程休眠1000毫秒
- th1.join(); //等待当前线程死亡,其他才执行
+ th1.join(); //优先执行th1线程 这个执行完后再之心其他的线程
  
- th1.setDaemon(true); //设置为守护线程，当都是为守护线程时JVM虚拟机退出
+ th1.setDaemon(true); //降低此线程的优先级  先执行其他线程设置为守护线程，当都是为守护线程时JVM虚拟机退出
  
  
  start 方法 启动线程 用JVM调用此线程的run 方法
@@ -1561,7 +1706,92 @@ Properties 操作文件数据读取
  1 分时调度模型 所有线程轮流使用的cpu
  2 抢占式调度模型  按优先级的使用cpu
 ```
+Runable接口多线程
+
+```
+创建线程类
+public class RunableDem implements Runnable {
+    @Override
+    public void run(){
+        for(int i=0;i<20;i++){
+            System.out.println(Thread.currentThread().getName()+"="+i);
+        }
+    }
+}
+
+public class MyRunable {
+    public static void main(String[] args) {
+        //创建Runable类的对象
+        RunableDem my = new RunableDem();
+
+        Thread t1 = new Thread(my,"A");
+        Thread t2 = new Thread(my,"B");
+
+
+//        开启线程
+        t1.start();
+        t2.start();
+    }
+}
+
+```
+
+
+
+![image-20201211160444794](G:\note\image\image-20201211160444794.png)
+
 #### 同步代码块解决数据安全问题
+
+卖票
+
+![image-20201211163751036](G:\note\image\image-20201211163751036.png)
+
+```
+public class RunableDem implements Runnable {
+    private  int tickets = 100;
+    private Object obj = new Object();
+    @Override
+    public void run(){
+        while (true){
+//            同步代码块 只能有一个线程执行
+            synchronized (obj){
+                if(tickets>0){
+                    try {
+                        Thread.sleep(100);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    System.out.println(Thread.currentThread().getName() +"正在卖"+tickets+"张票");
+                    tickets--;
+                }
+            }
+        }
+    }
+}
+
+
+测试
+public class MyRunable {
+    public static void main(String[] args) {
+        //创建Runable类的对象
+        RunableDem my = new RunableDem();
+
+        Thread t1 = new Thread(my,"窗口1");
+        Thread t2 = new Thread(my,"窗口2");
+        Thread t3= new Thread(my,"窗口3");
+
+
+//        开启线程
+        t1.start();
+        t2.start();
+        t3.start();
+    }
+}
+
+```
+
+
+
 ```
 package demo15;
 
@@ -1597,6 +1827,39 @@ public class SellTicket implements Runnable{
 }
 
 ```
+![image-20201211165222568](G:\note\image\image-20201211165222568.png)
+
+![image-20201211184157430](G:\note\image\image-20201211184157430.png)
+
+```java
+public class RunableDem implements Runnable {
+    private  int tickets = 100;
+    private Lock lock = new ReentrantLock();
+    @Override
+    public  void run(){
+        while (true){
+            try {
+                lock.lock();
+                if(tickets>0){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(Thread.currentThread().getName()+"正在卖"+tickets+"张票");
+                    tickets--;
+                }
+            }finally {
+                lock.unlock();
+            }
+
+        }
+    }
+}
+```
+
+
+
 #### 生产者消费者模式
 ```
 所谓生产者消费者问题，实际上主要是包含了两类线程
@@ -1606,7 +1869,7 @@ public class SellTicket implements Runnable{
 生产者生产数据之后直接放置在共享数据区中，并不需要关心消费者的行为
 消费者只需要从共享数据区中去获取数据，并不需要关心生产者的行为
 ```
-![image](9ED56ECB2740421DB77B27BCC381A412)
+![image-20201211190127628](G:\note\image\image-20201211190127628.png)
 ```
 案例
 
@@ -1727,6 +1990,32 @@ System.out.println("主机名:"+name1);
 System.out.println("主机IP:"+name2);
 ```
 #### DUP数据发送接收
+
+![image-20201211191210515](G:\note\image\image-20201211191210515.png)
+
+发送数据
+
+![image-20201211192813936](G:\note\image\image-20201211192813936.png)
+
+```
+发送端
+public class SendDemo {
+    public static void main(String[] args) throws IOException {
+        //穿件发送端Socket对象
+        DatagramSocket ds = new DatagramSocket();
+        // 穿件数据
+        byte[] bys = "hello.udp.nihaoma".getBytes();
+        System.out.println(bys);
+        DatagramPacket dp = new DatagramPacket(bys, bys.length, InetAddress.getByName("192.168.0.100"),10086);
+        ds.send(dp);
+        ds.close();
+    }
+```
+
+接收数据![image-20201211192855001](G:\note\image\image-20201211192855001.png)
+
+
+
 ```
 接收端
 public class ReceiveDemo {
@@ -1749,20 +2038,14 @@ public class ReceiveDemo {
         ds.close();
     }
 }
-发送端
-public class SendDemo {
-    public static void main(String[] args) throws IOException {
-        //穿件发送端Socket对象
-        DatagramSocket ds = new DatagramSocket();
-        // 穿件数据
-        byte[] bys = "hello.udp.nihaoma".getBytes();
-        System.out.println(bys);
-        DatagramPacket dp = new DatagramPacket(bys, bys.length, InetAddress.getByName("192.168.0.100"),10086);
-        ds.send(dp);
-        ds.close();
-    }
+
 ```
 #### TCP通信模型
+
+![image-20201211191234549](G:\note\image\image-20201211191234549.png)
+
+![image-20201211191246978](G:\note\image\image-20201211191246978.png)
+
 ```
 客户端
 public class ClientDemo {
@@ -1810,6 +2093,79 @@ public class ServerDemo {
 
 ```
 #### Lambda表达式
+
+![image-20201211215550583](G:\note\image\image-20201211215550583.png)
+
+练习
+
+```
+定义接口 只有一个抽象函数
+public interface Eatable {
+    void eat();
+}
+
+测视类
+public class EatableDemo {
+    public static void main(String[] args) {
+//        useEatable(new Eatable() {
+//            @Override
+//            public void eat() {
+//                System.out.println("吃了吗");
+//            }
+//        });
+        useEatable(()-> System.out.println("吃了吗"));
+    }
+    public static void useEatable(Eatable a){
+        a.eat();
+    }
+}
+```
+
+带参数
+
+```
+public interface Eatable {
+    void eat(String s);
+}
+
+
+public class EatableDemo {
+    public static void main(String[] args) {
+                             形参
+        useEatable((String s)->{System.out.println(s+"吃了吗");});
+    }
+    public static void useEatable(Eatable a){
+                  实参
+        a.eat("参数");
+    }
+}
+
+
+```
+
+带返回值
+
+```
+public interface Eatable {
+    int add(int x,int y);
+}
+
+
+public class EatableDemo {
+    public static void main(String[] args) {
+//                  形参
+         useEatable((int x,int y)-> x+y);
+    }
+    public static void useEatable(Eatable a){
+//                 实参
+        int m =a.add(10,20);
+        System.out.println("结果" + m);
+    }
+}
+```
+
+
+
 ```
 // 使用Lambda必须要有一个借口，必须只有一个抽象方法
 
@@ -1818,6 +2174,7 @@ g根据局部变量赋值得知Lambda对应的借口
 Runable r = ()->sout("可以");
 根据调用方法的参数的值lambda的对应借口
 new thread(()->sout("可以")).start();
+
 
 
 useEatable((val1,val2)->{
@@ -1831,7 +2188,35 @@ useEatable((val1,val2)->{
         
         
 ```
+#### 接口组成更新
+
+![image-20201211222350478](G:\note\image\image-20201211222350478.png)
+
+![image-20201211223027996](G:\note\image\image-20201211223027996.png)
+
+```
+public interface Eatable {
+   void show1();
+   void show2();
+   //可以被重写  重写时不加default
+   default void show3(){
+       System.out.println("show3");
+   }
+}
+```
+
+接口静态方法
+
+![image-20201211224304869](G:\note\image\image-20201211224304869.png)
+
+接口中静态方法
+
+![image-20201211224434306](G:\note\image\image-20201211224434306.png)
+
 #### 方法引用
+
+![image-20201211225057872](G:\note\image\image-20201211225057872.png)
+
 ```
 1 引用类方法  类名::方法名
 2 应用对象的实例方法  实例对象的名::方法名   "helloWorld"::toUpperCase
