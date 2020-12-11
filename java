@@ -2218,6 +2218,30 @@ public interface Eatable {
 ![image-20201211225057872](G:\note\image\image-20201211225057872.png)
 
 ```
+public interface Converter {
+    int convert(String s);
+}
+
+
+public class EatableDemo {
+    public static void main(String[] args) {
+        useConverter((String s)->{
+            return Integer.parseInt(s);
+        });
+        //简化
+        useConverter(Integer::parseInt);
+    }
+    private static void useConverter(Converter c){
+        int number = c.convert("666");
+        System.out.println(number);
+    }
+}
+
+```
+
+
+
+```
 1 引用类方法  类名::方法名
 2 应用对象的实例方法  实例对象的名::方法名   "helloWorld"::toUpperCase
 3 引用类的实例方法     类的实例名::方法名    String::substring
@@ -2351,7 +2375,95 @@ public class FunctionDemo {
 }
 
 ```
+#### 函数式接口
+
+![image-20201211232031685](G:\note\image\image-20201211232031685.png)
+
+```
+@FunctionalInterface
+public interface MyInterface {
+    void show();
+}
+
+
+public class MyInterfaceDemo {
+    public static void main(String[] args) {
+        MyInterface my = () -> System.out.println("函数式接口");
+        my.show();
+    }
+}
+
+```
+
+函数式接口作为参数
+
+![image-20201211232537257](G:\note\image\image-20201211232537257.png)
+
+```
+public class MyInterfaceDemo {
+    public static void main(String[] args) {
+        startThread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(Thread.currentThread().getName()+"线程启动了");
+            }
+        });
+       // 函数式接口作为参数 -> 直接写成lambda
+        startThread(()-> System.out.println(Thread.currentThread().getName()+"线程启动了"));
+    }
+
+    private static void startThread(Runnable r){
+        new Thread(r).start();
+    }
+}
+```
+
+![image-20201211234142581](G:\note\image\image-20201211234142581.png)
+
+#### 常用的函数式接口
+
+![image-20201211234856916](G:\note\image\image-20201211234856916.png)
+
+```java
+public class SupplierDemo {
+    public static void main(String[] args) {
+        String s = getString(()->"adfasdf");
+        System.out.println(s);
+
+        Integer i = getInteger(()->13256456);
+        System.out.println(i);
+
+        int[] arr = {1,2,4,5};
+        int m = getMax(()->{
+            int max = arr[0];
+            for(int x = 1;x<arr.length;x++){
+                if(arr[i] > max){
+                    max = arr[i];
+                }
+            }
+            return  max;
+        })
+    }
+    //获取字符串
+    public static String getString(Supplier<String> s){
+        return s.get();
+    }
+    //获取整数
+    public static Integer getInteger(Supplier<Integer> i){
+        return i.get();
+    }
+    //获取最大值
+    public static Integer getMax(Supplier<Integer> m){
+        return m.get();
+    }
+}
+
+```
+
+
+
 #### Stream流
+
 ```
 package Stream27;
 
