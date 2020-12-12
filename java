@@ -2239,6 +2239,49 @@ public class EatableDemo {
 
 ```
 
+![image-20201212074215603](G:\note\image\image-20201212074215603.png)
+
+```
+ //Consumer
+    public static void printInfo(String[] strArrays, Consumer<String> con1,Consumer<String> con2){
+        for(String str:strArrays){
+            con1.andThen(con2).accept(str);
+        }
+    }
+    
+String[] strArrays = {"林青霞,30","张曼玉,33"};
+        printInfo(strArrays,(String str)->{
+            System.out.print(str.split(",")[0]);
+        },(String str)->{
+            System.out.println(Integer.parseInt(str.split(",")[1]));
+        });
+//        lambda
+        printInfo(strArrays,str -> System.out.print(str.split(",")[0]),str -> System.out.println(Integer.parseInt(str.split(",")[1])));
+```
+
+![image-20201212080830021](G:\note\image\image-20201212080830021.png)
+
+```
+public static boolean checkString(String s, Predicate<String> pre1, Predicate<String> pre2){
+        return !pre.test(s);
+        return pre1.and(pre2).test(s);  //结果&&
+        return pre1.or(pre2).test(s);    // 结果 ||
+    }
+    
+    
+    //多条件判断 添加数组
+    private static ArrayList<String> myFilter(String[] strArray,Predicate<String> pre1,Predicate<String> pre2){
+        ArrayList<String> strings = new ArrayList<>();
+        for(String str : strArray){
+            if(pre1.and(pre2).test(str)){
+                return strings.add(str);
+            }
+        }
+    }
+    
+    myFilter(strArrays,s->s.split(",")[0].length()>3,s->Integer.parseInt(s.split(",")[1])>10);
+```
+
 
 
 ```
@@ -2464,6 +2507,45 @@ public class SupplierDemo {
 
 #### Stream流
 
+![image-20201212083340786](G:\note\image\image-20201212083340786.png)
+
+```
+ArrayList<String> strings = new ArrayList<>();
+        strings.add("123");
+        strings.add("张敏");
+        strings.add("张无忌");
+        strings.add("小红");
+             //stream()生成流
+        strings.stream().filter(s->s.startsWith("张")).filter(s->s.length()>2).forEach(System.out::print);
+```
+
+![image-20201212083401797](G:\note\image\image-20201212083401797.png)
+
+```
+//        Collections体系的集合使用默认stream()生成流
+        ArrayList<String> list = new ArrayList<>();
+        Stream<String> listStream = list.stream();
+
+        HashSet<String> set = new HashSet<>();
+        Stream<String> setStream = set.stream();
+
+        //map体系集合间接生成
+        HashMap<String, Integer> map = new HashMap<>();
+        //通过键的集合
+        Stream<String> keyStream = map.keySet().stream();
+        //通过值的集合
+        Stream<Integer> valueStream = map.values().stream();
+        //通过键值对的集合
+        Stream<Map.Entry<String, Integer>> entryStream = map.entrySet().stream();
+
+        //数组可以通过Stream接口的静态方法of(T... values)生成
+        String[] strArray = {"hellow","world","java"};
+        Stream<String> strArrayStream = Stream.of(strArray);
+        Stream<Integer> intStream = Stream.of(10,20,30);
+```
+
+
+
 ```
 package Stream27;
 
@@ -2480,6 +2562,7 @@ public class StreamDemo {
         list.add("刘岩");
         list.add("张敏");
         list.add("张无忌");
+        
         //创建新集合存储张开头的元素
         ArrayList<String> list1 = new ArrayList<>();
         //创建新集合存储 张 长度为三 开头的元素
@@ -2494,19 +2577,25 @@ public class StreamDemo {
         }
         System.out.println(list1); // [张曼玉, 张敏, 张无忌]
         System.out.println(list2);  // [张曼玉, 张无忌]
+        
         //Stream流改进 常见操作
         list.stream().filter(s->s.startsWith("张")).filter(s->s.length()==3).forEach(i-> System.out.println(i));
+        
         //取出前三个
         list.stream().limit(3).forEach(System.out::println);
+        
         //跳过前三个
         list.stream().skip(3).forEach(System.out::println);
+        
         // 跳过前三个 取出剩下前二个
         list.stream().skip(3).limit(2).forEach(System.out::println);
+        
         // 合并两个流
         Stream<String> list5 = list.stream().limit(3);
         Stream<String> list6 = list.stream().skip(2);
 //        合并
         Stream.concat(list5,list6).forEach(System.out::println);
+
 
         //合并流并且元素不重复
 //        Stream.concat(list5,list6).distinct().forEach(System.out::println);
@@ -2518,6 +2607,8 @@ public class StreamDemo {
           int num2 = num==0?s1.compareTo(s2):num;
           return num2;
         });
+        
+        
         //stream 流的收集方法
         Stream<String> listStream2 = list.stream().filter(s->s.length()==3);
 
@@ -2571,10 +2662,123 @@ public class StreamDemo {
         Stream<String> strArrayStream2 = Stream.of(strArray);
         Stream<Integer> intStream = Stream.of(10,20,30);
     }
+    
+    //把流生成到集合中
+    Set<Integer> ages = setStream.collect(Collections.toSet());
+    
 }
 
 ```
+#### 类加载器
+
+![image-20201212092734148](G:\note\image\image-20201212092734148.png)
+
+![image-20201212092810004](G:\note\image\image-20201212092810004.png)
+
+#### 反射
+
+![image-20201212094725794](G:\note\image\image-20201212094725794.png)
+
+![image-20201212094738952](G:\note\image\image-20201212094738952.png)
+
+![image-20201212094806423](G:\note\image\image-20201212094806423.png)
+
+```
+ Student student = new Student("小明",20);
+        //使用class获取对应类的class对象
+        Class<Student> studentClass = Student.class;
+
+        //使用getClass获取
+        Class<? extends Student> aClass = student.getClass();
+```
+
+![image-20201212101010918](G:\note\image\image-20201212101010918.png)
+
+```
+  //获取字解码对象
+        Class<Student> studentClass = Student.class;
+        //获取多有public 构造函数
+        Constructor<?>[] declaredConstructors = studentClass.getDeclaredConstructors();
+        //获取所有公仔函数
+        Constructor<?>[] constructors = studentClass.getConstructors();
+        //获取单个构造函数
+        Constructor<Student> constructor = studentClass.getConstructor();
+        //创建对象
+        Student student = constructor.newInstance();
+        System.out.println(student);
+```
+
+![image-20201212104146437](G:\note\image\image-20201212104146437.png)
+
+![image-20201212104239714](G:\note\image\image-20201212104239714.png)
+
+```
+package demo9;
+
+import demo4.Student;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.stream.Stream;
+
+public class test1 {
+    public static void main(String[] args) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
+        //获取字解码对象
+        Class<Student> studentClass = Student.class;
+        //获取多有私有  构造函数
+        Constructor<Student> declaredConstructor = studentClass.getDeclaredConstructor(String.class);
+        //获取所有public函数
+        Constructor<?>[] constructors = studentClass.getConstructors();
+        //获取单个构造函数
+        Constructor<Student> constructor = studentClass.getConstructor(String.class,int.class);
+
+        //公共构造函数创建对象
+        Student student = constructor.newInstance("小明",100);
+
+
+        //使用私有构造函数 暴力反射
+        declaredConstructor.setAccessible(true); //设为true取消访问检查，可以使用私有构造方法，构造队形
+        System.out.println(declaredConstructor.newInstance("小明"));
+
+        //获取公共成员变量
+        Field[] fields = studentClass.getFields();
+        //获取所有成员变量
+        Field[] declaredFields = studentClass.getDeclaredFields();
+        //获取公共单个成员变量e
+//        Field field = studentClass.getField("add");
+
+        //set 指定对象的参数 给student的field成员变量赋值
+//        field.set(student,"小明");
+
+        // 私有成员变量
+        Field name = studentClass.getDeclaredField("name");
+        name.setAccessible(true);
+        name.set(studentClass,"姓名");
+
+
+        //成员方法  获取所有公共成员方法
+        Method[] methods = studentClass.getMethods();
+        //获取所有成员方法
+        Constructor<?>[] declaredConstructors = studentClass.getDeclaredConstructors();
+        //获取单个方法
+        Method m= studentClass.getMethod("show", String.class);
+        m.invoke(studentClass,"show");
+    }
+
+}
+
+```
+
+
+
 #### XML
+
 ```
 可扩展的标记语言
 XML的主要作用
@@ -2598,65 +2802,141 @@ XML的主要作用
 
 dom4j解析xml
 
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.junit.Test;
+```
+解析XML
 
-import java.util.List;
+不管是 html 文件还是 xml 文件它们都是标记型文档，都可以使用 w3c 组织制定的 dom 技术来解析。
 
-public class BookXml {
-@Test
-  public void test1() throws Exception{
-    //创建读取流
-    SAXReader saxReader = new SAXReader();
-    // 读取文件
-    Document document = saxReader.read("src\\books.xml");
-    //获取根元素
-    Element rootElement = document.getRootElement();
-    List<Element> books = rootElement.elements("book");
-    //遍历每个book
-    for(Element book:books){
-        //把对象转为字符串
-        Element nameElement = book.element("name");
-        //获取标签内的文字
-        String nameText = nameElement.getText();
+![image-20201212130853534](G:\note\image\image-20201212130853534.png)
 
-        Element priceElement = book.element("price");
-        //获取标签内的文字
-        String priceText = priceElement.getText();
+导入jar包
 
-        Element authorElement = book.element("author");
-        //获取标签内的文字
-        String authorText = authorElement.getText();
-        System.out.println(priceText);
-        //获取属性值
-        String sn = book.attributeValue("sn");
-        System.out.println(new Book(sn,nameText,priceText,authorText));
-    }
-}
-}
-
+![image-20201212132216064](G:\note\image\image-20201212132216064.png)
 
 ```
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+public class Dom4Test {
+    public static void main(String[] args) throws DocumentException {
+        Book bookObj = new Book();
+        //穿件读取文件对象
+        SAXReader saxReader = new SAXReader();
+        //读取文件
+
+        Document document = saxReader.read("G:\\code\\java\\demo3\\XML\\src\\demo1\\test1.xml");
+        //获取根元素
+        Element rootElement = document.getRootElement();
+        //获取每个book元素
+        List<Element> books = rootElement.elements("book");
+        //遍历每个book
+        for(Element book:books){
+            //把标签对象转为标签字符串
+            System.out.println(book.asXML());
+            直接获取标签内容
+            String nameText = book.elementText("name");
+            System.out.println(nameText);
+            //获取每个元素对象
+            Element name = book.element("name");
+            String text = name.getText();
+            bookObj.setName(text);
+            //获取价格
+            Element price = book.element("price");
+            String text1 = price.getText();
+            bookObj.setPrice(new BigDecimal(text1));
+            //获取作者
+            Element author = book.element("author");
+            String text2 = author.getText();
+            bookObj.setAuthor(text2);
+            //获取属性
+            String sn = book.attributeValue("sn");
+            bookObj.setSn(sn);
+            System.out.println(bookObj);
+        }
+    }
+}
+
+```
+
+#### javaWeb
+
+什么是 JavaWeb
+
+```
+JavaWeb 是指，所有通过 Java 语言编写可以通过浏览器访问的程序的总称，叫 JavaWeb。
+JavaWeb 是基于请求和响应来开发的。
+```
+
 #### Tomcat
 ```
 1 前提配置好JAVA_HOME系统变量
 2 点击 bin/startup.bat
 3 关闭 bin/shutdown.bat
+```
+#### 部署项目
 
+方法一
+
+```
 部署项目
 在webapp目录下book文件夹 /index.html
 访问 8009 http://localhost:8080/book/
+```
+
+方法二
+
+![image-20201212142443009](G:\note\image\image-20201212142443009.png)
 
 ```
-#### IDEA创建动态web工程
-```
-1 IDEA整合tomcat服务器
- file-setting-
+找到 Tomcat 下的 conf 目录\Catalina\localhost\ 下,创建如下的配置文件：
+新建XML文件
 
+<Context path="/book" docBase="G:\code\java\javaweb\book" />
 ```
+
+
+
+IDEA创建动手 手托 托 html 页面到浏览器和在浏览器中输 页面到浏览器和在浏览器中输入 入 http://ip:端 端
+口号 口号/ 工程名/访问的区别 访问的区别态web工程
+
+![image-20201212142803209](G:\note\image\image-20201212142803209.png)
+
+![image-20201212142817346](G:\note\image\image-20201212142817346.png)
+
+#### IDEA整合tomcat服务器
+
+<img src="G:\note\image\image-20201212143703196.png" alt="image-20201212143703196" style="zoom:50%;" />
+
+![image-20201212143734160](G:\note\image\image-20201212143734160.png)
+
+![image-20201212143757734](G:\note\image\image-20201212143757734.png)
+
+![image-20201212143835815](G:\note\image\image-20201212143835815.png)
+
+#### 创建web工程
+
+1 创建模块
+
+![image-20201212144106735](G:\note\image\image-20201212144106735.png)
+
+web工程目录
+
+![image-20201212145503361](G:\note\image\image-20201212145503361.png)
+
+#### web项目配置
+
+![image-20201212152650436](G:\note\image\image-20201212152650436.png)
+
+![image-20201212152821607](G:\note\image\image-20201212152821607.png)
+
 #### Servlet
+
 ```
 1 Servlet 是javaEE规范之一
 2 Servlet 是javaWeb三大组件之一 三大组件分别是Servlet程序，Filter过滤器Listener监听器
