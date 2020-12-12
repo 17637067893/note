@@ -4,6 +4,8 @@
 
 https://www.bilibili.com/read/cv5216534?spm_id_from=333.788.b_636f6d6d656e74.5
 
+## Javase
+
 Java跨平台原理
 
 ![image-20201208105145946](G:\note\image\image-20201208105145946.png)
@@ -2781,7 +2783,7 @@ public class test1 {
 
 ```
 
-
+## JavaWeb
 
 #### XML
 
