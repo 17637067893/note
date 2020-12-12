@@ -1,4 +1,10 @@
-![image-20201208204129269](G:\note\image\image-20201208204129269.png)Java跨平台原理
+![image-20201208204129269](G:\note\image\image-20201208204129269.png)
+
+#### java学习路线
+
+https://www.bilibili.com/read/cv5216534?spm_id_from=333.788.b_636f6d6d656e74.5
+
+Java跨平台原理
 
 ![image-20201208105145946](G:\note\image\image-20201208105145946.png)
 
@@ -2943,25 +2949,31 @@ web工程目录
 3 Servlet 是运行在服务器上的一个Java小程序，它可以接受客户端发送的请求，并响应数据给客户端
 ```
 第一个Servlet程序
-配置
-![image](02B0B554D4B24E4DB25640F996739762)
-实现 Servlet接口和 Servlet生命周期
+
 ```
-package demo1;
+ 1 创建类实现Servlet接口 
 
-import javax.servlet.*;
-import java.io.IOException;
+2 实现service方法 处理请求，并响应数据
 
-public class Servlet01 implements Servlet {
-    public Servlet01() {
-            System.out.println("1构造器");
-        }
+3 在web.xml中配置servlet程序访问地址
+```
+
+第一 创建类实现Servlet接口 
+
+![image-20201212154739593](G:\note\image\image-20201212154739593.png)
+
+第二  实现方法
+
+
+
+```java
+//   创建类实现 Servlet接口
+//   ALT+Enter自动实现所有方法
+public class HelloServlet implements Servlet {
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
-        System.out.println("2init");
-    }
 
-    
+    }
 
     @Override
     public ServletConfig getServletConfig() {
@@ -2970,9 +2982,7 @@ public class Servlet01 implements Servlet {
 
     @Override
     public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
-        System.out.println(servletRequest.toString());
-        System.out.println(servletResponse);
-        System.out.println("3访问了66");
+        System.out.println("要被访问来了");
     }
 
     @Override
@@ -2981,36 +2991,317 @@ public class Servlet01 implements Servlet {
     }
 
     @Override
-    public String toString() {
-        return "Servlet01{}";
-    }
-
-    @Override
     public void destroy() {
-        System.out.println("4destroy");
+
     }
 }
 
 ```
-自动创建servlet类
-![image](BE66863CEC1D41A9BCD3F4E62A8715A6)
+
+第三 web.xml  配置访问路径  
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+version="4.0">
+    
+<!-- servlet 标签给 Tomcat 配置 Servlet 程序 -->
+<servlet>
+    
+<!--servlet-name 标签 Servlet 程序起一个别名（一般是类名） -->
+<servlet-name>HelloServlet</servlet-name>
+    
+<!--servlet-class 是 Servlet 程序的全类名 -->
+<servlet-class>com.atguigu.servlet.HelloServlet</servlet-class>
+</servlet>
+    
+<!--servlet-mapping 标签给 servlet 程序配置访问地址 -->
+<servlet-mapping>
+    
+<!--servlet-name 标签的作用是告诉服务器，我当前配置的地址给哪个 Servlet 程序使用 -->
+<servlet-name>HelloServlet</servlet-name>
+    
+<!--url-pattern 标签配置访问地址 <br/>
+/ 斜杠在服务器解析的时候，表示地址为： http://ip:port/ 工程路径 <br/>
+/hello 表示地址为： http://ip:port/ 工程路径 /hello <br/>
+-->
+<url-pattern>/hello</url-pattern>
+</servlet-mapping>
+</web-app>
 ```
-servletContext 
- /*获取ServletContext对象
-        1 servletContext是一个接口 表示servlet的上下文
-        2 一个web工程，只有一个servletContext对象实例
-        3 servletContext对象是一个域对象
-        4 域对象可以像map一样存储数据的对象。
-        5 servletContext在启动创建,在重启后销毁
-        域指存取数据的操作范围(整个web工程)
-                  存数据          取数据        删除
-         map     put()            get()         remove()
-         域对象   setAttrbute()   getAttrbute()  removeAttrbute()
-        */
-        System.out.println(servletConfig.getServletContext());
-        
+
+Servlet的生命周期
+
+1 执行构造器  (只在第一次访问时调用)
+
+2 执行init方法 (只在第一次访问时调用)
+
+3 执行service方法 （每次请求都会调用）
+
+4 destroy 销毁方法 在web工程停止时候调用
+
+```
+public class HelloServlet implements Servlet {
+    public HelloServlet() {
+        System.out.println("构造函数");
+    }
+
+    @Override
+    public void init(ServletConfig servletConfig) throws ServletException {
+        System.out.println("init");
+    }
+
+    @Override
+    public ServletConfig getServletConfig() {
+        return null;
+    }
+
+    @Override
+    public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
+        System.out.println("hellow");
+    }
+
+    @Override
+    public String getServletInfo() {
+        return null;
+    }
+
+    @Override
+    public void destroy() {
+        System.out.println("destroy");
+    }
+}
+```
+
+#### Servlet-->get和post分类
+
+```java
+public class HelloServlet implements Servlet {
+/**
+* service 方法是专门用来处理请求和响应的
+* @param servletRequest
+* @param servletResponse
+* @throws ServletException
+* @throws IOException
+*/
+@Override
+public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws
+ServletException, IOException {
+    System.out.println("3 service === Hello Servlet 被访问了");
+    // 类型转换（因为它有 getMethod() 方法）
+    HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+    
+    
+    // 获取请求的方式
+    String method = httpServletRequest.getMethod();
+        if ("GET".equals(method)) {
+        doGet();
+        } else if ("POST".equals(method)) {
+        doPost();
+        }
+    }
+    
+    
+/**
+* 做 get 请求的操作
+*/
+    public void doGet(){
+        System.out.println("get 请求");
+        System.out.println("get 请求");
+    }
+    
+    
+/**
+* 做 post 请求的操作
+*/
+    public void doPost(){
+        System.out.println("post 请求");
+        System.out.println("post 请求");
+    }
+}
+```
+
+#### HttpServlet
+
+1 创建类继承HttpServlet （Httpservlet是Servlet的子类）
+
+2 重写doGet doPost方法
+
+3 web.xml配置请求地址
+
+```java
+public class HelloServlet2 extends HttpServlet {
+/**
+* doGet （）在 get 请求的时候调用
+* @param req
+* @param resp
+* @throws ServletException
+* @throws IOException
+*/
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+    IOException {
+    System.out.println("HelloServlet2 的 的 doGet 方法");
+    }
+/**
+* doPost （）在 post 请求的时候调用
+* @param req
+* @param resp
+* @throws ServletException
+* @throws IOException
+*/
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+    IOException {
+    System.out.println("HelloServlet2 的 的 doPost 方法");
+    }
+}
+```
+
+IDEA自动生成HttpServt文件
+![image-20201212164158302](G:\note\image\image-20201212164158302.png)
+
+在web.xml配置一下访问路径就好
+
+Servlet的继承体系
+
+![image-20201212165556635](G:\note\image\image-20201212165556635.png)
+
+#### ServletConfig类的三大作用
+
+在HttpServlet中可以获取到
+
+```
+ServletConfig servletConfig = getServletConfig();
+```
+
+1 获取Servlet程序的servlet-name的值
+
+2 获取获取web.xml中当前Servlet表中的init-param中的值
+
+3 获取ServletContext对象
+
+```xml
+<!-- servlet 标签给 Tomcat 配置 Servlet 程序 -->
+<servlet>
+    <!--servlet-name 标签 Servlet 程序起一个别名（一般是类名） -->
+    <servlet-name>HelloServlet</servlet-name>
+    <!--servlet-class 是 Servlet 程序的全类名 -->
+    <servlet-class>com.atguigu.servlet.HelloServlet</servlet-class>
+    
+    <!--init-param 是初始化参数 -->
+    <init-param>
+        <!-- 是参数名 -->
+        <param-name>username</param-name>
+        <!-- 是参数值 -->
+        <param-value>root</param-value>
+    </init-param>
+    
+    <!--init-param 是初始化参数 -->
+    <init-param>
+        <!-- 是参数名 -->
+        <param-name>url</param-name>
+        <!-- 是参数值 -->
+        <param-value>jdbc:mysql://localhost:3306/test</param-value>
+    </init-param>
+</servlet>
+```
+
+获取值
+
+```java
  
-  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+@Override
+    public void init(ServletConfig servletConfig) throws ServletException {
+        //servlet-name
+        System.out.println(servletConfig.getServletName());
+        
+        //获取web.xml中配置的init-param参数
+        System.out.println(servletConfig.getInitParameter("username"));
+        System.out.println(servletConfig.getInitParameter("password"));
+
+        //获取ServletContext对象
+        System.out.println(servletConfig.getServletContext());
+    }
+```
+
+#### ServletContext类
+
+什么是 ServletContext?
+1、ServletContext 是一个接口，它表示 Servlet 上下文对象
+2、一个 web 工程，只有一个 ServletContext 对象实例。
+3、ServletContext 对象是一个域对象。
+4、ServletContext 是在 web 工程部署启动的时候创建。在 web 工程停止的时候销毁
+
+什么是域对象?
+域对象，是可以像 Map 一样存取数据的对象，叫域对象。
+这里的域指的是存取数据的操作范围，整个 web 工程。
+
+| 对象   | 存           | 取           | 删              |
+| ------ | ------------ | ------------ | --------------- |
+| Map    | put          | get          | remove          |
+| 域对象 | setAttribute | getAttribute | removeAttribute |
+
+ServletContext类的四个作用
+
+1 获取web.xml中配置的上下文参数context-param
+
+2 获取当前的工程路径,格式:/工程路径
+
+3 获取工程的绝对路径
+
+4 存储数据
+
+1 获取web.xml中配置的上下文参数context-param
+
+```xml
+<!--context-param 是上下文参数 ( 它属于整个 web 工程 )-->
+<context-param>
+    <param-name>username</param-name>
+    <param-value>context</param-value>
+</context-param>
+<!--context-param 是上下文参数 ( 它属于整个 web 工程 )-->
+<context-param>
+    <param-name>password</param-name>
+    <param-value>root</param-value>
+</context-param>
+```
+
+
+
+```java
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws
+ServletException, IOException {
+    
+// 1 、获取 web.xml 中配置的上下文参数 context-param
+ServletContext context = getServletConfig().getServletContext();
+    
+String username = context.getInitParameter("username");
+System.out.println("context-param 参数 username 的值是:" + username);
+System.out.println("context-param 参数 password 的值是:" +
+context.getInitParameter("password"));
+    
+// 2 、获取当前的工程路径，格式 : / 工程路径
+System.out.println( " 当前工程路径:" + context.getContextPath() );
+    
+// 3 、获取工程部署后在服务器硬盘上的绝对路径
+/**
+* / 斜杠被服务器解析地址为 :http://ip:port/ 工程名 / 映射到 IDEA 代码的 web 目录 <br/>
+*/
+System.out.println(" 工程部署的路径是:" + context.getRealPath("/"));
+System.out.println(" 工程下 css 目录的绝对路径是:" + context.getRealPath("/css"));
+System.out.println(" 工程下 imgs 目录 1.jpg 的绝对路径是:" + context.getRealPath("/imgs/1.jpg"));
+}
+```
+
+
+
+```
+ protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ServletContext servletContext = getServletConfig().getServletContext();
         //获取web.xml的context-param中内容
         String name = servletContext.getInitParameter("username");
