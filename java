@@ -4,6 +4,143 @@
 
 https://www.bilibili.com/read/cv5216534?spm_id_from=333.788.b_636f6d6d656e74.5
 
+## JDBC
+
+
+
+## sharding-JDBC分库分表
+
+
+
+![image-20201214103504850](G:\note\image\image-20201214103504850.png)
+
+分库分表就是为了解决由于数据量过大而导致数据库性能降低的问题，将原来独立的数据库拆分成若干数据库组成
+，将数据大表拆分成若干数据表组成，使得单一数据库、单一数据表的数据量变小，从而达到提升数据库性能的目
+的
+
+#### 分库分表的方式
+
+分库分表包括分库和分表两个部分，在生产中通常包括：垂直分库、水平分库、垂直分表、水平分表四种方式
+
+#### 第一 垂直分表
+
+按字段将表分为不同的表
+
+![image-20201214104432447](G:\note\image\image-20201214104432447.png)
+
+用户在浏览商品列表时，只有对某商品感兴趣时才会查看该商品的详细描述。因此，商品信息中商品描述字段访问
+频次较低，且该字段存储占用空间较大，访问单个数据IO时间较长；商品信息中商品名称、商品图片、商品价格等
+其他字段数据访问频次较高。
+由于这两种数据的特性不一样，因此他考虑将商品信息表拆分如下：
+将访问频次低的商品描述信息单独存放在一张表中，访问频次较高的商品基本信息单独放在一张表中。
+
+![image-20201214104546350](G:\note\image\image-20201214104546350.png)
+
+```
+垂直分表定义：将一个表按照字段分成多表，每个表存储其中一部分字段
+```
+
+它带来的提升是：
+
+它带来的提升是：
+1.为了避免IO争抢并减少锁表的几率，查看详情的用户与商品信息浏览互不影响
+2.充分发挥热门数据的操作效率，商品信息的操作的高效率不会被商品描述的低效率所拖累。
+
+通常我们按以下原则进行垂直拆分:
+1. 把不常用的字段单独放在一张表;
+2. 把text，blob等大字段拆分出来放在附表中;
+3. 经常组合查询的列放在一张表中
+
+#### 第二 垂直分库
+
+按业务将数据库拆分为不同的数据库
+
+通过垂直分表性能得到了一定程度的提升，但是还没有达到要求，并且磁盘空间也快不够了，因为数据还是始终限
+制在一台服务器，库内垂直分表只解决了单一表数据量过大的问题，但没有将表分布到不同的服务器上，因此每个
+表还是竞争同一个物理机的CPU、内存、网络IO、磁盘。
+经过思考，他把原有的SELLER_DB(卖家库)，分为了PRODUCT_DB(商品库)和STORE_DB(店铺库)，并把这两个库分
+散到不同服务器，如下图：![image-20201214110019443](G:\note\image\image-20201214110019443.png)
+
+由于商品信息与商品描述业务耦合度较高，因此一起被存放在PRODUCT_DB(商品库)；而店铺信息相对独立，因此
+单独被存放在STORE_DB(店铺库)。
+小明进行的这一步优化，就叫垂直分库。
+
+垂直分库是指按照业务将表进行分类，分布到不同的数据库上面，每个库可以放在不同的服务器上，它的核心理念
+是专库专用。
+
+它带来的提升是：
+解决业务层面的耦合，业务清晰
+能对不同业务的数据进行分级管理、维护、监控、扩展等
+高并发场景下，垂直分库一定程度的提升 IO、数据库连接数、降低单机硬件资源的瓶颈
+垂直分库通过将表按业务分类，然后分布在不同数据库，并且可以将这些数据库部署在不同服务器上，从而达到多
+个服务器共同分摊压力的效果，但是依然没有解决单表数据量过大的问题。
+
+#### 第三 水平分库
+
+垂直分库按业务划分，已经将业务不同划分为不同的库，但是随着数据量的增多，单个库还是遇到性能问题
+
+经过垂直分库后，数据库性能问题得到一定程度的解决，但是随着业务量的增长，PRODUCT_DB(商品库)单库存储
+数据已经超出预估。粗略估计，目前有8w店铺，每个店铺平均150个不同规格的商品，再算上增长，那商品数量得
+往1500w+上预估，并且PRODUCT_DB(商品库)属于访问非常频繁的资源，单台服务器已经无法支撑。此时该如何
+优化？
+
+![image-20201214111321989](G:\note\image\image-20201214111321989.png)
+
+也就是说，要操作某条数据，先分析这条数据所属的店铺ID。如果店铺ID为双数，将此操作映射至
+RRODUCT_DB1(商品库1)；如果店铺ID为单数，将操作映射至RRODUCT_DB2(商品库2)。此操作要访问数据库名
+称的表达式为RRODUCT_DB[店铺ID%2 + 1] 。
+小明进行的这一步优化，就叫水平分库
+
+#### 第四 水平分表
+
+与水平分表一样都是解决单个表的数据量过多
+
+![image-20201214112154253](G:\note\image\image-20201214112154253.png)
+
+与水平分库的思路类似，不过这次操作的目标是表，商品信息及商品描述被分成了两套表。如果商品ID为双数，将
+此操作映射至商品信息1表；如果商品ID为单数，将操作映射至商品信息2表。此操作要访问表名称的表达式为商品
+信息[商品ID%2 + 1] 。
+小明进行的这一步优化，就叫水平分表。
+
+#### 分库分表的问题
+
+第一 事务一致性问题
+
+ 由于分库分表把数据分布在不同库甚至 不同服务器，不可避免带来分布式事务问题。
+
+第二 跨节点关联
+
+垂直分库后[商品信息]和[店铺信息]不在一个数据库，甚至不在一台服务器，无法进行关联查询。
+
+可将原关联查询分为两次查询，第一次查询的结果集中找出关联数据id，然后根据id发起第二次请求得到关联数
+据，最后将获得到的数据进行拼装。
+
+第三  .跨节点分页、排序函数
+
+跨节点多库进行查询时，limit分页、order by排序等问题，就变得比较复杂了。需要先在不同的分片节点中将数据
+进行排序并返回，然后将不同分片返回的结果集进行汇总和再次排序。
+
+![image-20201214113833357](G:\note\image\image-20201214113833357.png)
+
+
+
+
+
+在使用Max、Min、Sum、Count之类的函数进行计算的时候，与排序分页同理，也需要先在每个分片上执行相应
+的函数，然后将各个分片的结果集进行汇总和再次计算，最终将结果返回。
+
+第四 主键避重
+
+在分库分表环境中，由于表中数据同时存在不同数据库中，主键值平时使用的自增长将无用武之地，某个分区数据
+库生成的ID无法保证全局唯一。因此需要单独设计全局主键，以避免跨库主键重复问题
+
+![image-20201214114017790](G:\note\image\image-20201214114017790.png)
+
+#### Sharding-JDBC介绍
+
+Sharding-JDBC的核心功能为数据分片 和 读写分离 ，通过 Sharding-JDBC，应用可以透明 的使用 jdbc访问已经分库
+分表、读写分离的多个数据源，而不用关心数据源的数量以及数据如何分布。
+
 ## Javase
 
 Java跨平台原理
@@ -3300,96 +3437,544 @@ System.out.println(" 工程下 imgs 目录 1.jpg 的绝对路径是:" + context.
 }
 ```
 
-
+#### 常用的响应码
 
 ```
- protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ServletContext servletContext = getServletConfig().getServletContext();
-        //获取web.xml的context-param中内容
-        String name = servletContext.getInitParameter("username");
-        System.out.println(name);
-        //获取当前工程路径
-//        String path = servletContext.getContextPath();
-        System.out.println(servletContext.getContextPath());
-        //获取工程在磁盘上的路径
-        String path1= servletContext.getRealPath("/");
-        System.out.println("路径"+path1);
-        
-        //存数据
-        servletContext.setAttribute("a","1");
-        servletContext.setAttribute("b","2");
-        //移除数据
-        servletContext.removeAttribute("a");
-        //取数据
-        System.out.println(servletContext.getAttribute("a")); //null
-        System.out.println(servletContext.getAttribute("b"));
-
-    }       
-    
-    
-    
-    //获取请求的数据  HttpServletRequest
-        //获取请求资源路径
-        System.out.println(request.getRequestURI());
-        //获取请求同意资源定位符
-        System.out.println(request.getRequestURL());
-        //获取客户端Ip地址
-        System.out.println(request.getRemoteHost());
-        //获取请求头
-        System.out.println(request.getHeader("accept"));
-        //获取请求参数
-        System.out.println(request.getParameter("name"));
-        System.out.println(request.getParameter("age"));
-        //获取多个请求参数
-        List<String> arr = new ArrayList<String>();
-        arr.add("name");
-        arr.add("age");
-        System.out.println(Arrays.asList(request.getParameterValues("name")));
-        //获取请求方式
-        System.out.println(request.getMethod());
-        //获取域数据
-        System.out.println(request.getAttribute("name"));
-        // 获取请求转发对象
-        System.out.println(request.getRequestDispatcher("name"));
-        
-        请求转发
-        //设置值
-        request.setAttribute("key","value");
-        //请求准反
-        RequestDispatcher requestDispatcher = request.getRequestDispatcher("/servlet01");
-        requestDispatcher.forward(request,response);
+200 请求成功
+302 请求重定向
+404 页面找不到
+500 服务器错误
 ```
+
+#### MIME类型
+
+```
+MIME 是HTTP协议中的数据类型
+```
+
+![image-20201213074040010](G:\note\image\image-20201213074040010.png)
+
+#### 获取请求参数
+
+HttpServletRequest 常用的方法
+
+| getRequestURI      | 请求资源路径             |
+| ------------------ | ------------------------ |
+| getRequestURL      | 请求的统一资源路径       |
+| getHeader          | 请求头                   |
+| getParameter       | 请求参数(参数只有一个值) |
+| getParameterValues | 获取请求参数(参数多个值) |
+| getMethos          | 获取请求方式             |
+
+```java
+// 获取请求参数
+    String username = req.getParameter("username");
+    String password = req.getParameter("password");
+    String[] hobby = req.getParameterValues("hobby");
+    System.out.println(" 用户名：" + username);
+    System.out.println(" 密码：" + password);
+    System.out.println(" 兴趣爱好：" + Arrays.asList(hobby));
+```
+
+#### 请求乱码
+
+```
+// 设置请求体的字符集为 UTF-8,在获取参数前使用
+req.setCharacterEncoding("UTF-8");
+```
+
+#### 请求转发
+
+![image-20201213085714442](G:\note\image\image-20201213085714442.png)
+
+Servlet1
+
+```java
+// 获取请求的参数（办事的材料）查看
+String username = req.getParameter("username");
+System.out.println("在 在 Servlet1 （柜台 1 ）中查看参数（材料）：" + username);
+// 给材料 盖一个章，并传递到 Servlet2 （柜台 2 ）去查看
+req.setAttribute("key1"," 柜台 1 的章");
+// 问路： Servlet2 （柜台 2 ）怎么走
+/**
+* 请求转发必须要以斜杠打头， / 斜杠表示地址为： http://ip:port/ 工程名 / , 映射到 IDEA 代码的 web 目录
+<br/>
+*
+*/
+RequestDispatcher requestDispatcher = req.getRequestDispatcher("/servlet2");
+// RequestDispatcher requestDispatcher = req.getRequestDispatcher("http://www.baidu.com");
+// 走向 Sevlet2 （柜台 2 ）
+requestDispatcher.forward(req,resp);
+```
+
+Servlet2
+
+```java
+// 获取请求的参数（办事的材料）查看
+String username = req.getParameter("username");
+System.out.println("在 在 Servlet2 （柜台 2 ）中查看参数（材料）：" + username);
+// 查看 柜台 1 是否有盖章
+Object key1 = req.getAttribute("key1");
+System.out.println(" 柜台 1 是否有章：" + key1);
+// 处理自己的业务
+System.out.println("Servlet2 务 处理自己的业务 ");
+```
+
+#### base标签的作用
+
+```html
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+<meta charset="UTF-8">
+<title>Title</title>
+<!--base 标签设置页面相对路径工作时参照的地址
+href 属性就是参数的地址值
+-->
+<base href="http://localhost:8080/07_servlet/a/b/">
+</head>
+<body>
+这是 a 下的 b 下的 c.html 页面<br/>
+<a href="../../index.html">跳回首页</a><br/>
+</body>
+</html>
+```
+
 #### HttpServletResponse
+
 ```
-//中文乱码  设置请求返回编码
-//设置返回字符集
-        response.setCharacterEncoding("UTF-8");
-        //通过设置响应头设置浏览器的编码
-//        response.setHeader("Content-type","text/html:charset=UTF-8");
-        response.setContentType("text/html:charset=utf-8");
+返回请求数据使用两个流(只能同时使用一个)
+字节流 getOutputStream();  常用于下载(传递二进制数据)
+字符路 getWriter();  常用语回传字符串
+
+```
+
+#### 响应乱码
+
+解决响应中文乱码方案一（不推荐使用）：
+
+```
+// 设置服务器字符集为 UTF-8
+resp.setCharacterEncoding("UTF-8");
+// 通过响应头，设置浏览器也使用 UTF-8 字符集
+resp.setHeader("Content-Type", "text/html; charset=UTF-8");
 
 
-//设置返回字符串
- PrintWriter writer = response.getWriter();
-        writer.write("你好吗");
-        
-        
-        
- //请求重定向
-  //请求重定向
-  第一种
-       response.setStatus(302);
-       response.setHeader("Location","http://localhost:8083/servlet05");
-  第二种 response.sendRedirect("http://localhost:8083/servlet05");
-       
-   特点
-   1 地址会变化
-   2 产生两个context对象
-   3 不能跳转到webinfo目录下
 ```
-JavaEE 三层架构
-![image](311C5729A5FB4C74A7E2C2A1CAE5A8AD)
-##### jsp
+
+解决响应中文乱码方案二（推荐）：
+
+```
+// 它会同时设置服务器和客户端都使用 UTF-8 字符集，还设置了响应头
+// 此方法一定要在获取流对象之前调用才有效
+resp.setContentType("text/html; charset=UTF-8");
+```
+
+#### 请求重定向
+
+方法一
+
+```java
+ servlet 01
+protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+           //设置响应头
+            resp.setStatus(302);
+            //通过响应头设置新地址
+            resp.setHeader("Location","http://localhost:8081/servlet02");
+        }
+
+servlet 02
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.getWriter().write("cs2");
+    }
+```
+
+方法一
+
+```java
+resp.sendRedirect("http://localhost:8081/servlet02");
+```
+
+#### javaEE的三层架构
+
+![image-20201213103249713](G:\note\image\image-20201213103249713.png)
+
+#### 连接数据库流程
+
+第一 创建项目 文件夹
+
+![image-20201213110650415](G:\note\image\image-20201213110650415.png)
+
+```
+web 层 com.atguigu.web/servlet/controller
+service 层 com.atguigu.service Service 接口包
+com.atguigu.service.impl Service 接口实现类
+dao 持久层 com.atguigu.dao Dao 接口包
+com.atguigu.dao.impl Dao 接口实现类
+实体 bean 对象 com.atguigu.pojo/entity/domain/bean JavaBean 类
+测试包 com.atguigu.test/junit
+工具类 com.atguigu.utils
+```
+
+第二 编写数据库表对应的 JavaBean 对象。
+
+```java
+public class User {
+    private Integer id;
+    private String username;
+    private String password;
+    private String email;
+```
+
+第三 创建表对应
+
+```mysql
+drop database if exists book;
+create database book;
+use book;
+create table t_user(
+`id` int primary key auto_increment,
+`username` varchar(20) not null unique,
+`password` varchar(32) not null,
+`email` varchar(200)
+);
+insert into t_user(`username`,`password`,`email`) values('admin','admin','admin@atguigu.com');
+select * from t_user;
+```
+
+第四 创建JdbcUtils工具类
+
+<img src="G:\note\image\image-20201213121858083.png" alt="image-20201213121858083" style="zoom:50%;" />
+
+导入Jar包
+
+```
+druid-1.1.9.jar
+mysql-connector-java-5.1.7-bin.jar
+以下是测试需要：
+hamcrest-core-1.3.jar
+junit-4.12.jar
+```
+
+第五  、在 src 源码目录下编写 jdbc.properties 属性配置文件：
+
+```
+username=root
+password=root
+url=jdbc:mysql://localhost:3306/book
+driverClassName=com.mysql.jdbc.Driver
+initialSize=5
+maxActive=10
+```
+
+第六 编写 JdbcUtils 工具类：
+
+```java
+
+public class JdbcUtils {
+    private static DruidDataSource dataSource;
+static {
+    try {
+        Properties properties = new Properties();
+        // 读取 jdbc.properties 属性配置文件
+        InputStream inputStream =
+        JdbcUtils.class.getClassLoader().getResourceAsStream("jdbc.properties");
+        // 从流中加载数据
+        properties.load(inputStream);
+        // 创建 数据库连接 池
+        dataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(properties);
+    } catch (Exception e) {
+   	 e.printStackTrace();
+    }
+}
+/**
+* 获取数据库连接池中的连接
+* @return 如果返回 null, 说明获取连接失败 <br/> 有值就是获取连接成功
+*/
+public static Connection getConnection(){
+    Connection conn = null;
+    try {
+       conn = dataSource.getConnection();
+    } catch (Exception e) {
+       e.printStackTrace();
+    }
+    return conn;
+}
+/**
+* 关闭连接，放回数据库连接池
+* @param conn
+*/
+public static void close(Connection conn){
+    if (conn != null) {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+}
+```
+
+第六 JdbcUtils测试
+
+```java
+public class JdbcUtilsTest {
+@Test
+    public void testJdbcUtils(){
+        for (int i = 0; i < 100; i++){
+            Connection connection = JdbcUtils.getConnection();
+            System.out.println(connection);
+            JdbcUtils.close(connection);
+        }
+    }
+}
+```
+
+#### 编写BaseDao
+
+第一 引入DBUtils的jar包  commons-dbutils-1.3.jar
+
+第二编写BaseDao:
+
+```java
+public abstract class BaseDao {
+// 使用 DbUtils 操作数据库
+private QueryRunner queryRunner = new QueryRunner();
+/**
+* update() 方法用来执行： Insert\Update\Delete 语句
+*
+* @return 如果返回 -1, 说明执行失败 <br/> 返回其他表示影响的行数
+*/
+public int update(String sql, Object... args) {
+    Connection connection = JdbcUtils.getConnection();
+    try {
+       return queryRunner.update(connection, sql, args);
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+       JdbcUtils.close(connection);
+    }
+     return -1;
+}
+/**
+* 查询返回一个 javaBean 的 sql 语句
+*
+* @param type 返回的对象类型
+* @param sql 执行的 sql 语句
+* @param args sql 对应的参数值
+* @param <T> 返回的类型的泛型
+* @return
+*/
+public <T> T queryForOne(Class<T> type, String sql, Object... args) {
+    Connection con = JdbcUtils.getConnection();
+    try {
+        return queryRunner.query(con, sql, new BeanHandler<T>(type), args);
+    } catch (SQLException e) {
+         e.printStackTrace();
+    } finally {
+         JdbcUtils.close(con);
+    }
+    return null;
+}
+/**
+* 查询返回多个 javaBean 的 sql 语句
+*
+* @param type 返回的对象类型
+* @param sql 执行的 sql 语句
+* @param args sql 对应的参数值
+* @param <T> 返回的类型的泛型
+* @return
+*/
+public <T> List<T> queryForList(Class<T> type, String sql, Object... args) {
+    Connection con = JdbcUtils.getConnection();
+    try {
+        return queryRunner.query(con, sql, new BeanListHandler<T>(type), args);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        JdbcUtils.close(con);
+    }
+    return null;
+}
+/**
+* 执行返回一行一列的 sql 语句
+* @param sql 执行的 sql 语句
+* @param args sql 对应的参数值
+* @return
+*/
+public Object queryForSingleValue(String sql, Object... args){
+    Connection conn = JdbcUtils.getConnection();
+    try {
+        return queryRunner.query(conn, sql, new ScalarHandler(), args);
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        JdbcUtils.close(conn);
+    }
+    return null;
+}
+}
+```
+
+#### 编写UserDao测试
+
+第一 UserDao 接口(确定业务)
+
+```java
+public interface UserDao {
+    /**
+* 根据用户名查询用户信息
+* @param username 用户名
+* @return 如果返回 null, 说明没有这个用户。反之亦然
+*/
+    public User queryUserByUsername(String username);
+    /**
+* 根据 用户名和密码查询用户信息
+* @param username
+* @param password
+* @return 如果返回 null, 说明用户名或密码错误 , 反之亦然
+*/
+    public User queryUserByUsernameAndPassword(String username,String password);
+    /**
+* 保存用户信息
+* @param user
+* @return 返回 -1 表示操作失败，其他是 sql 语句影响的行数
+*/
+    public int saveUser(User user);
+}
+```
+
+第二 UserDaoImpl 实现类：(实现业务方法)
+
+```java
+public class UserDaoImpl extends BaseDao implements UserDao {
+    @Override
+    public User queryUserByUsername(String username) {
+        String sql = "select `id`,`username`,`password`,`email` from t_user where username = ?";
+        return queryForOne(User.class, sql, username);
+    }
+    @Override
+    public User queryUserByUsernameAndPassword(String username, String password) {
+        String sql = "select `id`,`username`,`password`,`email` from t_user where username = ? and
+            password = ?";
+            return queryForOne(User.class, sql, username,password);
+    }
+    @Override
+    public int saveUser(User user) {
+        String sql = "insert into t_user(`username`,`password`,`email`) values(?,?,?)";
+        return update(sql, user.getUsername(),user.getPassword(),user.getEmail());
+    }
+}
+```
+
+第三 UserDao 测试
+
+```java
+public class UserDaoTest {
+    UserDao userDao = new UserDaoImpl();
+    @Test
+    public void queryUserByUsername() {
+        if (userDao.queryUserByUsername("admin1234") == null ){
+            System.out.println(" 用户名可用！");
+        } else {
+            System.out.println(" 用户名已存在！");
+        }
+    }
+    @Test
+    public void queryUserByUsernameAndPassword() {
+        if ( userDao.queryUserByUsernameAndPassword("admin","admin1234") == null) {
+            System.out.println(" 用户名或密码错误，登录失败");
+        } else {
+            System.out.println(" 查询成功");
+        }
+    }
+    @Test
+    public void saveUser() {
+        System.out.println( userDao.saveUser(new User(null,"wzg168", "123456", "wzg168@qq.com")) );
+    }
+}
+```
+
+#### 编写UserService和测试
+
+第一 UserService 接口
+
+```java
+public interface UserService {
+    /**
+* 注册用户
+* @param user
+*/
+    public void registUser(User user);
+    /**
+* 登录
+* @param user
+* @return 如果返回 null ，说明登录失败，返回有值，是登录成功
+*/
+    public User login(User user);
+    /**
+* 检查 用户名是否可用
+* @param username
+* @return 返回 true 表示用户名已存在，返回 false 表示用户名可用
+*/
+    public boolean existsUsername(String username);
+}
+```
+
+第二 UserServiceImpl 实现类
+
+```java
+public class UserServiceTest {
+    UserService userService = new UserServiceImpl();
+    @Test
+    public void registUser() {
+        userService.registUser(new User(null, "bbj168", "666666", "bbj168@qq.com"));
+        userService.registUser(new User(null, "abc168", "666666", "abc168@qq.com"));
+    }
+    @Test
+    public void login() {
+        System.out.println( userService.login(new User(null, "wzg168", "123456", null)) );
+    }
+    @Test
+    public void existsUsername() {
+        if (userService.existsUsername("wzg16888")) {
+            System.out.println(" 用户名已存在！");
+        } else {
+            System.out.println(" 用户名可用！");
+        }
+    }
+}
+```
+
+第三 UserService 测试：
+
+```java
+public class UserServiceTest {
+    UserService userService = new UserServiceImpl();
+    @Test
+    public void registUser() {
+        userService.registUser(new User(null, "bbj168", "666666", "bbj168@qq.com"));
+        userService.registUser(new User(null, "abc168", "666666", "abc168@qq.com"));
+    }
+    @Test
+    public void login() {
+        System.out.println( userService.login(new User(null, "wzg168", "123456", null)) );
+    }
+    @Test
+    public void existsUsername() {
+        if (userService.existsUsername("wzg16888")) {
+            System.out.println(" 用户名已存在！");
+        } else {
+            System.out.println(" 用户名可用！");
+        }
+    }
+}
+```
+
+
+
+##### jsp 
 ```
 jsp  java server pages
 用于页面的响应
@@ -3758,7 +4343,7 @@ false 表示上传的文件类型
 String FileItem.getFieldName()
 获取表单项的 name 属性值
 
-```
+```java
 package com.atguigu.web;
 
 
@@ -3822,7 +4407,7 @@ public class UploadServlet extends HttpServlet {
 
 ```
 #### 文件下载
-```
+```java
 package com.atguigu.servlet;
 
 import org.apache.commons.io.IOUtils;
