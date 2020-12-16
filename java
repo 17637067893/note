@@ -4325,6 +4325,27 @@ for （ int i = 1; i < 10; i+=2 ）
 ```
 #### 文件上传
 
+错误一 java.lang.NoClassDefFoundError: org/apache/commons/fileupload/FileItemFactory
+
+```
+运行servler报错
+
+java.lang.NoClassDefFoundError: org/apache/commons/fileupload/FileItemFactory
+
+或
+
+java.lang.ClassNotFoundException: org.apache.commons.fileupload.FileItemFactory
+
+程序编译通过但是报这个错，网上搜了一下，大部分说是包未正确导入，我的包是导入好的
+
+原因：
+
+(1) 在 \.metadata\.me_tcat7\webapps\baokaov2\WEB-INF\lib 下面 缺少这个包commons-fileupload-1.3.3.jar
+(2) tomcat的lib下面缺少这个包commons-fileupload-1.3.3.jar
+```
+
+
+
 commons-fileupload.jar 赖 需要依赖 commons-io.jar 这个包，所以两个包我们都要引入。
 个 第一步，就是需要导入两个 jar 包：
 commons-fileupload-1.2.1.jar
@@ -4332,16 +4353,45 @@ commons-io-1.4.jar
 commons-fileupload.jar 和 和 commons-io.jar 包中，我们常用的类有哪些？
 ServletFileUpload 类，用于解析上传的数据。
 FileItem 类，表示每一个表单项。
+
+```
 boolean ServletFileUpload.isMultipartContent(HttpServletRequest request);
 判断当前上传的数据格式是否是多段的格式。
+```
+
+```
 public List<FileItem> parseRequest(HttpServletRequest request)
 解析上传的数据
+```
+
+```
 boolean FileItem.isFormField()
 判断当前这个表单项，是否是普通的表单项。还是上传的文件类型。
+```
+
+```
 true 表示普通类型的表单项
 false 表示上传的文件类型
+```
+
+```
 String FileItem.getFieldName()
 获取表单项的 name 属性值
+```
+
+```
+void FileItem.write(file)   //写入上传文件
+```
+
+```
+String FileItem.getName();   //获取上传文件的名字
+```
+
+```
+String FileItem.getString()   获取当前表单相的值
+```
+
+
 
 ```java
 package com.atguigu.web;
@@ -4520,3 +4570,266 @@ public class WebUtils {
     User user= WebUtils.CopyParamToBean(req.getParameterMap(),new User());
     resp.getWriter().write(user.toString());
 ```
+
+#### Cookie
+
+```java
+1 创建cookie
+    Cookie cookie = new Cookie("key1","value1");
+response.addCookie(cookie);
+
+2 获取cookie
+    final Cookie[] cookies = request.getCookies();
+for(Cookie c:cookies){
+    if("key1".equals(c.getName())){
+        System.out.println("找到了"+c.getValue());
+    }
+    System.out.println("name"+c.getName());
+    System.out.println("value"+c.getValue());
+}
+
+3
+    setMaxAge()
+    * 正数 多少秒后 过期
+    * 负数  浏览器一关 Cookit就会删除
+    * 0  马上删除
+    */
+    final Cookie cookie = new Cookie("key2", "value2");
+     cookie.setMaxAge(10);
+     response.addCookie(cookie);
+```
+
+#### Session
+
+1、Session 就一个接口（HttpSession）。
+2、Session 就是会话。它是用来维护一个客户端和服务器之间关联的一种技术。
+3、每个客户端都有自己的一个 Session 会话。
+4、Session 会话中，我们经常用来保存用户登录之后的信息。
+
+ 如何创建 Session 和获取
+
+```java
+request.getSession()
+第一次调用是：创建 Session 会话
+之后调用都是：获取前面创建好的 Session 会话对象。
+isNew(); 判断到底是不是刚创建出来的（新的）
+true 表示刚创建
+false 表示获取之前创建
+每个会话都有一个身份证号。也就是 ID 值。而且这个 ID 是唯一的。
+getId() 得到 Session 的会话 id 值。
+    
+    
+req.getSession().setAttribute("key1", "value1");
+Object attribute = req.getSession().getAttribute("key1");
+
+Session 生命周期控制
+    req.getSession().getMaxInactiveInterval();
+
+    req.getSession().setMaxInactiveInterval(1800);
+    Session 默认的超时时间长为 30 分钟。
+    因为在Tomcat服务器的配置文件web.xml中默认有以下的配置，它就表示配置了当前Tomcat服务器下所有的Session
+    超时配置默认时长为：30 分钟。
+    <session-config>
+    <session-timeout>30</session-timeout>
+    </session-config>
+```
+
+#### Filter过滤器
+
+Filter 过滤器它的作用是： 拦截请求，过滤响应。
+
+Filter 过滤器的使用步骤：
+1、编写一个类去实现 Filter 接口
+2、实现过滤方法 doFilter()
+3、到 web.xml 中去配置 Filter 的拦截路径
+
+1. 创建filter
+
+```java
+public class AdminFilter implements Filter {
+    /**
+* doFilter 方法，专门用于拦截请求。可以做权限检查
+*/
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain
+                         filterChain) throws IOException, ServletException {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        HttpSession session = httpServletRequest.getSession();
+        Object user = session.getAttribute("user");
+        // 如果等于 null ，说明还没有登录
+        if (user == null) {
+            servletRequest.getRequestDispatcher("/login.jsp").forward(servletRequest,servletResponse);
+            return;
+        } else {
+            // 让程序继续往下访问用户的目标资源
+            filterChain.doFilter(servletRequest,servletResponse);
+        }
+    }
+}
+```
+
+配置web.xml 中的配置：
+
+```xml
+<!--filter 标签用于配置一个 Filter 过滤器 -->
+<filter>
+    <!-- 给 filter 起一个别名 -->
+    <filter-name>AdminFilter</filter-name>
+    <!-- 配置 filter 的全类名 -->
+    <filter-class>com.atguigu.filter.AdminFilter</filter-class>
+</filter>
+<!--filter-mapping 配置 Filter 过滤器的拦截路径 -->
+<filter-mapping>
+    <!--filter-name 表示当前的拦截路径给哪个 filter 使用 -->
+    <filter-name>AdminFilter</filter-name>
+    <!--url-pattern 配置拦截路径
+/ 表示请求地址为： http://ip:port/ 工程路径 / 映射到 IDEA 的 web 目录
+/admin/* 表示请求地址为： http://ip:port/ 工程路径 /admin/*
+-->
+    <url-pattern>/admin/*</url-pattern>
+</filter-mapping>
+```
+
+2. 生命周期
+
+   ```
+   Filter 的生命周期包含几个方法
+   1、构造器方法
+   2、init 初始化方法
+   第 1，2 步，在 web 工程启动的时候执行（Filter 已经创建）
+   3、doFilter 过滤方法
+   第 3 步，每次拦截到请求，就会执行
+   4、destroy 销毁
+   第 4 步，停止 web 工程的时候，就会执行（停止 web 工程，也会销毁 Filter 过滤器）
+   ```
+
+   FilterConfig类
+
+   FilterConfig 类见名知义，它是 Filter 过滤器的配置文件类。
+   Tomcat 每次创建 Filter 的时候，也会同时创建一个 FilterConfig 类，这里包含了 Filter 配置文件的配置信息。
+   FilterConfig 类的作用是获取 filter 过滤器的配置内容
+   1、获取 Filter 的名称 filter-name 的内容
+   2、获取在 Filter 中配置的 init-param 初始化参数
+   3、获取 ServletContext 对象
+
+   ```java
+   @Override
+   public void init(FilterConfig filterConfig) throws ServletException {
+       System.out.println("2.Filter 的 的 init(FilterConfig filterConfig) 初始化");
+       // 1 、获取 Filter 的名称 filter-name 的内容
+       System.out.println("filter-name 的值是：" + filterConfig.getFilterName());
+       // 2 、获取在 web.xml 中配置的 init-param 初始化参数
+       System.out.println(" 初始化参数 username 的值是 ：" + filterConfig.getInitParameter("username"));
+       System.out.println(" 初始化参数 url 的值是：" + filterConfig.getInitParameter("url"));
+       // 3 、获取 ServletContext 对象
+       System.out.println(filterConfig.getServletContext());
+   }
+   ```
+
+   web.xml 配置
+
+   ```xml
+   <!--filter 标签用于配置一个 Filter 过滤器 -->
+   <filter>
+       <!-- 给 filter 起一个别名 -->
+       <filter-name>AdminFilter</filter-name>
+       <!-- 配置 filter 的全类名 -->
+       <filter-class>com.atguigu.filter.AdminFilter</filter-class>
+       <init-param>
+           <param-name>username</param-name>
+           <param-value>root</param-value>
+       </init-param>
+       <init-param>
+           <param-name>url</param-name>
+           <param-value>jdbc:mysql://localhost3306/test</param-value>
+       </init-param>
+   </filter>
+   ```
+
+   FilterChain 过滤器链
+
+   
+
+![image-20201216155640526](G:\note\image\image-20201216155640526.png)
+
+Filter 的拦截路径
+
+```xml
+--精确匹配 精确匹配
+<url-pattern>/target.jsp</url-pattern>
+以上配置的路径，表示请求地址必须为：http://ip:port/工程路径/target.jsp
+--目录匹配 目录匹配
+<url-pattern>/admin/*</url-pattern>
+以上配置的路径，表示请求地址必须为：http://ip:port/工程路径/admin/*
+--后缀名匹配 后缀名匹配
+<url-pattern>*.html</url-pattern>
+以上配置的路径，表示请求地址必须以.html 结尾才会拦截到
+<url-pattern>*.do</url-pattern>
+以上配置的路径，表示请求地址必须以.do 结尾才会拦截到
+<url-pattern>*.action</url-pattern>
+以上配置的路径，表示请求地址必须以.action 结尾才会拦截到
+Filter 过滤器它只关心请求的地址是否匹配，不关心请求的资源是否存在！！
+```
+
+#### JSON
+
+javaBean 和 和 json 的互转
+
+```java
+@Test
+public void test1(){
+    Person person = new Person(1," 国哥好帅!");
+    // 创建 Gson 对象实例
+    Gson gson = new Gson();
+    // toJson 方法可以把 java 对象转换成为 json 字符串
+    String personJsonString = gson.toJson(person);
+    System.out.println(personJsonString);
+    // fromJson 把 json 字符串转换回 Java 对象
+    // 第一个参数是 json 字符串
+    // 第二个参数是转换回去的 Java 对象类型
+    Person person1 = gson.fromJson(personJsonString, Person.class);
+    System.out.println(person1);
+}
+```
+
+List 和 和 json 的互转
+
+```java
+@Test
+public void test2() {
+    List<Person> personList = new ArrayList<>();
+    personList.add(new Person(1, " 国哥"));
+    personList.add(new Person(2, " 康师傅"));
+    Gson gson = new Gson();
+    // 把 List 转换为 json 字符串
+    String personListJsonString = gson.toJson(personList);
+    System.out.println(personListJsonString);
+    List<Person> list = gson.fromJson(personListJsonString, new PersonListType().getType());
+    System.out.println(list);
+    Person person = list.get(0);
+    System.out.println(person);
+}
+```
+
+map 和 和 json 的互转
+
+```java
+@Test
+public void test3(){
+    Map<Integer,Person> personMap = new HashMap<>();
+    personMap.put(1, new Person(1, " 国哥好帅"));
+    personMap.put(2, new Person(2, " 康师傅也好帅"));
+    Gson gson = new Gson();
+    // 把 map 集合转换成为 json 字符串
+    String personMapJsonString = gson.toJson(personMap);
+    System.out.println(personMapJsonString);
+    // Map<Integer,Person> personMap2 = gson.fromJson(personMapJsonString, new
+    PersonMapType().getType());
+    Map<Integer,Person> personMap2 = gson.fromJson(personMapJsonString, new
+                                                   TypeToken<HashMap<Integer,Person>>(){}.getType());
+    System.out.println(personMap2);
+    Person p = personMap2.get(1);
+    System.out.println(p);
+}
+```
+
