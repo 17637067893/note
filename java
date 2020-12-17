@@ -1168,7 +1168,7 @@ System.out.println(sArr);
 
 泛型接口
 
-```
+```java
 接口
 
 public interface Interface<T> {
