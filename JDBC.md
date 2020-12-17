@@ -2573,7 +2573,7 @@ public void destroyMethod() {
 配置
 
 ```xml
-< bean id= "orders" class= "com.atguigu.spring5.bean.Orders" init- -method= "initMethod" destroy- - method= "destroyMethod">
+< bean id= "orders" class= "com.atguigu.spring5.bean.Orders" init-method= "initMethod" destroy-method= "destroyMethod">
     < property name= "oname" value=" " 手机" "></ property>
  </ bean>
 ```
@@ -2646,9 +2646,9 @@ byType 根据属性类型注入
   
   在 spring 配置文件使用标签引入外部属性文件
       <!--引入外部属性文件-->
-  < context :property- - placeholder location ="classpath:jdbc.properties"/>
+  < context:property-placeholder location ="classpath:jdbc.properties"/>
           <!--配置连接池-->
-  < bean id ="dataSource" class ="com.alibaba.druid.pool.DruidDataSource">
+  < bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
       < property name ="driverClassName" value ="${prop.driverClass}"></ property>
       < property name ="url" value ="${prop.url}"></ property>
       < property name ="username" value ="${prop.userName}"></ property>
@@ -2704,17 +2704,16 @@ byType 根据属性类型注入
   use-default-filters="false" 表示现在不使用默认 filter，自己配置 filter
   context:include-filter ，设置扫描哪些内容
   -->
-  < context :component- - scan base- - package= "com.atguigu" use- - default- -
-           filters= "false">
-      < context :include- - filter type= "annotation"
+  < context:component-scan base-package= "com.atguigu" use-default-filters= "false">
+      < context :include-filter type= "annotation"
                expression= "org.springframework.stereotype.Controller"/>
-      </ context :component- - scan>
+      </ context:component-scan>
   <!--示例 2
   下面配置扫描包所有内容
   context:exclude-filter： 设置哪些内容不进行扫描
   -->
-  < context :component- - scan base- - package= "com.atguigu">
-      < context :exclude- - filter type= "annotation"
+  < context:component-scan base-package= "com.atguigu">
+      < context :exclude-filter type= "annotation"
                expression= "org.springframework.stereotype.Controller"/>
       </ context :component- - scan>
   ```
