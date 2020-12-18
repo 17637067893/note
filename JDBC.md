@@ -3095,3 +3095,517 @@ public class ConfigAop {
 
 
 #### jdbcTemplate
+
+Spring 框架对 JDBC 进行封装，使用 JdbcTemplate 方便实现对数据库操作
+
+引入包
+
+![image-20201218093012658](G:\note\image\image-20201218093012658.png)
+
+在 spring 配置文件配置数据库连接池
+
+```xml
+（2）在 spring 配置文件配置数据库连接池
+<!-- 数据库连接池 -->
+< bean id= "dataSource" class= "com.alibaba.druid.pool.DruidDataSource"
+      destroy- - method= "close">
+    < property name= "url" value= "jdbc:mysql:///user_db" />
+    < property name= "username" value= "root" />
+    < property name= "password" value= "root" />
+    < property name= "driverClassName" value= "com.mysql.jdbc.Driver" />
+    </ bean>
+```
+
+配置 JdbcTemplate 对象，注入 DataSource
+
+```xml
+<!-- JdbcTemplate 对象 -->
+< bean id= "jdbcTemplate" class= "org.springframework.jdbc.core.JdbcTemplate">
+<!--注入 dataSource-->
+< property name= "dataSource" ref= "dataSource"></ property>
+</ bean>
+```
+
+开启注解扫描
+
+```xml
+<!-- 组件扫描 -->
+< context :component- - scan base- - package= "com.atguigu"></ context :component- -
+```
+
+创建文件
+
+Service
+
+```java
+@Service
+public class BookService {
+//注入 dao
+@Autowired
+private BookDao bookDao;
+}
+```
+
+Dao
+
+```java
+@Repository
+public class BookDaoImpl implements BookDao {
+//注入 JdbcTemplate
+@Autowired
+private JdbcTemplate jdbcTemplate;
+}
+```
+
+JdbcTemplate 操作数据库（添加）
+
+![image-20201218093258236](G:\note\image\image-20201218093258236.png)
+
+2 、编写 service 和 和 dao
+
+（1）在 dao 进行数据库添加操作
+（2）调用 JdbcTemplate 对象里面 update 方法实现添加操作
+
+![image-20201218093337390](G:\note\image\image-20201218093337390.png)
+
+有两个参数
+⚫ 第一个参数：sql 语句
+⚫ 第二个参数：可变参数，设置 sql 语句值
+
+```java
+@Repository
+public class BookDaoImpl implements BookDao {
+    //注入 JdbcTemplate
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    //添加的方法
+    @Override
+    public void add(Book book) {
+        //1 创建 sql 语句
+        String sql = "insert into t_book values(?,?,?)";
+        //2 调用方法实现
+        Object[] args = {book.getUserId(), book.getUsername(),
+                         book.getUstatus()};
+        int update = jdbcTemplate.update(sql,args);
+        System. out .println(update);
+    }
+}
+```
+
+3 、测试类
+
+```java
+@Test
+public void testJdbcTemplate() {
+    ApplicationContext context =
+        new ClassPathXmlApplicationContext( "bean1.xml");
+    BookService bookService = context.getBean( "bookService",
+                                              BookService. class);
+    Book book = new Book();
+    book.setUserId( "1");
+    book.setUsername( "java");
+    book.setUstatus( "a");
+    bookService.addBook(book);
+}
+```
+
+JdbcTemplate 操作数据库（修改和删除）
+
+1 、修改
+
+```java
+@Override
+public void updateBook(Book book) {
+String sql = "update t_book set username=?,ustatus=? where user_id=?";
+Object[] args = {book.getUsername(), book.getUstatus(),book.getUserId()};
+int update = jdbcTemplate.update(sql, args);
+System. out .println(update);
+}
+```
+
+2 、删除
+
+```java
+@Override
+public void delete(String id) {
+String sql = "delete from t_book where user_id=?";
+int update = jdbcTemplate.update(sql, id);
+System. out .println(update);
+}
+```
+
+JdbcTemplate 操作数据库（查询返回某个值）
+
+1 、查询表里面有多少条记录，返回是某个值
+2 、使用 JdbcTemplate 实现查询返回某个值代码
+
+
+
+![image-20201218093551303](G:\note\image\image-20201218093551303.png)
+
+ 有两个参数
+⚫ 第一个参数：sql 语句
+⚫ 第二个参数：返回类型 Class
+
+```java
+//查询表记录数
+@Override
+public int selectCount() {
+    String sql = "select count ( ( * ) from t_book";
+    Integer count = jdbcTemplate.queryForObject(sql, Integer. class);
+    return count;
+}
+```
+
+JdbcTemplate 操作数据库（查询返回对象）
+
+场景：查询图书详情
+2 、JdbcTemplate 实现查询返回对象
+
+![image-20201218093651705](G:\note\image\image-20201218093651705.png)
+
+ 有三个参数
+⚫ 第一个参数：sql 语句
+⚫ 第二个参数：RowMapper 是接口，针对返回不同类型数据，使用这个接口里面实现类完成
+数据封装
+⚫ 第三个参数：sql 语句值
+
+```java
+//查询返回对象
+@Override
+public Book findBookInfo(String id) {
+    String sql = "select * from t_book where user_id=?";
+    //调用方法
+    Book book = jdbcTemplate.queryForObject(sql, new
+                                            BeanPropertyRowMapper<Book>(Book. class), id);
+    return book;
+}
+```
+
+JdbcTemplate 操作数据库（查询返回集合）
+
+场景：查询图书列表分页…
+2 、调用 JdbcTemplate 方法实现查询返回集合
+
+![image-20201218093750910](G:\note\image\image-20201218093750910.png)
+
+有三个参数
+⚫ 第一个参数：sql 语句
+⚫ 第二个参数：RowMapper 是接口，针对返回不同类型数据，使用这个接口里面实现类完成
+数据封装
+⚫ 第三个参数：sql 语句值
+
+```java
+@Override
+public List<Book> findAllBook() {
+    String sql = "select * from t_book";
+    //调用方法
+    List<Book> bookList = jdbcTemplate.query(sql, new
+                                             BeanPropertyRowMapper<Book>(Book. class));
+    return bookList;
+}
+```
+
+JdbcTemplate 操作数据库
+
+1 、批量操作：操作表里面多条记录
+2 、JdbcTemplate 实现批量添加操作
+
+![image-20201218093836346](G:\note\image\image-20201218093836346.png)
+
+有两个参数
+⚫ 第一个参数：sql 语句
+⚫ 第二个参数：List 集合，添加多条记录数据
+
+```java
+//批量添加
+@Override
+public void batchAddBook(List<Object[]> batchArgs) {
+    String sql = "insert into t_book values(?,?,?)";
+    int[] ints = jdbcTemplate.batchUpdate(sql, batchArgs);
+    System. out.println(Arrays.toString(ints));
+}
+// 批量添加测试
+List<Object[]> batchArgs = new ArrayList<>();
+Object[] o1 = { "3", "java", "a"};
+Object[] o2 = { "4", "c++", "b"};
+Object[] o3 = { "5", "MySQL", "c"};
+batchArgs.add(o1);
+batchArgs.add(o2);
+batchArgs.add(o3);
+//调用批量添加
+bookService.batchAdd(batchArgs);
+```
+
+JdbcTemplate 实现批量 实现批量 修改操作
+
+
+
+```java
+//批量修改
+@Override
+public void batchUpdateBook(List<Object[]> batchArgs) {
+    String sql = "update t_book set username=?,ustatus=? where user_id=?";
+    int[] ints = jdbcTemplate.batchUpdate(sql, batchArgs);
+    System. out .println(Arrays. toString (ints));
+}
+// 批量修改
+List<Object[]> batchArgs = new ArrayList<>();
+Object[] o1 = { "java0909", "a3", "3"};
+Object[] o2 = { "c++1010", "b4", "4"};
+Object[] o3 = { "MySQL1111", "c5", "5"};
+batchArgs.add(o1);
+batchArgs.add(o2);
+batchArgs.add(o3);
+//调用方法实现批量修改
+bookService.batchUpdate(batchArgs);
+```
+
+JdbcTemplate 实现批量 实现批量 删除操作
+
+```java
+//批量删除
+@Override
+public void batchDeleteBook(List<Object[]> batchArgs) {
+    String sql = "delete from t_book where user_id=?";
+    int[] ints = jdbcTemplate.batchUpdate(sql, batchArgs);
+    System. out .println(Arrays. toString (ints));
+}
+
+/ 批量删除
+List<Object[]> batchArgs = new ArrayList<>();
+Object[] o1 = { "3"};
+Object[] o2 = { "4"};
+batchArgs.add(o1);
+batchArgs.add(o2);
+//调用方法实现批量删除
+bookService.batchDelete(batchArgs);
+```
+
+#### 事务管理
+
+1 、什么事务
+（1）事务是数据库操作最基本单元，逻辑上一组操作，要么都成功，如果有一个失败所有操
+作都失败
+（2）典型场景：银行转账
+* lucy 转账 100 元 给 mary
+
+* lucy 少 100，mary 多 100
+
+  2 、事务四个特性（ACID ）
+  （1）原子性
+  （2）一致性
+  （3）隔离性
+  （4）持久性
+
+事务操作
+
+![image-20201218105255857](G:\note\image\image-20201218105255857.png)
+
+1、创建 service ，搭建 dao ，完成对象创建和注入关系
+（1）service 注入 dao，在 dao 注入 JdbcTemplate，在 JdbcTemplate 注入 DataSource
+
+```java
+@Service
+public class UserService {
+    //注入 dao
+    @Autowired
+    private UserDao userDao;
+}
+@Repository
+public class UserDaoImpl implements UserDao {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+}
+```
+
+2 、在 dao 创建两个方法：多钱和少钱的方法，在 service 创建方法（转账的方法）
+
+```java
+@Repository
+public class UserDaoImpl implements UserDao {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    //lucy 转账 100 给 mary
+    //少钱
+    @Override
+    public void reduceMoney() {
+        String sql = "update t_account set money=money- - ? where username=?";
+        jdbcTemplate.update(sql,100, "lucy");
+    }
+    //多钱
+    @Override
+    public void addMoney() {
+        String sql = "update t_account set money=money+? where username=?";
+        jdbcTemplate.update(sql,100, "mary");
+    }
+}
+```
+
+3 Service写业务
+
+```java
+@Service
+public class UserService {
+    //注入 dao
+    @Autowired
+    private UserDao userDao;
+    //转账的方法
+    public void accountMoney() {
+        //lucy 少 100
+        userDao.reduceMoney();
+        //mary 多 100
+        userDao.addMoney();
+    }
+}
+```
+
+1 、事务添加到 JavaEE 三层结构里面 Service 层（业务逻辑层）
+
+2 、在 Spring 进行事务管理操作
+（ （1）有两种方式： ）有两种方式：编程式事务管理和声明式事务管理（使用）
+
+3 、声明式事务管理
+（ （1）基于注解方式 ）基于注解方式（使用） （使用）
+（2）基于 xml 配置文件方式
+
+4 、在 Spring 进行声明式事务管理，底层使用 AOP 原理
+
+5 、Spring 事务管理 API
+（1）提供一个接口，代表事务管理器，这个接口针对不同的框架提供不同的实现类
+
+![image-20201218105514621](G:\note\image\image-20201218105514621.png)
+
+xml配置事务
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+<!--    开启扫描-->
+    <context:component-scan base-package="demo4"></context:component-scan>
+<!--    配置连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="url" value="jdbc:mysql:///test"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="root01"></property>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+    </bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+<!--    创建事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+<!--        注入数据源-->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+<!--    开启事务-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+</beans>
+```
+
+3 、在 service 类上面（ 类上面（或者 或者 service 类里面方法上面）添加事务注解
+（1）@Transactional，这个注解添加到类上面，也可以添加方法上面
+（2）如果把这个注解添加类上面，这个类里面所有的方法都添加事务
+（3）如果把这个注解添加方法上面，为这个方法添加事务
+
+```
+@Service
+@Transactional
+public class UserService {
+```
+
+事务操作（声明式事务管理参数配置）
+
+![image-20201218114116813](G:\note\image\image-20201218114116813.png)
+
+![image-20201218114126785](G:\note\image\image-20201218114126785.png)
+
+![image-20201218114136423](G:\note\image\image-20201218114136423.png)
+
+![image-20201218114145832](G:\note\image\image-20201218114145832.png)
+
+ioslation ：事务隔离级别
+（1）事务有特性成为隔离性，多事务操作之间不会产生影响。不考虑隔离性产生很多问题
+（2）有三个读问题：脏读、不可重复读、虚（幻）读
+（3）脏读：一个未提交事务读取到另一个未提交事务的数据
+
+4）不可重复读：一个未提交事务读取到另一提交事务修改数据
+
+5 幻读：一个未提交事务读取到另一提交事务添加数据
+
+![image-20201218114237932](G:\note\image\image-20201218114237932.png)
+
+![image-20201218114244892](G:\note\image\image-20201218114244892.png)
+
+4 、timeout ：超时时间
+（1）事务需要在一定时间内进行提交，如果不提交进行回滚
+（2）默认值是 -1 ，设置时间以秒单位进行计算
+5 、readOnly ：是否只读
+（1）读：查询操作，写：添加修改删除操作
+（2）readOnly 默认值 false，表示可以查询，可以添加修改删除操作
+（3）设置 readOnly 值是 true，设置成 true 之后，只能查询
+6 、rollbackFor ：回滚
+（1）设置出现哪些异常进行事务回滚
+7 、noRollbackFor ：不回滚
+（1）设置出现哪些异常不进行事务回滚
+
+#### 事务操作（完全注解声明式事务管理）
+
+```java
+1 、创建配置类，使用配置类替代 xml 配置文件
+    @Configuration //配置类
+    @ComponentScan(basePackages = "com.atguigu") //组件扫描
+    @EnableTransactionManagement //开启事务
+    public class TxConfig {
+        //创建数据库连接池
+        @Bean
+        public DruidDataSource getDruidDataSource() {
+            DruidDataSource dataSource = new DruidDataSource();
+            dataSource.setDriverClassName( "com.mysql.jdbc.Driver");
+            dataSource.setUrl( "jdbc:mysql:///user_db");
+            dataSource.setUsername( "root");
+            dataSource.setPassword( "root");
+            return dataSource;
+        }
+        //创建 JdbcTemplate 对象
+        @Bean
+        public JdbcTemplate getJdbcTemplate(DataSource dataSource) {
+            //到 ioc 容器中根据类型找到 dataSource
+            JdbcTemplate jdbcTemplate = new JdbcTemplate();
+            //注入 dataSource
+            jdbcTemplate.setDataSource(dataSource);
+            return jdbcTemplate;
+        }
+        
+        
+        
+        
+        
+        //创建事务管理器
+        @Bean
+        public DataSourceTransactionManager
+            getDataSourceTransactionManager(DataSource dataSource) {
+            DataSourceTransactionManager transactionManager = new
+                DataSourceTransactionManager();
+            transactionManager.setDataSource(dataSource);
+            return transactionManager;
+        }
+    }
+```
+
+使用
+
+```java
+@Test
+    public void test1(){
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TxConfig.class);
+        context.getBean("user",User.class)
+    }
+```
+
