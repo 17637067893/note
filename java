@@ -4833,3 +4833,10 @@ public void test3(){
 }
 ```
 
+#### 拦截器
+
+![image-20201222000942817](G:\note\image\image-20201222000942817.png)
+
+![image-20201222002854926](G:\note\image\image-20201222002854926.png)
+
+![image-20201222004020016](G:\note\image\image-20201222004020016.png)
