@@ -1,3 +1,78 @@
+#### 注解
+
+1. @ComponentScan 组件扫描
+
+2. @Value
+
+   注入Spring boot application.properties配置的属性的值
+
+   ```
+      @Value(value = “#{message}”)
+      private String message;
+   ```
+
+3. @Bean
+
+   ```
+   用@Bean标注方法等价于XML中配置的bean。
+   ```
+
+4. @ResponseBody
+
+   ```java
+   表示该方法的返回结果直接写入HTTP response body中，一般在异步获取数据时使用，用于构建RESTful的api。在使用@RequestMapping后，返回值通常解析为跳转路径，加上@esponsebody后返回结果不会被解析为跳转路径，而是直接写入HTTP response body中。比如异步获取json数据，加上@Responsebody后，会直接返回json数据。该注解一般会配合
+   @RequestMapping(“/test”)
+     @ResponseBody
+     public String test(){
+        return”ok”;
+    }
+   ```
+
+5. @RestController
+
+   ```
+   @RestController注解是@Controller和@ResponseBody的合集,表示这是个控制器bean,并且是将函数的返回值直 接填入HTTP响应体中,是REST风格的控制器。
+   ```
+
+6. @Configuration
+
+   ```
+   @Configuration 等同于spring的XML配置文件；使用Java代码可以检查类型安全
+   ```
+
+7. @SpringBootApplication
+
+   申明让spring boot自动给程序进行必要的配置，这个配置等同于：@Configuration ，@EnableAutoConfiguration 和 @ComponentScan 三个配置。
+
+   ```java
+   package com.example.myproject;
+   import org.springframework.boot.SpringApplication;
+   import org.springframework.boot.autoconfigure.SpringBootApplication;
+   
+   @SpringBootApplication // same as @Configuration @EnableAutoConfiguration @ComponentScan 
+   public class Application {
+       public static void main(String[] args) {
+           SpringApplication.run(Application.class, args);
+       }
+   }
+   ```
+
+8. @EnableAutoConfiguration
+
+   pringBoot自动配置（auto-configuration）：尝试根据你添加的jar依赖自动配置你的Spring应用。例如，如果你的classpath下存在HSQLDB，并且你没有手动配置任何数据库连接beans，那么我们将自动配置一个内存型（in-memory）数据库”。你可以将@EnableAutoConfiguration或者@SpringBootApplication注解添加到一个@Configuration类上来选择自动配置。如果发现应用了你不想要的特定自动配置类，你可以使用@EnableAutoConfiguration注解的排除属性来禁用它们。
+
+   ```
+   
+   ```
+
+9. 
+
+10. 
+
+11. 
+
+    
+
 #### SpringBoot主要特性
 
 1、 SpringBoot Starter：他将常用的依赖分组进行了整合，将其合并到一个依赖中，这样就可以一次性添加到项目的Maven或Gradle构建中；
@@ -315,5 +390,425 @@ public class TestController {
     <artifactId>lombok</artifactId>
     <version>1.16.20</version>
 </dependency>
+```
+
+通过构造函数解析
+
+1 bean
+
+```java
+@ConstructorBinding
+如果某个bean没有使用@Component注入 可以@ConfigurationProperties(prefix = "student")启用该bean
+@ConfigurationProperties(prefix = "student")
+public class Student {
+    private String name;
+    private int age;
+    private String birth;
+    private Boolean flag;
+    private List<Object> list;
+    private Set<Object> set;
+    private Double Dnum;
+    private Map<String,String> map;
+
+    public Student(String name, int age, String birth, Boolean flag, List<Object> list, Set<Object> set, Double dnum, Map<String, String> map) {
+        this.name = name;
+        this.age = age;
+        this.birth = birth;
+        this.flag = flag;
+        this.list = list;
+        this.set = set;
+        Dnum = dnum;
+        this.map = map;
+    }
+    
+}
+```
+
+2 解析文件
+
+```java
+@RestController
+
+@EnableConfigurationProperties(Student.class)
+
+public class TestController {
+    @Autowired
+    private Student student;
+    @RequestMapping("hello")
+    public String hello(){
+        System.out.println(student);
+        return "你好d89";
+    }
+
+}
+```
+
+springBoot的自动配置类原理
+
+1 找到自动的配置类的文件
+
+![image-20201223151732267](G:\note\image\image-20201223151732267.png)
+
+2 找打需要配置
+
+![image-20201223151759017](G:\note\image\image-20201223151759017.png)
+
+3 
+
+![image-20201223151919928](G:\note\image\image-20201223151919928.png)
+
+4 
+
+![image-20201223151955616](G:\note\image\image-20201223151955616.png)
+
+松散绑定
+
+![image-20201223162117175](G:\note\image\image-20201223162117175.png)
+
+![image-20201223162130490](G:\note\image\image-20201223162130490.png)
+
+绑定校验
+
+![image-20201223163456154](G:\note\image\image-20201223163456154.png)
+
+2配置文件 
+
+![image-20201223163524500](G:\note\image\image-20201223163524500.png)
+
+3 运行时会自动检查
+
+![image-20201223163536691](G:\note\image\image-20201223163536691.png)
+
+4 内部类 校验
+
+![image-20201223164115849](G:\note\image\image-20201223164115849.png)
+
+5 使用@Value绑定
+
+![image-20201223185545653](G:\note\image\image-20201223185545653.png)
+
+![image-20201223185533204](G:\note\image\image-20201223185533204.png)
+
+application.yml分区
+
+```yml
+//表示启用的区域
+spring:
+  profiles:
+    active: test2
+---
+student:
+  userName: test1
+  age:  18
+//当前区域的名字
+spring:
+  profiles: test1
+---
+student:
+  userName: test2
+  age:  18
+spring:
+  profiles: test2
+---
+student:
+  userName: test3
+  age:  18
+spring:
+  profiles: test3
+```
+
+也可以在IDEA中覆盖
+
+![image-20201223192005679](G:\note\image\image-20201223192005679.png)
+
+配置文件拆分
+
+![image-20201223193311566](G:\note\image\image-20201223193311566.png)
+
+```yml
+student:
+  userName: test2
+  age:  18
+  host: ${student.userName}:8080
+```
+
+启用时选择
+
+![image-20201223193331671](G:\note\image\image-20201223193331671.png)
+
+SPI
+
+java SPI机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。
+
+java SPI就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。
+
+![image-20201223211225462](G:\note\image\image-20201223211225462.png)
+
+1 java_spi下创建 service-common模块用于提供接口
+
+![image-20201223211326598](G:\note\image\image-20201223211326598.png)
+
+
+
+```
+package cn.tx.service;
+
+public interface PayService {
+    void pay();
+}
+```
+
+2 java_spi下创建ali-pay模块用于实现PayService接口
+
+![image-20201223211438775](G:\note\image\image-20201223211438775.png)
+
+pom.xml引用service-common模块
+
+```
+ <dependencies>
+        <dependency>
+            <groupId>tx.sprintboot</groupId>
+            <artifactId>service-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+```
+
+创建AliPayImpl实现接口
+
+```
+public class AliPayImpl implements  PayService{
+    @Override
+    public void pay() {
+        System.out.println("支付宝 支付");
+    }
+}
+```
+
+![image-20201223211948325](G:\note\image\image-20201223211948325.png)
+
+2 创建wx-pay也实现service-common的接口
+
+![image-20201223211652311](G:\note\image\image-20201223211652311.png)
+
+pom配置依赖
+
+```
+<dependencies>
+        <dependency>
+            <groupId>tx.sprintboot</groupId>
+            <artifactId>service-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+```
+
+![image-20201223211731294](G:\note\image\image-20201223211731294.png)
+
+实现接口
+
+```java
+public class WxPayImpl implements PayService{
+    @Override
+    public void pay() {
+        System.out.println("微信支付");
+    }
+}
+```
+
+创建配置文件
+
+![image-20201223212041936](G:\note\image\image-20201223212041936.png)
+
+3 创建测试模块
+
+配置依赖
+
+```xml
+<dependency>
+    接口必须
+    <groupId>tx.sprintboot</groupId>
+    <artifactId>service-common</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+需要哪个模块添加哪个依赖
+<dependency>
+    <groupId>tx.sprintboot</groupId>
+    <artifactId>ali-pay</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>tx.sprintboot</groupId>
+    <artifactId>wx-pay</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+    </dependencies>
+```
+
+
+
+![image-20201223212120955](G:\note\image\image-20201223212120955.png)
+
+配置druid数据源
+
+1 通过配置文件查看属性和前缀
+
+![image-20201224201948416](G:\note\image\image-20201224201948416.png)
+
+![image-20201224202005916](G:\note\image\image-20201224202005916.png)
+
+找到配置文件对应的类可以看到前缀为 spring.datasource
+
+![image-20201224202020679](G:\note\image\image-20201224202020679.png)
+
+2 引入依赖
+
+```xml
+<dependency>
+   <groupId>com.alibaba</groupId>
+   <artifactId>druid</artifactId>
+   <version>1.0.9</version>
+</dependency>
+<dependency>
+   <groupId>log4j</groupId>
+   <artifactId>log4j</artifactId>
+   <version>1.2.15</version>
+</dependency>
+```
+
+```yml
+spring:
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/boot_demo
+    driver-class-name: com.mysql.jdbc.Driver
+    修改数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    以下属性 配置类中可以创建注册类
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    filters: stat,wall,log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+```
+
+创建数据源注册类
+
+```java
+@Configuration
+public class DruidConfig {
+    @ConfigurationProperties(prefix ="spring.datasource")
+    @Bean
+    public DataSource dataSource(){
+        return new DruidDataSource();
+    }
+}
+```
+
+JdbdTemplate配置
+
+由于内部已经自动关联了DataSource数据源 可以直接使用
+
+```java
+@RequestMapping("query")
+public List<Map<String, Object>> query(){
+    System.out.println("查询");
+    List<Map<String, Object>> maps = jdbcTemplate.queryForList("select  * from user");
+    return maps;
+}
+```
+
+#### Mybaties
+
+1 引入依赖
+
+```xml
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>1.3.1</version>
+</dependency>
+    <dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <scope>runtime</scope>
+</dependency>
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.0.9</version>
+</dependency>
+```
+
+2 创建bean
+
+```java
+@Data
+public class User {
+    private int id;
+    private String name;
+    private String d_id;
+}
+```
+
+3 创建mapper
+
+```java
+@Mapper
+public interface UserMapper {
+    @Select("select * from user")
+    public List<User> getUser();
+
+    @Select("select * from user where user.id = #{id}")
+    public User getUserById(int id);
+
+    @Insert("insert into user (id,name,d_id) values(#{id},#{name},#{d_id})")
+    public void insert(User user);
+
+    @Delete("delete from user where id=#{id}")
+    void delete(int id);
+}
+```
+
+4测试接口
+
+```java
+@RestController
+public class TestUser {
+    @Autowired
+    private UserMapper userMapper;
+    @RequestMapping("getUser")
+    public List<User> test1(){
+        return userMapper.getUser();
+    }
+
+    @RequestMapping("getUserById")
+    public User getUserById(int id){
+        return userMapper.getUserById(id);
+    }
+
+    @RequestMapping("insert")
+    public String insert(User u){
+        userMapper.insert(u);
+        return "success";
+    }
+    @RequestMapping("delete")
+    public String deleteUser(int id){
+        userMapper.delete(id);
+        return "success";
+    }
+}
 ```
 
