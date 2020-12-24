@@ -765,6 +765,20 @@ public class User {
 
 3 创建mapper
 
+Mapper上可以不加@Mapper注解，通过@MapperScan扫描器来扫描mapper包下
+
+```java
+@SpringBootApplication
+@MapperScan("cn.tx.sboot.mapper")
+public class FirstSpringApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(FirstSpringApplication.class, args);
+    }
+}
+```
+
+
+
 ```java
 @Mapper
 public interface UserMapper {
@@ -810,5 +824,86 @@ public class TestUser {
         return "success";
     }
 }
+```
+
+Mybaties 配置文件
+
+1 配置
+
+```xml
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true        把数据user_name 对应为 userName
+  mapper-locations: classpath:mapper/*.xml   sql文件所在的文件
+  type-aliases-package: demo1.bean   bean下的所有对象累 都以小写字母 别名
+```
+
+2 创建Dao
+
+```java
+@Mapper
+public interface UserMapper {
+    public List<User> getUser();
+
+    public User getUserById(int id);
+
+    public void insert(User user);
+
+    void delete(int id);
+}
+```
+
+3 创建sql文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="demo1.mapper.UserMapper">
+   <select id="getUser" resultType="user">
+       select * from user
+   </select>
+    <select id="getUserById" resultType="user">
+        select * from user where user.id = #{id}
+    </select>
+    <insert id="insert" parameterType="user">
+        insert into user (id,name,d_id) values(#{id},#{name},#{dId})
+    </insert>
+    <delete id="delete" parameterType="int">
+        delete from user where id=#{id}
+    </delete>
+</mapper>
+```
+
+3 测试
+
+```java
+@RestController
+public class TestUser {
+    @Autowired
+    private UserMapper userMapper;
+    @RequestMapping("getUser")
+    public List<User> test1(){
+        return userMapper.getUser();
+    }
+
+    @RequestMapping("getUserById")
+    public User getUserById(int id){
+        return userMapper.getUserById(id);
+    }
+
+    @RequestMapping("insert")
+    public String insert(User u){
+        userMapper.insert(u);
+        return "success";
+    }
+    @RequestMapping("delete")
+    public String deleteUser(int id){
+        userMapper.delete(id);
+        return "success";
+    }
+}
+
 ```
 
