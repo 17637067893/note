@@ -1048,3 +1048,65 @@ public User get(){
 }
 ```
 
+#### Thymeleaf
+
+1 引入依赖
+
+```java
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+
+springBoot启动的时候会自动配置
+org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration
+
+从ThymeleafAutoConfiguration的源代码中我们可以得知ThymeleafProperties
+中配置了Thymeleaf的规则
+public class ThymeleafProperties {
+    private static final Charset DEFAULT_ENCODING;
+    public static final String DEFAULT_PREFIX = "classpath:/templates/";
+    public static final String DEFAULT_SUFFIX = ".html";
+    private boolean checkTemplate = true;
+    private boolean checkTemplateLocation = true;
+    private String prefix = "classpath:/templates/";
+    private String suffix = ".html";
+    private String mode = "HTML";
+    private Charset encoding;
+    private boolean cache;
+```
+
+2  创建HTMl
+
+ 在html中引入thymeleaf的命名空间
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+```html
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+ <h1 th:text="${hello}"></h1>
+</body>
+</html>
+```
+
+3 添加Controller
+
+```java
+@Controller
+public class DemoController {
+    @GetMapping("hello")
+    public String test1(Model model){
+        model.addAttribute("hello","<h1>你好</h1>");
+        return "hello";
+    }
+}
+
+访问页面即可
+```
+
