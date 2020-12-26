@@ -2,7 +2,17 @@
 
 1. @ComponentScan 组件扫描
 
-2. @Value
+   ```
+   @ComponentScan主要就是定义扫描的路径从中找出标识了需要装配的类自动装配到spring的bean容器中
+   ```
+
+2. @MapperScan
+
+   ```
+   指定要变成实现类的接口所在的包，然后包下面的所有接口在编译之后都会生成相应的实现类
+   ```
+
+3. @Value
 
    注入Spring boot application.properties配置的属性的值
 
@@ -11,13 +21,13 @@
       private String message;
    ```
 
-3. @Bean
+4. @Bean
 
    ```
    用@Bean标注方法等价于XML中配置的bean。
    ```
 
-4. @ResponseBody
+5. @ResponseBody
 
    ```java
    表示该方法的返回结果直接写入HTTP response body中，一般在异步获取数据时使用，用于构建RESTful的api。在使用@RequestMapping后，返回值通常解析为跳转路径，加上@esponsebody后返回结果不会被解析为跳转路径，而是直接写入HTTP response body中。比如异步获取json数据，加上@Responsebody后，会直接返回json数据。该注解一般会配合
@@ -28,19 +38,19 @@
     }
    ```
 
-5. @RestController
+6. @RestController
 
    ```
    @RestController注解是@Controller和@ResponseBody的合集,表示这是个控制器bean,并且是将函数的返回值直 接填入HTTP响应体中,是REST风格的控制器。
    ```
 
-6. @Configuration
+7. @Configuration
 
    ```
    @Configuration 等同于spring的XML配置文件；使用Java代码可以检查类型安全
    ```
 
-7. @SpringBootApplication
+8. @SpringBootApplication
 
    申明让spring boot自动给程序进行必要的配置，这个配置等同于：@Configuration ，@EnableAutoConfiguration 和 @ComponentScan 三个配置。
 
@@ -57,7 +67,7 @@
    }
    ```
 
-8. @EnableAutoConfiguration
+9. @EnableAutoConfiguration
 
    pringBoot自动配置（auto-configuration）：尝试根据你添加的jar依赖自动配置你的Spring应用。例如，如果你的classpath下存在HSQLDB，并且你没有手动配置任何数据库连接beans，那么我们将自动配置一个内存型（in-memory）数据库”。你可以将@EnableAutoConfiguration或者@SpringBootApplication注解添加到一个@Configuration类上来选择自动配置。如果发现应用了你不想要的特定自动配置类，你可以使用@EnableAutoConfiguration注解的排除属性来禁用它们。
 
@@ -65,11 +75,11 @@
    
    ```
 
-9. 
-
 10. 
 
 11. 
+
+12. 
 
     
 
@@ -905,5 +915,136 @@ public class TestUser {
     }
 }
 
+```
+
+#### Spring MVC自动配置
+
+##### 拦截器
+
+1 配置类拦截器
+
+```java
+@Configuration
+@EnableWebMvc
+//开启了自定义WebMVC
+public class WebConfig implements WebMvcConfigurer {
+    //配置拦截器
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        //配置拦截器的路径                                请求的路径                 排除的路径
+        registry.addInterceptor(new MyInterceptor()).addPathPatterns("/**").excludePathPatterns("/hello");
+    }
+}
+
+```
+
+2 自动定义拦截
+
+```java
+public class MyInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println(request.getMethod());
+        System.out.println("前置拦截");
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+
+        System.out.println("前置之后");
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        System.out.println("请求即将完成");
+    }
+}
+```
+
+3 接口测试
+
+```java
+@RestController
+public class ReqDemo {
+    @RequestMapping("webmvc")
+    public String test1(){
+        return "web mvc666";
+    }
+    @RequestMapping("hello")
+    public String hello(){
+        return "hello mvc666";
+    }
+}
+```
+
+##### 资源处理
+
+1 配置类定义
+
+```java
+@Configuration
+@EnableWebMvc
+//开启了自定义WebMVC自定义配置 不用springboot内置的
+public class WebConfig implements WebMvcConfigurer {
+    //资源请求
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        //  请求的地址                             资源的位置
+        registry.addResourceHandler("/resource/**").addResourceLocations("classpath:/resource/");
+    }
+}
+
+```
+
+2 
+
+![image-20201226144543570](G:\note\image\image-20201226144543570.png)
+
+3 请求测试
+
+![image-20201226144627991](G:\note\image\image-20201226144627991.png)
+
+#### 消息转换器
+
+1 引入依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.31</version>
+</dependency>
+```
+
+2 配置类中配置
+
+```java
+//    消息转换器
+@Override
+public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    //1.需要定义一个convert转换消息的对象;
+    FastJsonHttpMessageConverter fastJsonHttpMessageConverter = new FastJsonHttpMessageConverter();
+    //2:添加fastJson的配置信息;
+    FastJsonConfig fastJsonConfig = new FastJsonConfig();
+    fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
+    //3处理中文乱码问题
+    List<MediaType> fastMediaTypes = new ArrayList<>();
+    fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
+    //4.在convert中添加配置信息.
+    fastJsonHttpMessageConverter.setSupportedMediaTypes(fastMediaTypes);
+    fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);
+    converters.add(fastJsonHttpMessageConverter);
+}
+```
+
+3 请求测试
+
+```java
+  @RequestMapping("fastjson")
+public User get(){
+    User user = new User("小明",100,null);
+    return user;
+}
 ```
 
