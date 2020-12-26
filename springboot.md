@@ -1110,3 +1110,114 @@ public class DemoController {
 访问页面即可
 ```
 
+##### 国际化
+
+1 创建不同语言对应的配置文件
+
+![image-20201227061647680](G:\note\image\image-20201227061647680.png)
+
+2 添加配置  默认为 /messages文件
+
+![image-20201227061707904](G:\note\image\image-20201227061707904.png)
+
+3 页面获取
+
+```xml
+切换不同国家 显示不同内容
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- #引入属性文件-->
+<div th:text="#{username}"></div>
+</body>
+</html>
+```
+
+##### 获取实体类对象属性
+
+1 创建对象
+
+```java
+package demo1.controller.model;
+
+public class User {
+    public String name;
+    private int age;
+    private Rote rote;
+
+    public User(String name, int age, Rote rote) {
+        this.name = name;
+        this.age = age;
+        this.rote = rote;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public Rote getRote() {
+        return rote;
+    }
+
+    public void setRote(Rote rote) {
+        this.rote = rote;
+    }
+
+    public static class Rote {
+        private String routename;
+
+        public Rote(String routename) {
+            this.routename = routename;
+
+        }
+
+        public String getRoutename() {
+            return routename;
+        }
+
+        public void setRoutename(String routename) {
+            this.routename = routename;
+        }
+    }
+}
+
+```
+
+2 
+
+```java
+ @GetMapping("test2")
+    public String test2(Model model){
+        User.Rote rote = new User.Rote("学生");
+        User user = new User("小明",19,rote);
+        model.addAttribute("user",user);
+        return "hello";
+    }
+```
+
+3 
+
+```html
+<div th:text="${'姓名'+user.name}"></div>
+<div th:text="${'年龄'+user.age}"></div>
+<div th:text="${'角色'+user.rote.routename}"></div>
+```
+
+
+
