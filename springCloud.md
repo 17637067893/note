@@ -1,3 +1,5 @@
+
+
 #### Spring Cloud
 
 Spring Cloud 是一套完整的微服务解决方案，基于 Spring Boot 框架，准确的说，它不是一个框架，而是一个大的容器，它将市面上较好的微服务框架集成进来，从而简化了开发者的代码量。
@@ -1704,6 +1706,36 @@ public String paymentCircuitBreaker_fallback(@PathVariable("id") Integer id){
 
 ![image-20210108110508581](G:\note\image\image-20210108110508581.png)
 
+##### 网关解决跨域
+
+```java
+package com.atguigui.gulimall.gateway.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+@Configuration
+public class GulimallCorsConfig{
+    @Bean
+    public CorsWebFilter corsWebFilter(){
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.setAllowCredentials(true);
+
+        source.registerCorsConfiguration("/**",corsConfiguration);
+        return new CorsWebFilter(source);
+    }
+}
+```
+
+
+
 1 新建cloud-gateway-gateway9527
 
 2 pom
@@ -2390,6 +2422,10 @@ boostrap.yml
 spring:
   profiles:
     active: dev
+    
+配置中心可以指定多个配置文件
+spring.cloud.nacos.config.ext-config[0].data-id=
+spring.cloud.nacos.config.ext-config[0].group=dev    
 ```
 
  2 新建对应配置
