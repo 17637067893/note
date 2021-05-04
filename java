@@ -4840,3 +4840,30 @@ public void test3(){
 ![image-20201222002854926](G:\note\image\image-20201222002854926.png)
 
 ![image-20201222004020016](G:\note\image\image-20201222004020016.png)
+
+#### 远程调用拦截器
+
+![image-20210401074525214](G:\note\image\image-20210401074525214.png)
+
+```java
+@Configuration
+public class GuliFeignConfig {
+    @Bean("requestInterceptor")
+    public RequestInterceptor requestInterceptor(){
+        return new RequestInterceptor() {
+            @Override
+            public void apply(RequestTemplate requestTemplate) {
+                // 1 ServletRequestAttributes 拿到刚进来的这个请求
+                ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                // 获取老的氢气
+                HttpServletRequest request = requestAttributes.getRequest();
+                // 获取老请求的请求头
+                String cookie = request.getHeader("Cookie");
+                // 给新请求同步老请求的Cookie
+                requestTemplate.header("Cookie",cookie);
+            }
+        };
+    }
+}
+```
+
