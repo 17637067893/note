@@ -1,3 +1,23 @@
+#### 服务器
+
+harbor服务
+
+```
+host 192.168.111.156
+name           admin
+password      Harbor12345
+```
+
+mysql
+
+```
+host 192.168.111.156
+name           root
+password      root
+```
+
+
+
 #### 概述
 
 k8s一种容器化集群技术
@@ -18,6 +38,102 @@ k8s一种容器化集群技术
 
    用户不需使用额外的服务发现机制，就能够基于 Kubernetes 自身能力实现服务发现和
    负载均衡
+
+#### docker深入
+
+###### 1 概述
+
+在 Docker 中创建镜像最常用的方式，就是使用 Dockerfile。Dockerfile 是一个 Docker 镜像
+的描述文件，我们可以理解成火箭发射的 A、B、C、D…的步骤。Dockerfile 其内部包含了一
+条条的指令，每一条指令构建一层，因此每一条指令的内容，就是描述该层应当如何构建。
+
+###### 2 示例
+
+```
+#基于 centos 镜像
+FROM centos
+
+#维护人的信息
+MAINTAINER My CentOS <534096094@qq.com>
+
+#安装 httpd 软件包
+RUN yum -y update
+RUN yum -y install httpd
+
+#开启 80 端口
+EXPOSE 80
+
+#复制网站首页文件至镜像中 web 站点下
+ADD index.html /var/www/html/index.htm
+
+#复制该脚本至镜像中，并修改其权限
+ADD run.sh /run.sh
+RUN chmod 775 /run.sh
+
+#当启动容器时执行的脚本文件
+CMD ["/run.sh"]
+```
+
+![image-20210505231132109](G:\note\image\image-20210505231132109.png)
+
+###### 3 镜像操作
+
+1. 创建项目dockerfile文件
+
+2. 上传项目到服务器。
+
+3. 进入项目，构建镜像到本地仓库；
+
+   (1) docker build -t nginx:GA-1.0 -f ./Dockerfile . 别忘了最后的小数点。
+
+   (2) docker images 查看镜像
+
+   (3) docker exec -it 容器 id /bin/bash；进入容器，修改容器
+
+   (4) docker commit -a “leifengyang” -m “nginxxx” 容器 id mynginx:GA-2.0
+
+        ```
+   docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+       1) -a :提交的镜像作者；
+       2) -c :使用 Dockerfile 指令来创建镜像；
+       3) -m :提交时的说明文字；
+       4) -p :在 commit 时，将容器暂停。
+   
+        ```
+
+   (5) docker login : 登陆到一个 Docker 镜像仓库，如果未指定镜像仓库地址，默认为官
+   方仓库 Docker Hub
+   1 docker login -u 用户名 -p 密码
+
+   (6) docker logout : 登出一个 Docker 镜像仓库，如果未指定镜像仓库地址，默认为官
+   方仓库 Docker Hub
+
+   
+
+   4、推送镜像到 docker hub
+
+   (1) 标记镜像，docker tag local-image:tagname username/new-repo:tagname
+
+   (2) 上传镜像，docker push username/new-repo:tagname
+
+   
+
+   5、保存镜像，加载镜像
+
+   (1) 可以保存镜像为 tar，使用 u 盘等设备复制到任意 docker 主机，再次加载镜像
+   (2) 保存：docker save spring-boot-docker -o /home/spring-boot-docker.tar
+   (3) 加载：docker load -i spring-boot-docker.tar
+
+   
+
+   6、阿里云操作
+   (1) 登录阿里云，密码就是开通镜像仓库时 的密码
+   docker login --username=qwertyuiopasdf_aa registry.cn-hangzhou.aliyuncs.com
+   (2) 拉取镜像
+   docker pull registry.cn-hangzhou.aliyuncs.com/atguigumall/gulimall-nginx:v1.0
+   (3）推送镜像
+   docker tag [ImageId] registry.cn-hangzhou.aliyuncs.com/atguigumall/gulimall-nginx:v1
+   docker push registry.cn-hangzhou.aliyuncs.com/atguigumall/gulimall-nginx:v1
 
 #### k8s集群架构
 
@@ -70,10 +186,9 @@ k8s一种容器化集群技术
    
    # 在master添加hosts
    cat >> /etc/hosts << EOF
-   192.168.111.153 master1
-   192.168.111.143 master2
+   192.168.111.139 master
+   192.168.111.143 node1
    192.168.111.144 node1
-   192.168.111.159 k8s-vip
    EOF
    
    # 将桥接的IPv4流量传递到iptables的链
@@ -90,7 +205,7 @@ k8s一种容器化集群技术
 
    
 
-2.  所有节点安装Docker/kubeadm/kubelet
+2. 所有节点安装Docker/kubeadm/kubelet
 
    ```
    安装docker
@@ -102,11 +217,14 @@ k8s一种容器化集群技术
    
    
    修改仓库地址
-   cat > /etc/docker/daemon.json << EOF
+   sudo mkdir -p /etc/docker
+   sudo tee /etc/docker/daemon.json <<-'EOF'
    {
-     "registry-mirrors": ["https://b9pmyelo.mirror.aliyuncs.com"]
+     "registry-mirrors": ["https://64dnk2wc.mirror.aliyuncs.com"]
    }
    EOF
+   sudo systemctl daemon-reload
+   sudo systemctl restart docker
    
    添加阿里云YUM软件源
    cat > /etc/yum.repos.d/kubernetes.repo << EOF
@@ -137,7 +255,7 @@ k8s一种容器化集群技术
 
 ```
 kubeadm init \
-  --apiserver-advertise-address=192.168.111.153 \
+  --apiserver-advertise-address=192.168.111.139 \
   --image-repository registry.aliyuncs.com/google_containers \
   --kubernetes-version v1.18.0 \
   --service-cidr=10.96.0.0/12 \
@@ -382,7 +500,7 @@ spec:
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: quay.io/coreos/flannel:v0.11.0-amd64
+        image: easzlab/flannel:v0.13.0-amd64
         command:
         - cp
         args:
@@ -396,7 +514,7 @@ spec:
           mountPath: /etc/kube-flannel/
       containers:
       - name: kube-flannel
-        image: quay.io/coreos/flannel:v0.11.0-amd64
+        image: easzlab/flannel:v0.13.0-amd64
         command:
         - /opt/bin/flanneld
         args:
@@ -2624,4 +2742,1719 @@ Node 1 和 Node 2 上各有一个分片被迁移到了新的 Node 3 节点，现
    所以需要考虑将二者分离开，设置专用的候选主节点和数据节点，避免因数据节点负载重导
    致主节点不响应。
 
-5.  脑裂问题可能造成的原因
+######  8 脑裂的原因与解决
+
+1. **角色分离**：即 master 节点与 data 节点分离，限制角色；数据节点是需要承担存储
+   和搜索的工作的，压力会很大。所以如果该节点同时作为候选主节点和数据节点，
+   那么一旦选上它作为主节点了，这时主节点的工作压力将会非常大，出现脑裂现象
+   的概率就增加了。
+
+2. **减少误判**：配置主节点的响应时间，在默认情况下，主节点 3 秒没有响应，其他节
+   点就认为主节点宕机了，那我们可以把该时间设置的长一点，该配置是：
+   discovery.zen.ping_timeout: 5
+
+3. 选举触发discovery.zen.minimum_master_nodes:1（默认是 1），该属性定义的是
+   为了形成一个集群，有主节点资格并互相连接的节点的最小数目。
+    一 个 有 10 节 点 的 集 群 ， 且 每 个 节 点 都 有 成 为 主 节 点 的 资 格 ，
+   discovery.zen.minimum_master_nodes 参数设置为 6。
+    正常情况下，10 个节点，互相连接，大于 6，就可以形成一个集群。
+    若某个时刻，其中有 3 个节点断开连接。剩下 7 个节点，大于 6，继续运行之
+   前的集群。而断开的 3 个节点，小于 6，不能形成一个集群。
+    该参数就是为了防止”脑裂”的产生。
+    建议设置为(候选主节点数 / 2) + 1,
+
+###### 9 集群结构
+
+以三台物理机为例。在这三台物理机上，搭建了 6 个 ES 的节点，三个 data 节点，三个 master
+节点（每台物理机分别起了一个 data 和一个 master），3 个 master 节点，目的是达到（n/2）
++1 等于 2 的要求，这样挂掉一台 master 后（不考虑 data），n 等于 2，满足参数，其他两
+个 master 节点都认为 master 挂掉之后开始重新选举，
+master 节点上
+
+```
+node.master = true
+node.data = false
+discovery.zen.minimum_master_nodes = 2
+```
+
+data 节点上
+
+```
+node.master = false
+node.data = true
+```
+
+![image-20210504173035379](G:\note\image\image-20210504173035379.png)
+
+###### 10 集群搭建
+
+1. 所有之前先运行：sysctl -w vm.max_map_count=262144
+   我们只是测试，所以临时修改。永久修改使用下面
+   #防止 JVM 报错
+   echo vm.max_map_count=262144 >> /etc/sysctl.conf
+   sysctl -p
+
+2. Docker 创建容器时默认采用 bridge 网络，自行分配 ip，不允许自己指定。
+   在实际部署中，我们需要指定容器 ip，不允许其自行分配 ip，尤其是搭建集群时，固定 ip
+   是必须的。
+   我们可以创建自己的 bridge 网络 ： mynet，创建容器的时候指定网络为 mynet 并指定 ip
+   即可。
+   查看网络模式 docker network ls；
+   创建一个新的 bridge 网络
+
+   ```
+   docker network create --driver bridge --subnet=172.18.12.0/16 --gateway=172.18.1.1
+   mynet
+   ```
+
+   查看网络信息
+
+   ```
+   docker network inspect mynet
+   ```
+
+   以后使用--network=mynet --ip 172.18.12.x 指定 ip
+
+3. Master 节点创建
+
+   ```lua
+   for port in $(seq 1 3); \
+   do \
+   mkdir -p /mydata/elasticsearch/master-${port}/config
+   mkdir -p /mydata/elasticsearch/master-${port}/data
+   chmod -R 777 /mydata/elasticsearch/master-${port}
+   cat << EOF >/mydata/elasticsearch/master-${port}/config/elasticsearch.yml
+   cluster.name: my-es #集群的名称，同一个集群该值必须设置成相同的
+   node.name: es-master-${port} #该节点的名字
+   node.master: true #该节点有机会成为 master 节点
+   node.data: false #该节点可以存储数据
+   network.host: 0.0.0.0
+   http.host: 0.0.0.0 #所有 http 均可访问
+   http.port: 920${port}
+   transport.tcp.port: 930${port}
+   #discovery.zen.minimum_master_nodes: 2 #设置这个参数来保证集群中的节点可以知道其它 N 个有 master 资格的节点。官方推荐（N/2）+1
+   discovery.zen.ping_timeout: 10s #设置集群中自动发现其他节点时 ping 连接的超时时间
+   discovery.seed_hosts: ["172.18.12.21:9301","172.18.12.22:9302","172.18.12.23:9303"] #设置集群中的 Master 节点的初始列表，可以通过这些节点来自动发现其他新加入集群的节点，es7的新增配置
+   cluster.initial_master_nodes: ["172.18.12.21"] #新集群初始时的候选主节点，es7 的新增配置
+   EOF
+   docker run --name elasticsearch-node-${port} \
+   -p 920${port}:920${port} -p 930${port}:930${port} \
+   --network=mynet --ip 172.18.12.2${port} \
+   -e ES_JAVA_OPTS="-Xms300m -Xmx300m" \
+   -v /mydata/elasticsearch/master-${port}/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
+   -v /mydata/elasticsearch/master-${port}/data:/usr/share/elasticsearch/data \
+   -v /mydata/elasticsearch/master-${port}/plugins:/usr/share/elasticsearch/plugins \
+   -d elasticsearch:7.4.2
+   done
+   ```
+
+4. node节点搭建
+
+   ```lua
+   for port in $(seq 4 6); \
+   do \
+   mkdir -p /mydata/elasticsearch/master-${port}/config
+   mkdir -p /mydata/elasticsearch/master-${port}/data
+   chmod -R 777 /mydata/elasticsearch/master-${port}
+   cat << EOF >/mydata/elasticsearch/master-${port}/config/elasticsearch.yml
+   cluster.name: my-es #集群的名称，同一个集群该值必须设置成相同的
+   node.name: es-master-${port} #该节点的名字
+   node.master: false #该节点有机会成为 master 节点
+   node.data: true #该节点可以存储数据
+   network.host: 0.0.0.0
+   http.host: 0.0.0.0 #所有 http 均可访问
+   http.port: 920${port}
+   transport.tcp.port: 930${port}
+   #discovery.zen.minimum_master_nodes: 2 #设置这个参数来保证集群中的节点可以知道其它 N 个有 master 资格的节点。官方推荐（N/2）+1
+   discovery.zen.ping_timeout: 10s #设置集群中自动发现其他节点时 ping 连接的超时时间
+   discovery.seed_hosts: ["172.18.12.21:9301","172.18.12.22:9302","172.18.12.23:9303"] #设置集群中的 Master 节点的初始列表，可以通过这些节点来自动发现其他新加入集群的节点，es7的新增配置
+   cluster.initial_master_nodes: ["172.18.12.21"] #新集群初始时的候选主节点，es7 的新增配置
+   EOF
+   docker run --name elasticsearch-node-${port} \
+   -p 920${port}:920${port} -p 930${port}:930${port} \
+   --network=mynet --ip 172.18.12.2${port} \
+   -e ES_JAVA_OPTS="-Xms300m -Xmx300m" \
+   -v /mydata/elasticsearch/master-${port}/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
+   -v /mydata/elasticsearch/master-${port}/data:/usr/share/elasticsearch/data \
+   -v /mydata/elasticsearch/master-${port}/plugins:/usr/share/elasticsearch/plugins \
+   -d elasticsearch:7.4.2
+   done
+   ```
+
+   5. 测试集群
+
+      ```
+      http://192.168.111.139:9206/_cat/nodes
+      /_cat/allocation
+      /_cat/shards
+      /_cat/shards/{index}
+      /_cat/master
+      /_cat/nodes
+      /_cat/indices
+      /_cat/indices/{index}
+      /_cat/segments
+      /_cat/segments/{index}
+      /_cat/count
+      /_cat/count/{index}
+      /_cat/recovery
+      /_cat/recovery/{index}
+      /_cat/health
+      /_cat/pending_tasks
+      /_cat/aliases
+      /_cat/aliases/{alias}
+      /_cat/thread_pool
+      /_cat/plugins
+      /_cat/fielddata
+      /_cat/fielddata/{fields}
+      /_cat/nodeattrs
+      /_cat/repositories
+      /_cat/snapshots/{repository}
+      ```
+
+      ![image-20210504173353642](G:\note\image\image-20210504173353642.png)
+
+#### RabbitMQ 集群
+
+###### 1 集群形式
+
+RabbiMQ 是用 Erlang 开发的，集群非常方便，因为 Erlang 天生就是一门分布式语言，但其本身并不支持负载均衡。
+
+RabbitMQ 集群中节点包括***\*内存节点(RAM)\****、***\*磁盘节点(Disk，消息持久化)\****，集群中至少有一个 Disk 节点。
+
+###### 2 普通模式(默认） 
+
+对于普通模式，集群中各节点有相同的队列结构，但消息只会存在于集群中的一个节点。对于消费者来说，若消息进入 A 节点的 Queue 中，当从 B 节点拉取时，RabbitMQ 会将消息从 A 中取出，并经过 B 发送给消费者。
+
+应用场景：该模式各适合于消息无需持久化的场合，如日志队列。当队列非持久化，且创建该队列的节点宕机，客户端才可以重连集群其他节点，并重新创建队列。若为持久化，   只能等故障节点恢复
+
+###### 3 镜像模式
+
+与普通模式不同之处是消息实体会主动在镜像节点间同步，而不是在取数据时临时拉取，高可用；该模式下，mirror queue 有一套选举算法，即 1 个 master、n 个 slaver，生产者、消费者的请求都会转至 master。
+
+应用场景：可靠性要求较高场合，如下单、库存队列。
+
+缺点：若镜像队列过多，且消息体量大，集群内部网络带宽将会被此种同步通讯所消
+
+耗。
+
+（1） 镜像集群也是基于普通集群，即只有先搭建普通集群，然后才能设置镜像队列。
+
+若消费过程中，master 挂掉，则选举新 master，若未来得及确认，则可能会重复消费。
+
+###### 4 搭建集群
+
+1. 准备文件夹
+
+```
+mkdir /mydata/rabbitmq 
+cd rabbitmq/
+mkdir rabbitmq01 rabbitmq02 rabbitmq03
+```
+
+3. 生成容器
+
+   ```
+   docker run -d --hostname rabbitmq01 --name rabbitmq01 \
+   -v /mydata/rabbitmq/rabbitmq01:/var/lib/rabbitmq \
+   -p 15673:15672 -p 5673:5672 \
+   -e RABBITMQ_ERLANG_COOKIE='atguigu' rabbitmq:management
+   
+   docker run -d --hostname rabbitmq02 --name rabbitmq02 \
+   -v /mydata/rabbitmq/rabbitmq02:/var/lib/rabbitmq \
+   -p 15674:15672 -p 5674:5672 \
+   -e RABBITMQ_ERLANG_COOKIE='atguigu' \
+   --link rabbitmq01:rabbitmq01 \
+   rabbitmq:management
+   
+   docker run -d --hostname rabbitmq03 --name rabbitmq03 \
+   -v /mydata/rabbitmq/rabbitmq03:/var/lib/rabbitmq \
+   -p 15675:15672 -p 5675:5672 \
+   -e RABBITMQ_ERLANG_COOKIE='atguigu' \
+   --link rabbitmq01:rabbitmq01 \
+   --link rabbitmq02:rabbitmq02 \
+   rabbitmq:management
+   
+   ```
+
+4. 节点加入
+
+   ```
+   进入第一个节点
+   docker exec -it rabbitmq01 /bin/bash
+   rabbitmqctl stop_app rabbitmqctl reset rabbitmqctl start_app
+   Exit
+   进入第二个节点
+   docker exec -it rabbitmq02 /bin/bash 
+   rabbitmqctl stop_app
+   rabbitmqctl reset
+   rabbitmqctl join_cluster --ram rabbit@rabbitmq01 
+   rabbitmqctl start_app
+   exit
+   
+   
+   进入第三个节点
+   docker exec -it rabbitmq03 bash
+   rabbitmqctl stop_app
+   rabbitmqctl reset
+   rabbitmqctl join_cluster --ram rabbit@rabbitmq01 
+   rabbitmqctl start_app
+   exit
+   ```
+
+   4. 实现镜像集群
+
+```
+docker exec -it rabbitmq01 bash
+
+rabbitmqctl set_policy -p / ha "^" '{"ha-mode":"all","ha-sync-mode":"automatic"}'
+
+可以使用 rabbitmqctl list_policies -p / 查看 vhost/下面的所有 policy
+
+在 cluster 中任意节点启用策略，策略会自动同步到集群节点rabbitmqctl set_policy-p/ha-all"^"’{“ha-mode”:“all”}’
+策略模式 all 即复制到所有节点，包含新增节点，策略正则表达式为 “^” 表示所有匹配所
+```
+
+#### kubesphere
+
+###### 1 准备环境
+
+ 前提安装好docker kubectl
+
+确认 master 节点是否有 Taint，如下看到 master 节点有 Taint。
+
+```
+kubectl describe node master | grep Taint
+Taints:             node-role.kubernetes.io/master:NoSchedule
+```
+
+去掉master的Taint
+
+```
+kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule-
+```
+
+
+
+###### 2 安装openobs
+
+```
+kubectl apply -f openebs.yaml
+
+查看创建的 StorageClass
+kubectl get sc
+
+将 openebs-hostpath设置为 默认的 StorageClass
+
+kubectl patch storageclass openebs-hostpath -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+```
+
+```
+# This manifest deploys the OpenEBS control plane components, with associated CRs & RBAC rules
+# NOTE: On GKE, deploy the openebs-operator.yaml in admin context
+
+# Create the OpenEBS namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openebs
+---
+# Create Maya Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: openebs-maya-operator
+  namespace: openebs
+---
+# Define Role that allows operations on K8s pods/deployments
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: openebs-maya-operator
+rules:
+- apiGroups: ["*"]
+  resources: ["nodes", "nodes/proxy"]
+  verbs: ["*"]
+- apiGroups: ["*"]
+  resources: ["namespaces", "services", "pods", "pods/exec", "deployments", "deployments/finalizers", "replicationcontrollers", "replicasets", "events", "endpoints", "configmaps", "secrets", "jobs", "cronjobs"]
+  verbs: ["*"]
+- apiGroups: ["*"]
+  resources: ["statefulsets", "daemonsets"]
+  verbs: ["*"]
+- apiGroups: ["*"]
+  resources: ["resourcequotas", "limitranges"]
+  verbs: ["list", "watch"]
+- apiGroups: ["*"]
+  resources: ["ingresses", "horizontalpodautoscalers", "verticalpodautoscalers", "poddisruptionbudgets", "certificatesigningrequests"]
+  verbs: ["list", "watch"]
+- apiGroups: ["*"]
+  resources: ["storageclasses", "persistentvolumeclaims", "persistentvolumes"]
+  verbs: ["*"]
+- apiGroups: ["volumesnapshot.external-storage.k8s.io"]
+  resources: ["volumesnapshots", "volumesnapshotdatas"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: [ "get", "list", "create", "update", "delete", "patch"]
+- apiGroups: ["*"]
+  resources: [ "disks", "blockdevices", "blockdeviceclaims"]
+  verbs: ["*" ]
+- apiGroups: ["*"]
+  resources: [ "cstorpoolclusters", "storagepoolclaims", "storagepoolclaims/finalizers", "cstorpoolclusters/finalizers", "storagepools"]
+  verbs: ["*" ]
+- apiGroups: ["*"]
+  resources: [ "castemplates", "runtasks"]
+  verbs: ["*" ]
+- apiGroups: ["*"]
+  resources: [ "cstorpools", "cstorpools/finalizers", "cstorvolumereplicas", "cstorvolumes", "cstorvolumeclaims"]
+  verbs: ["*" ]
+- apiGroups: ["*"]
+  resources: [ "cstorpoolinstances", "cstorpoolinstances/finalizers"]
+  verbs: ["*" ]
+- apiGroups: ["*"]
+  resources: [ "cstorbackups", "cstorrestores", "cstorcompletedbackups"]
+  verbs: ["*" ]
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["get", "watch", "list", "delete", "update", "create"]
+- apiGroups: ["admissionregistration.k8s.io"]
+  resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
+  verbs: ["get", "create", "list", "delete", "update", "patch"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+- apiGroups: ["*"]
+  resources: [ "upgradetasks"]
+  verbs: ["*" ]
+---
+# Bind the Service Account with the Role Privileges.
+# TODO: Check if default account also needs to be there
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: openebs-maya-operator
+subjects:
+- kind: ServiceAccount
+  name: openebs-maya-operator
+  namespace: openebs
+roleRef:
+  kind: ClusterRole
+  name: openebs-maya-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maya-apiserver
+  namespace: openebs
+  labels:
+    name: maya-apiserver
+    openebs.io/component-name: maya-apiserver
+    openebs.io/version: 1.5.0
+spec:
+  selector:
+    matchLabels:
+      name: maya-apiserver
+      openebs.io/component-name: maya-apiserver
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  template:
+    metadata:
+      labels:
+        name: maya-apiserver
+        openebs.io/component-name: maya-apiserver
+        openebs.io/version: 1.5.0
+    spec:
+      serviceAccountName: openebs-maya-operator
+      containers:
+      - name: maya-apiserver
+        imagePullPolicy: IfNotPresent
+        image: openebs/m-apiserver:1.5.0
+        ports:
+        - containerPort: 5656
+        env:
+        # OPENEBS_IO_KUBE_CONFIG enables maya api service to connect to K8s
+        # based on this config. This is ignored if empty.
+        # This is supported for maya api server version 0.5.2 onwards
+        #- name: OPENEBS_IO_KUBE_CONFIG
+        #  value: "/home/ubuntu/.kube/config"
+        # OPENEBS_IO_K8S_MASTER enables maya api service to connect to K8s
+        # based on this address. This is ignored if empty.
+        # This is supported for maya api server version 0.5.2 onwards
+        #- name: OPENEBS_IO_K8S_MASTER
+        #  value: "http://172.28.128.3:8080"
+        # OPENEBS_NAMESPACE provides the namespace of this deployment as an
+        # environment variable
+        - name: OPENEBS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        # OPENEBS_SERVICE_ACCOUNT provides the service account of this pod as
+        # environment variable
+        - name: OPENEBS_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        # OPENEBS_MAYA_POD_NAME provides the name of this pod as
+        # environment variable
+        - name: OPENEBS_MAYA_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        # If OPENEBS_IO_CREATE_DEFAULT_STORAGE_CONFIG is false then OpenEBS default
+        # storageclass and storagepool will not be created.
+        - name: OPENEBS_IO_CREATE_DEFAULT_STORAGE_CONFIG
+          value: "true"
+        # OPENEBS_IO_INSTALL_DEFAULT_CSTOR_SPARSE_POOL decides whether default cstor sparse pool should be
+        # configured as a part of openebs installation.
+        # If "true" a default cstor sparse pool will be configured, if "false" it will not be configured.
+        # This value takes effect only if OPENEBS_IO_CREATE_DEFAULT_STORAGE_CONFIG
+        # is set to true
+        - name: OPENEBS_IO_INSTALL_DEFAULT_CSTOR_SPARSE_POOL
+          value: "false"
+        # OPENEBS_IO_CSTOR_TARGET_DIR can be used to specify the hostpath
+        # to be used for saving the shared content between the side cars
+        # of cstor volume pod.
+        # The default path used is /var/openebs/sparse
+        #- name: OPENEBS_IO_CSTOR_TARGET_DIR
+        #  value: "/var/openebs/sparse"
+        # OPENEBS_IO_CSTOR_POOL_SPARSE_DIR can be used to specify the hostpath
+        # to be used for saving the shared content between the side cars
+        # of cstor pool pod. This ENV is also used to indicate the location
+        # of the sparse devices.
+        # The default path used is /var/openebs/sparse
+        #- name: OPENEBS_IO_CSTOR_POOL_SPARSE_DIR
+        #  value: "/var/openebs/sparse"
+        # OPENEBS_IO_JIVA_POOL_DIR can be used to specify the hostpath
+        # to be used for default Jiva StoragePool loaded by OpenEBS
+        # The default path used is /var/openebs
+        # This value takes effect only if OPENEBS_IO_CREATE_DEFAULT_STORAGE_CONFIG
+        # is set to true
+        #- name: OPENEBS_IO_JIVA_POOL_DIR
+        #  value: "/var/openebs"
+        # OPENEBS_IO_LOCALPV_HOSTPATH_DIR can be used to specify the hostpath
+        # to be used for default openebs-hostpath storageclass loaded by OpenEBS
+        # The default path used is /var/openebs/local
+        # This value takes effect only if OPENEBS_IO_CREATE_DEFAULT_STORAGE_CONFIG
+        # is set to true
+        #- name: OPENEBS_IO_LOCALPV_HOSTPATH_DIR
+        #  value: "/var/openebs/local"
+        - name: OPENEBS_IO_JIVA_CONTROLLER_IMAGE
+          value: "openebs/jiva:1.5.0"
+        - name: OPENEBS_IO_JIVA_REPLICA_IMAGE
+          value: "openebs/jiva:1.5.0"
+        - name: OPENEBS_IO_JIVA_REPLICA_COUNT
+          value: "3"
+        - name: OPENEBS_IO_CSTOR_TARGET_IMAGE
+          value: "openebs/cstor-istgt:1.5.0"
+        - name: OPENEBS_IO_CSTOR_POOL_IMAGE
+          value: "openebs/cstor-pool:1.5.0"
+        - name: OPENEBS_IO_CSTOR_POOL_MGMT_IMAGE
+          value: "openebs/cstor-pool-mgmt:1.5.0"
+        - name: OPENEBS_IO_CSTOR_VOLUME_MGMT_IMAGE
+          value: "openebs/cstor-volume-mgmt:1.5.0"
+        - name: OPENEBS_IO_VOLUME_MONITOR_IMAGE
+          value: "openebs/m-exporter:1.5.0"
+        - name: OPENEBS_IO_CSTOR_POOL_EXPORTER_IMAGE
+          value: "openebs/m-exporter:1.5.0"
+        - name: OPENEBS_IO_HELPER_IMAGE
+          value: "openebs/linux-utils:1.5.0"
+        # OPENEBS_IO_ENABLE_ANALYTICS if set to true sends anonymous usage
+        # events to Google Analytics
+        - name: OPENEBS_IO_ENABLE_ANALYTICS
+          value: "true"
+        - name: OPENEBS_IO_INSTALLER_TYPE
+          value: "openebs-operator"
+        # OPENEBS_IO_ANALYTICS_PING_INTERVAL can be used to specify the duration (in hours)
+        # for periodic ping events sent to Google Analytics.
+        # Default is 24h.
+        # Minimum is 1h. You can convert this to weekly by setting 168h
+        #- name: OPENEBS_IO_ANALYTICS_PING_INTERVAL
+        #  value: "24h"
+        livenessProbe:
+          exec:
+            command:
+            - /usr/local/bin/mayactl
+            - version
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        readinessProbe:
+          exec:
+            command:
+            - /usr/local/bin/mayactl
+            - version
+          initialDelaySeconds: 30
+          periodSeconds: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maya-apiserver-service
+  namespace: openebs
+  labels:
+    openebs.io/component-name: maya-apiserver-svc
+spec:
+  ports:
+  - name: api
+    port: 5656
+    protocol: TCP
+    targetPort: 5656
+  selector:
+    name: maya-apiserver
+  sessionAffinity: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openebs-provisioner
+  namespace: openebs
+  labels:
+    name: openebs-provisioner
+    openebs.io/component-name: openebs-provisioner
+    openebs.io/version: 1.5.0
+spec:
+  selector:
+    matchLabels:
+      name: openebs-provisioner
+      openebs.io/component-name: openebs-provisioner
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  template:
+    metadata:
+      labels:
+        name: openebs-provisioner
+        openebs.io/component-name: openebs-provisioner
+        openebs.io/version: 1.5.0
+    spec:
+      serviceAccountName: openebs-maya-operator
+      containers:
+      - name: openebs-provisioner
+        imagePullPolicy: IfNotPresent
+        image: openebs/openebs-k8s-provisioner:1.5.0
+        env:
+        # OPENEBS_IO_K8S_MASTER enables openebs provisioner to connect to K8s
+        # based on this address. This is ignored if empty.
+        # This is supported for openebs provisioner version 0.5.2 onwards
+        #- name: OPENEBS_IO_K8S_MASTER
+        #  value: "http://10.128.0.12:8080"
+        # OPENEBS_IO_KUBE_CONFIG enables openebs provisioner to connect to K8s
+        # based on this config. This is ignored if empty.
+        # This is supported for openebs provisioner version 0.5.2 onwards
+        #- name: OPENEBS_IO_KUBE_CONFIG
+        #  value: "/home/ubuntu/.kube/config"
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: OPENEBS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        # OPENEBS_MAYA_SERVICE_NAME provides the maya-apiserver K8s service name,
+        # that provisioner should forward the volume create/delete requests.
+        # If not present, "maya-apiserver-service" will be used for lookup.
+        # This is supported for openebs provisioner version 0.5.3-RC1 onwards
+        #- name: OPENEBS_MAYA_SERVICE_NAME
+        #  value: "maya-apiserver-apiservice"
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - ".*openebs"
+          initialDelaySeconds: 30
+          periodSeconds: 60
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openebs-snapshot-operator
+  namespace: openebs
+  labels:
+    name: openebs-snapshot-operator
+    openebs.io/component-name: openebs-snapshot-operator
+    openebs.io/version: 1.5.0
+spec:
+  selector:
+    matchLabels:
+      name: openebs-snapshot-operator
+      openebs.io/component-name: openebs-snapshot-operator
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: openebs-snapshot-operator
+        openebs.io/component-name: openebs-snapshot-operator
+        openebs.io/version: 1.5.0
+    spec:
+      serviceAccountName: openebs-maya-operator
+      containers:
+        - name: snapshot-controller
+          image: openebs/snapshot-controller:1.5.0
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: OPENEBS_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          livenessProbe:
+            exec:
+              command:
+              - pgrep
+              - ".*controller"
+            initialDelaySeconds: 30
+            periodSeconds: 60
+        # OPENEBS_MAYA_SERVICE_NAME provides the maya-apiserver K8s service name,
+        # that snapshot controller should forward the snapshot create/delete requests.
+        # If not present, "maya-apiserver-service" will be used for lookup.
+        # This is supported for openebs provisioner version 0.5.3-RC1 onwards
+        #- name: OPENEBS_MAYA_SERVICE_NAME
+        #  value: "maya-apiserver-apiservice"
+        - name: snapshot-provisioner
+          image: openebs/snapshot-provisioner:1.5.0
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: OPENEBS_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        # OPENEBS_MAYA_SERVICE_NAME provides the maya-apiserver K8s service name,
+        # that snapshot provisioner  should forward the clone create/delete requests.
+        # If not present, "maya-apiserver-service" will be used for lookup.
+        # This is supported for openebs provisioner version 0.5.3-RC1 onwards
+        #- name: OPENEBS_MAYA_SERVICE_NAME
+        #  value: "maya-apiserver-apiservice"
+          livenessProbe:
+            exec:
+              command:
+              - pgrep
+              - ".*provisioner"
+            initialDelaySeconds: 30
+            periodSeconds: 60
+---
+# This is the node-disk-manager related config.
+# It can be used to customize the disks probes and filters
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openebs-ndm-config
+  namespace: openebs
+  labels:
+    openebs.io/component-name: ndm-config
+data:
+  # udev-probe is default or primary probe which should be enabled to run ndm
+  # filterconfigs contails configs of filters - in their form fo include
+  # and exclude comma separated strings
+  node-disk-manager.config: |
+    probeconfigs:
+      - key: udev-probe
+        name: udev probe
+        state: true
+      - key: seachest-probe
+        name: seachest probe
+        state: false
+      - key: smart-probe
+        name: smart probe
+        state: true
+    filterconfigs:
+      - key: os-disk-exclude-filter
+        name: os disk exclude filter
+        state: true
+        exclude: "/,/etc/hosts,/boot"
+      - key: vendor-filter
+        name: vendor filter
+        state: true
+        include: ""
+        exclude: "CLOUDBYT,OpenEBS"
+      - key: path-filter
+        name: path filter
+        state: true
+        include: ""
+        exclude: "loop,/dev/fd0,/dev/sr0,/dev/ram,/dev/dm-,/dev/md"
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: openebs-ndm
+  namespace: openebs
+  labels:
+    name: openebs-ndm
+    openebs.io/component-name: ndm
+    openebs.io/version: 1.5.0
+spec:
+  selector:
+    matchLabels:
+      name: openebs-ndm
+      openebs.io/component-name: ndm
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: openebs-ndm
+        openebs.io/component-name: ndm
+        openebs.io/version: 1.5.0
+    spec:
+      # By default the node-disk-manager will be run on all kubernetes nodes
+      # If you would like to limit this to only some nodes, say the nodes
+      # that have storage attached, you could label those node and use
+      # nodeSelector.
+      #
+      # e.g. label the storage nodes with - "openebs.io/nodegroup"="storage-node"
+      # kubectl label node <node-name> "openebs.io/nodegroup"="storage-node"
+      #nodeSelector:
+      #  "openebs.io/nodegroup": "storage-node"
+      serviceAccountName: openebs-maya-operator
+      hostNetwork: true
+      containers:
+      - name: node-disk-manager
+        image: openebs/node-disk-manager-amd64:v0.4.5
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: config
+          mountPath: /host/node-disk-manager.config
+          subPath: node-disk-manager.config
+          readOnly: true
+        - name: udev
+          mountPath: /run/udev
+        - name: procmount
+          mountPath: /host/proc
+          readOnly: true
+        - name: sparsepath
+          mountPath: /var/openebs/sparse
+        env:
+        # namespace in which NDM is installed will be passed to NDM Daemonset
+        # as environment variable
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        # pass hostname as env variable using downward API to the NDM container
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        # specify the directory where the sparse files need to be created.
+        # if not specified, then sparse files will not be created.
+        - name: SPARSE_FILE_DIR
+          value: "/var/openebs/sparse"
+        # Size(bytes) of the sparse file to be created.
+        - name: SPARSE_FILE_SIZE
+          value: "10737418240"
+        # Specify the number of sparse files to be created
+        - name: SPARSE_FILE_COUNT
+          value: "0"
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - ".*ndm"
+          initialDelaySeconds: 30
+          periodSeconds: 60
+      volumes:
+      - name: config
+        configMap:
+          name: openebs-ndm-config
+      - name: udev
+        hostPath:
+          path: /run/udev
+          type: Directory
+      # mount /proc (to access mount file of process 1 of host) inside container
+      # to read mount-point of disks and partitions
+      - name: procmount
+        hostPath:
+          path: /proc
+          type: Directory
+      - name: sparsepath
+        hostPath:
+          path: /var/openebs/sparse
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openebs-ndm-operator
+  namespace: openebs
+  labels:
+    name: openebs-ndm-operator
+    openebs.io/component-name: ndm-operator
+    openebs.io/version: 1.5.0
+spec:
+  selector:
+    matchLabels:
+      name: openebs-ndm-operator
+      openebs.io/component-name: ndm-operator
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: openebs-ndm-operator
+        openebs.io/component-name: ndm-operator
+        openebs.io/version: 1.5.0
+    spec:
+      serviceAccountName: openebs-maya-operator
+      containers:
+        - name: node-disk-operator
+          image: openebs/node-disk-operator-amd64:v0.4.5
+          imagePullPolicy: Always
+          readinessProbe:
+            exec:
+              command:
+                - stat
+                - /tmp/operator-sdk-ready
+            initialDelaySeconds: 4
+            periodSeconds: 10
+            failureThreshold: 1
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            # the service account of the ndm-operator pod
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: OPERATOR_NAME
+              value: "node-disk-operator"
+            - name: CLEANUP_JOB_IMAGE
+              value: "openebs/linux-utils:1.5.0"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openebs-admission-server
+  namespace: openebs
+  labels:
+    app: admission-webhook
+    openebs.io/component-name: admission-webhook
+    openebs.io/version: 1.5.0
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  selector:
+    matchLabels:
+      app: admission-webhook
+  template:
+    metadata:
+      labels:
+        app: admission-webhook
+        openebs.io/component-name: admission-webhook
+        openebs.io/version: 1.5.0
+    spec:
+      serviceAccountName: openebs-maya-operator
+      containers:
+        - name: admission-webhook
+          image: openebs/admission-server:1.5.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - -alsologtostderr
+            - -v=2
+            - 2>&1
+          env:
+            - name: OPENEBS_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: ADMISSION_WEBHOOK_NAME
+              value: "openebs-admission-server"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openebs-localpv-provisioner
+  namespace: openebs
+  labels:
+    name: openebs-localpv-provisioner
+    openebs.io/component-name: openebs-localpv-provisioner
+    openebs.io/version: 1.5.0
+spec:
+  selector:
+    matchLabels:
+      name: openebs-localpv-provisioner
+      openebs.io/component-name: openebs-localpv-provisioner
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: openebs-localpv-provisioner
+        openebs.io/component-name: openebs-localpv-provisioner
+        openebs.io/version: 1.5.0
+    spec:
+      serviceAccountName: openebs-maya-operator
+      containers:
+      - name: openebs-provisioner-hostpath
+        imagePullPolicy: Always
+        image: openebs/provisioner-localpv:1.5.0
+        env:
+        # OPENEBS_IO_K8S_MASTER enables openebs provisioner to connect to K8s
+        # based on this address. This is ignored if empty.
+        # This is supported for openebs provisioner version 0.5.2 onwards
+        #- name: OPENEBS_IO_K8S_MASTER
+        #  value: "http://10.128.0.12:8080"
+        # OPENEBS_IO_KUBE_CONFIG enables openebs provisioner to connect to K8s
+        # based on this config. This is ignored if empty.
+        # This is supported for openebs provisioner version 0.5.2 onwards
+        #- name: OPENEBS_IO_KUBE_CONFIG
+        #  value: "/home/ubuntu/.kube/config"
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: OPENEBS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        # OPENEBS_SERVICE_ACCOUNT provides the service account of this pod as
+        # environment variable
+        - name: OPENEBS_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: OPENEBS_IO_ENABLE_ANALYTICS
+          value: "true"
+        - name: OPENEBS_IO_INSTALLER_TYPE
+          value: "openebs-operator"
+        - name: OPENEBS_IO_HELPER_IMAGE
+          value: "openebs/linux-utils:1.5.0"
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - ".*localpv"
+          initialDelaySeconds: 30
+          periodSeconds: 60
+---
+```
+
+
+
+###### 3 安装kubesphere
+
+```
+kubectl apply -f https://github.com/kubesphere/ks-installer/releases/download/v3.0.0/kubesphere-installer.yaml
+   
+kubectl apply -f https://github.com/kubesphere/ks-installer/releases/download/v3.0.0/cluster-configuration.yaml
+
+```
+
+```
+---
+apiVersion: installer.kubesphere.io/v1alpha1
+kind: ClusterConfiguration
+metadata:
+  name: ks-installer
+  namespace: kubesphere-system
+  labels:
+    version: v3.0.0
+spec:
+  persistence:
+    storageClass: ""        # If there is not a default StorageClass in your cluster, you need to specify an existing StorageClass here.
+  authentication:
+    jwtSecret: ""           # Keep the jwtSecret consistent with the host cluster. Retrive the jwtSecret by executing "kubectl -n kubesphere-system get cm kubesphere-config -o yaml | grep -v "apiVersion" | grep jwtSecret" on the host cluster.
+  etcd:
+    monitoring: false       # Whether to enable etcd monitoring dashboard installation. You have to create a secret for etcd before you enable it.
+    endpointIps: localhost  # etcd cluster EndpointIps, it can be a bunch of IPs here.
+    port: 2379              # etcd port
+    tlsEnable: true
+  common:
+    mysqlVolumeSize: 20Gi # MySQL PVC size.
+    minioVolumeSize: 20Gi # Minio PVC size.
+    etcdVolumeSize: 20Gi  # etcd PVC size.
+    openldapVolumeSize: 2Gi   # openldap PVC size.
+    redisVolumSize: 2Gi # Redis PVC size.
+    es:   # Storage backend for logging, events and auditing.
+      # elasticsearchMasterReplicas: 1   # total number of master nodes, it's not allowed to use even number
+      # elasticsearchDataReplicas: 1     # total number of data nodes.
+      elasticsearchMasterVolumeSize: 4Gi   # Volume size of Elasticsearch master nodes.
+      elasticsearchDataVolumeSize: 20Gi    # Volume size of Elasticsearch data nodes.
+      logMaxAge: 7                     # Log retention time in built-in Elasticsearch, it is 7 days by default.
+      elkPrefix: logstash              # The string making up index names. The index name will be formatted as ks-<elk_prefix>-log.
+  console:
+    enableMultiLogin: true  # enable/disable multiple sing on, it allows an account can be used by different users at the same time.
+    port: 30880
+  alerting:                # (CPU: 0.3 Core, Memory: 300 MiB) Whether to install KubeSphere alerting system. It enables Users to customize alerting policies to send messages to receivers in time with different time intervals and alerting levels to choose from.
+    enabled: true
+  auditing:                # Whether to install KubeSphere audit log system. It provides a security-relevant chronological set of records，recording the sequence of activities happened in platform, initiated by different tenants.
+    enabled: true
+  devops:                  # (CPU: 0.47 Core, Memory: 8.6 G) Whether to install KubeSphere DevOps System. It provides out-of-box CI/CD system based on Jenkins, and automated workflow tools including Source-to-Image & Binary-to-Image.
+    enabled: true
+    jenkinsMemoryLim: 2Gi      # Jenkins memory limit.
+    jenkinsMemoryReq: 1500Mi   # Jenkins memory request.
+    jenkinsVolumeSize: 8Gi     # Jenkins volume size.
+    jenkinsJavaOpts_Xms: 512m  # The following three fields are JVM parameters.
+    jenkinsJavaOpts_Xmx: 512m
+    jenkinsJavaOpts_MaxRAM: 2g
+    sonarqube_enabled: true
+  events:                  # Whether to install KubeSphere events system. It provides a graphical web console for Kubernetes Events exporting, filtering and alerting in multi-tenant Kubernetes clusters.
+    enabled: false
+    ruler:
+      enabled: true
+      replicas: 2
+  logging:                 # (CPU: 57 m, Memory: 2.76 G) Whether to install KubeSphere logging system. Flexible logging functions are provided for log query, collection and management in a unified console. Additional log collectors can be added, such as Elasticsearch, Kafka and Fluentd.
+    enabled: true
+    logsidecarReplicas: 2
+  metrics_server:                    # (CPU: 56 m, Memory: 44.35 MiB) Whether to install metrics-server. IT enables HPA (Horizontal Pod Autoscaler).
+    enabled: true
+  monitoring:
+    # prometheusReplicas: 1            # Prometheus replicas are responsible for monitoring different segments of data source and provide high availability as well.
+    prometheusMemoryRequest: 400Mi   # Prometheus request memory.
+    prometheusVolumeSize: 20Gi       # Prometheus PVC size.
+    # alertmanagerReplicas: 1          # AlertManager Replicas.
+  multicluster:
+    clusterRole: none  # host | member | none  # You can install a solo cluster, or specify it as the role of host or member cluster.
+  networkpolicy:       # Network policies allow network isolation within the same cluster, which means firewalls can be set up between certain instances (Pods).
+    # Make sure that the CNI network plugin used by the cluster supports NetworkPolicy. There are a number of CNI network plugins that support NetworkPolicy, including Calico, Cilium, Kube-router, Romana and Weave Net.
+    enabled: false
+  notification:        # Email Notification support for the legacy alerting system, should be enabled/disabled together with the above alerting option.
+    enabled: true
+  openpitrix:          # (2 Core, 3.6 G) Whether to install KubeSphere Application Store. It provides an application store for Helm-based applications, and offer application lifecycle management.
+    enabled: false
+  servicemesh:         # (0.3 Core, 300 MiB) Whether to install KubeSphere Service Mesh (Istio-based). It provides fine-grained traffic management, observability and tracing, and offer visualization for traffic topology.
+    enabled: true
+```
+
+
+
+查看安装日志
+
+```
+kubectl logs -n kubesphere-system $(kubectl get pod -n kubesphere-system -l app=ks-install -o jsonpath='{.items[0].metadata.name}') -f
+```
+
+![image-20210505225326280](G:\note\image\image-20210505225326280.png)
+
+###### 4 创建一个wordpress应用
+
+创建好密钥 存储卷 然后创建应用选择需要的镜像就可以了
+
+
+
+![image-20210505235007042](G:\note\image\image-20210505235007042.png)
+
+###### 5 devops流水线构建
+
+流程说明：
+
+- **阶段一. Checkout SCM**: 拉取 GitHub 仓库代码
+- **阶段二. Unit test**: 单元测试，如果测试通过了才继续下面的任务
+- **阶段三. SonarQube analysis**：sonarQube 代码质量检测
+- **阶段四. Build & push snapshot image**: 根据行为策略中所选择分支来构建镜像，并将 tag 为 `SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER`推送至 Harbor (其中 `$BUILD_NUMBER`为 pipeline 活动列表的运行序号)。
+- **阶段五. Push latest image**: 将 master 分支打上 tag 为 latest，并推送至 DockerHub。
+- **阶段六. Deploy to dev**: 将 master 分支部署到 Dev 环境，此阶段需要审核。
+- **阶段七. Push with tag**: 生成 tag 并 release 到 GitHub，并推送到 DockerHub。
+- **阶段八. Deploy to production**: 将发布的 tag 部署到 Production 环境。
+
+1. 创建登录仓库需要的凭证
+
+   github 凭证![image-20210506103448564](G:\note\image\image-20210506103448564.png)
+
+   
+
+​      docker hub凭证
+
+​     kubeconfig凭证
+
+  ```
+kubeconfig 类型的凭证用于访问接入正在运行的 Kubernetes 集群，在流水线部署步骤将用到该凭证。注意，此处的 Content 将自动获取当前 KubeSphere 中的 kubeconfig 文件内容，若部署至当前 KubeSphere 中则无需修改，若部署至其它 Kubernetes 集群，则需要将其 kubeconfig 文件的内容粘贴至 Content 中。
+  ```
+
+​     ![image-20210506103620026](G:\note\image\image-20210506103620026.png)
+
+1 sonarqube凭证 代码质量分析
+
+
+
+这个kubesphere内部有组件
+
+如果没有可以使用命令创建pod
+
+```
+kubectl create deployment sonarqube --image=sonarqube
+kubectl expose deployment sonarqube --port=9000 --type=NodePort
+```
+
+使用命令查看暴露的端口号
+
+```
+kubectl get svc --all-namespaces
+```
+
+登录操作如下
+
+https://v2-1.docs.kubesphere.io/docs/zh-CN/devops/sonarqube/
+
+最后创建sonarqube凭证
+
+![image-20210506113257938](G:\note\image\image-20210506113257938.png)
+
+2 创建流水线项目
+
+利用他的Dockerfile文件
+
+```dockerfile
+pipeline {
+  agent {
+    node {
+      label 'maven'
+    }
+  }
+
+    parameters {
+        string(name:'TAG_NAME',defaultValue: '',description:'')
+    }
+
+    environment {
+        DOCKER_CREDENTIAL_ID = 'dockerhub-id'
+        GITHUB_CREDENTIAL_ID = 'github-id'
+        KUBECONFIG_CREDENTIAL_ID = 'demo-kubeconfig'
+        REGISTRY = 'docker.io'
+        DOCKERHUB_NAMESPACE = 'chenzixue'
+        GITHUB_ACCOUNT = 'chenzixue@163.com'
+        APP_NAME = 'devops-java-sample'
+        SONAR_CREDENTIAL_ID = 'sonar-qube'
+    }
+
+    stages {
+      拉取代码
+        stage ('checkout scm') { 
+            steps {
+                checkout(scm)
+            }
+        }
+     测试代码
+        stage ('unit test') {
+            steps {
+                container ('maven') {
+                    sh 'mvn clean -gs `pwd`/configuration/settings.xml test'
+                }
+            }
+        }
+      分析代码
+        stage('sonarqube analysis') {
+          steps {
+            container ('maven') {
+              withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
+                withSonarQubeEnv('sonar') {
+                 sh "mvn sonar:sonar -gs `pwd`/configuration/settings.xml -Dsonar.branch=$BRANCH_NAME -Dsonar.login=$SONAR_TOKEN"
+                }
+              }
+              timeout(time: 1, unit: 'HOURS') {
+                waitForQualityGate abortPipeline: true
+              }
+            }
+          }
+        }
+       打包镜像推送到仓库
+        stage ('build & push') {
+            steps {
+                container ('maven') {
+                    sh 'mvn -Dmaven.test.skip=true -gs `pwd`/configuration/settings.xml clean package'
+                    sh 'docker build -f Dockerfile-online -t $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER .'
+                    withCredentials([usernamePassword(passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,credentialsId : "$DOCKER_CREDENTIAL_ID" ,)]) {
+                        sh 'docker push  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER'
+                    }
+                }
+            }
+        }
+        推送最新的镜像
+        stage('push latest'){
+           when{
+             branch 'master'
+           }
+           steps{
+                container ('maven') {
+                  sh 'docker tag  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:latest '
+                  sh 'docker push  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:latest '
+                }
+           }
+        }
+        部署镜像=创建应用pod 并暴露端口
+        stage('deploy to dev') {
+          when{
+            branch 'master'
+          }
+          steps { //部署到开发环境
+            input(id: 'deploy-to-dev', message: 'deploy to dev?')    // deploy/dev-ol内的yaml文件
+            kubernetesDeploy(configs: 'deploy/dev-ol/**', enableConfigSubstitution: true, kubeconfigId: "$KUBECONFIG_CREDENTIAL_ID")
+          }
+        }
+        stage('push with tag'){
+          when{
+            expression{
+              return params.TAG_NAME =~ /v.*/
+            }
+          }
+          steps {
+              container ('maven') {         //推送的代码仓库release版本
+                input(id: 'release-image-with-tag', message: 'release image with tag?')
+                  withCredentials([usernamePassword(credentialsId: "$GITHUB_CREDENTIAL_ID", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh 'git config --global user.email "kubesphere@yunify.com" '
+                    sh 'git config --global user.name "kubesphere" '
+                    sh 'git tag -a $TAG_NAME -m "$TAG_NAME" '
+                    sh 'git push http://$GIT_USERNAME:$GIT_PASSWORD@github.com/$GITHUB_ACCOUNT/devops-java-sample.git --tags --ipv4'
+                  }
+                sh 'docker tag  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME '
+                sh 'docker push  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:$TAG_NAME '
+          }
+          }
+        }
+        stage('deploy to production') { //把上步镜像部署生产环境
+          when{
+            expression{
+              return params.TAG_NAME =~ /v.*/
+            }
+          }
+          steps {   ////部署到生产环境
+            input(id: 'deploy-to-production', message: 'deploy to production?')
+            kubernetesDeploy(configs: 'deploy/prod-ol/**', enableConfigSubstitution: true, kubeconfigId: "$KUBECONFIG_CREDENTIAL_ID")
+          }
+        }
+    }
+}
+```
+
+###### 6 kubesphere部署mysql集群
+
+先准备好pvc 存储卷    mysql密钥   配置文件  然后创建mysql服务选用设置好的文件
+
+第一 创建master配置文件
+
+![image-20210507085135814](G:\note\image\image-20210507085135814.png)
+
+创建mysql服务
+
+
+
+![image-20210507084407019](G:\note\image\image-20210507084407019.png)
+
+![image-20210507084452845](G:\note\image\image-20210507084452845.png)
+
+![image-20210507084555120](G:\note\image\image-20210507084555120.png)
+
+![image-20210507084732550](G:\note\image\image-20210507084732550.png)
+
+![image-20210507085307477](G:\note\image\image-20210507085307477.png)
+
+选创建的配置文件挂载
+
+
+
+![image-20210507094400691](G:\note\image\image-20210507094400691.png)
+
+进入master-mysql终端添加同步账户
+
+```
+mysql -uroot -p
+
+GRANT REPLICATION SLAVE ON *.* to 'backup'@'%' identified by '123456';
+
+查看 master 状态
+show master status
+```
+
+进入slaver-mysql终端
+
+```
+mysql -uroot -p
+
+设置主库连接
+change master to
+master_host='192.168.111.139',master_user='backup',master_password='123456',master_log_file='mysql-bin.000003',master_log_pos=0,master_port=31106;
+
+启动从库同步
+start slave;
+
+查看从库状态
+show slave status\G;
+```
+
+7 kubesphere部署redis集群
+
+1 创建redis配置
+
+![image-20210507110007787](G:\note\image\image-20210507110007787.png)
+
+2 创建pvc
+
+3 创建redis服务
+
+![image-20210507110249507](G:\note\image\image-20210507110249507.png)
+
+4 可以创建多个redis服务咋在配置他们的文件即可
+
+####  kubespere部署自己的微服务
+
+![image-20210507111325181](G:\note\image\image-20210507111325181.png)
+
+可以给服务指定域名访问
+
+![image-20210507112037442](G:\note\image\image-20210507112037442.png)
+
+集成sonarqube
+
+[将 SonarQube 集成到流水线 (kubesphere.com.cn)](https://kubesphere.com.cn/docs/devops-user-guide/how-to-integrate/sonarqube/)
+
+在根目录pom文件中天剑
+
+```xml
+<properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- Sonar -->
+    <!-- The destination file for the code coverage report has to be set to the same value
+         in the parent pom and in each module pom. Then JaCoCo will add up information in
+         the same report, so that, it will give the cross-module code coverage. -->
+    <sonar.jacoco.reportPaths>${PWD}/./target/jacoco.exec</sonar.jacoco.reportPaths>
+    <sonar.groovy.binaries>target/classes</sonar.groovy.binaries>
+  </properties>
+```
+
+
+
+1 修改每个微服务添加prod环境的配置文件
+
+![image-20210507111439288](G:\note\image\image-20210507111439288.png)
+
+2 创建dockerfile文件
+
+每个微服务内的文件 根目录下
+
+```
+FROM java:8  
+EXPOSE 8080
+
+VOLUME /tmp  //把数据挂载到tmp目录
+
+ADD target/*.jar  /app.jar   //把git代码打包的jar包  复制到根目录下的/app.jar
+
+RUN bash -c 'touch /app.jar'   //把项目根目录的下的jar包 复制到镜像内部/app.jar
+
+ENTRYPOINT ["java","-jar","/app.jar","-Xms128m","-Xmx300m","--spring.profiles.active=prod"]
+```
+
+每个微服务deploy目录下创建生成pod的yaml文件
+
+对外暴露端口30000开始
+
+$PROJECT_NAME/deploy/**
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gulimall-cart     #app 相当于服务的id 也改为服务的名称
+  name: gulimall-cart  #微服务的名称
+  namespace: gulimall  #整个项目的名称
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 2  # 副本数  生成pod的数量
+  selector: #选择器
+    matchLabels:
+      app: gulimall-cart
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:   #这次部署的模板内容具体参数
+    metadata:
+      labels:
+        app: gulimall-cart
+    spec:
+      containers:
+        - name: gulimall-cart #创建pod的名字
+          image: $REGISTRY/$HARBOR_NAMESPACE/$APP_NAME:latest  /仓库地址/名称空间/微服务名称:版本号
+          # readinessProbe:
+            # httpGet:
+              # path: /
+              # port: 8080
+            # timeoutSeconds: 10
+            # failureThreshold: 30
+            # periodSeconds: 5
+          imagePullPolicy: IfNotPresent #镜像拉取策略
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: #资源
+            limits:
+              cpu: 1000m
+              memory: 600Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          terminationMessagePath: /dev/termination-log  #容器日志
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: gulimall-cart
+  name: gulimall-cart
+  namespace: gulimall
+spec:
+  ports:
+    - name: http
+      port: 8080          #k8s service分配给pod可以重复 app的值都是唯一的
+      protocol: TCP
+      targetPort: 8080   #镜像端口
+      nodePort: 30001 #对外暴露的端口
+  selector:
+    app: gulimall-cart
+  sessionAffinity: None
+  type: NodePort
+---  
+```
+
+3 jenkinsfile文件
+
+可以直接使用界面
+
+![image-20210507124033364](G:\note\image\image-20210507124033364.png)
+
+```lua
+pipeline {
+  agent {
+    node {
+      label 'maven'
+    }
+
+  }
+  stages {
+    stage('拉取代码') {
+      agent none
+      steps {
+        sh '$PROJECTI_VERSION'
+        git(url: 'https://gitee.com/qq851088072/devops-java-sample.git', credentialsId: 'gitee', branch: 'master', changelog: true, poll: false)
+        sh 'echo 正在构建 $PROJECT_NAME 版本号:$PROJECT_VERSION 仓库 $REGISTRY'
+        container('maven'){
+          sh 'mvn clean install -Dmaven.test.skip=true -gs `pwd`/settings.xml'
+        }
+      }
+    }
+
+    // stage('sonarqube analysis') {
+    //   steps {
+    //     container('maven') {
+    //       withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
+    //         withSonarQubeEnv('sonar') {
+    //           sh 'echo 当前位置`pwd`'
+    //           sh 'mvn clean install -Dmaven.test.skip=true'
+    //           sh "mvn sonar:sonar -gs `pwd`/settings.xml -Dsonar.branch=$BRANCH_NAME -Dsonar.login=$SONAR_TOKEN"
+    //         }
+    //       }
+    //       timeout(time: 1, unit: 'HOURS') {
+    //             waitForQualityGate abortPipeline: true
+    //       }
+    //     }
+    //   }
+    // }
+    stage ('构建镜像') {
+        steps {
+          // $$BUILD_NUMBER 构建的序号  系统自带的
+            container ('maven') {
+                sh 'mvn -Dmaven.test.skip=true -gs `pwd`/settings.xml clean package'
+                sh 'cd $PROJECT_NAME &&  docker build -f $PROJECT_NAME/Dockerfile -t $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER .'
+                withCredentials([usernamePassword(passwordVariable : 'DOCKER_PASSWORD' ,usernameVariable : 'DOCKER_USERNAME' ,credentialsId : "$DOCKER_CREDENTIAL_ID" ,)]) {
+                  sh 'docker tag  $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:latest '
+                  sh 'docker push  $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:latest '
+                }
+            }
+        }
+    }
+    stage('部署到集群') {
+          when{
+            branch 'master'
+          }
+          steps {
+            input(id: 'deploy-to-dev-$PROJECT_NAME', message: "是否部署 $PROJECT_NAME 到集群?") //需要人工确认
+            kubernetesDeploy(configs: '$PROJECT_NAME/deploy/*', enableConfigSubstitution: true, kubeconfigId: "$KUBECONFIG_CREDENTIAL_ID")
+          }
+        }
+    stage('发布版本'){
+          when{
+            expression{
+              return params.PROJECT_VERSION =~ /v.*/
+            }
+          }
+          steps {
+              container ('maven') {
+                input(id: 'release-image-with-tag', message: "是否发布 $PROJECT_NAME:$PROJECT_VERSION 版本?")
+                  withCredentials([usernamePassword(credentialsId: "$GITHUB_CREDENTIAL_ID", passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh 'git config --global user.email "kubesphere@yunify.com" '
+                    sh 'git config --global user.name "kubesphere" '
+                    sh 'git tag -a $TAG_NAME -m "$TAG_NAME" '
+                    //github发布版本
+                    sh 'git push http://$GIT_USERNAME:$GIT_PASSWORD@github.com/$GITHUB_ACCOUNT/devops-java-sample.git --tags --ipv4'
+                  }
+                  //dockerhub 发布版本
+                sh 'docker tag  $REGISTRY/$DOCKERHUB_NAMESPACE/$APP_NAME:SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:$PROJECT_VERSION '
+                sh 'docker push  $REGISTRY/$DOCKERHUB_NAMESPACE/$PROJECT_NAME:$PROJECT_VERSION'
+             }
+          }
+    }    
+    
+  }
+  environment {
+    DOCKER_CREDENTIAL_ID = 'dockerhub-id'
+    GITHUB_CREDENTIAL_ID = 'github-id'
+    KUBECONFIG_CREDENTIAL_ID = 'demo-kubeconfig'
+    REGISTRY = 'docker.io'
+    DOCKERHUB_NAMESPACE = 'guli'
+    GITHUB_ACCOUNT = '851088072@qq.com'
+    APP_NAME = 'devops-java-sample'
+    SONAR_CREDENTIAL_ID = 'sonarqube-token'
+    BRANCH_NAME = 'master'
+  }
+  parameters {
+    string(name: 'PROJECT_NAME', defaultValue: '', description: '项目名称')
+    string(name: 'PROJECT_VERSION', defaultValue: 'v0.0', description: '版本号')
+  }
+}
+```
+
+4 /configuration/settings.xml
+
+```xml
+<settings>
+  <mirrors>
+    <mirror>
+      <id>aliyunmaven</id>
+      <url>https://maven.aliyun.com/repository/public/</url>
+      <mirrorOf>*</mirrorOf>
+      <name>阿里云公共仓库</name>
+    </mirror>
+  </mirrors>
+    <profile>     
+      <id>JDK-1.8</id>       
+      <activation>       
+        <activeByDefault>true</activeByDefault>       
+        <jdk>1.8</jdk>       
+      </activation>       
+      <properties>       
+        <maven.compiler.source>1.8</maven.compiler.source>       
+        <maven.compiler.target>1.8</maven.compiler.target>       
+<maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>       
+      </properties>       
+    </profile>
+</settings>
+```
+
+部署应用路由
+
+可以根据域名访问服务
+
+第一创建网关
+
+![image-20210507162552138](G:\note\image\image-20210507162552138.png)
+
+第一创建应用路由
+
+![image-20210507162831110](G:\note\image\image-20210507162831110.png)
+
+#### harbor镜像仓库
+
+1 准备环境 安装好docker并启动docker
+
+2 先安装docker-compose
+
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.0/dockercompose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+给docker-compose添加执行权限
+sudo chmod +x /usr/local/bin/docker-compose
+
+查看docker-compose是否安装成功
+docker-compose -version
+```
+
+3 下载harbor压缩包
+
+```
+https://github.com/goharbor/harbor/releases/download/v2.1.5/harbor-online-installer-v2.1.5.tgz
+
+上传压缩包到linux，并解压
+tar -xzf harbor-offline-installer-v1.9.2.tgz
+mkdir /opt/harbor
+mv harbor/* /opt/harbor
+cd /opt/harbor
+
+
+修改Harbor的配置
+vi harbor.yml
+
+hostname: 192.168.66.102
+port: 85
+
+安装Harbor
+./prepare
+./install.sh
+
+
+启动Harbor
+docker-compose up -d 启动
+docker-compose stop 停止
+docker-compose restart 重新启动
+```
+
+错误
+
+```
+安装Docker harbor报错：ERROR:root:Error: The protocol is https but attribute ssl_cert is not set
+```
+
+![img](G:\note\image\20201206221901487.png)
+
+4 访问Harbor
+
+```
+192.168.111.156
+```
+
+修改docker配置添加仓库地址为信息列表
+
+```
+vi /etc/docker/daemon.json
+{
+"registry-mirrors": ["https://zydiol88.mirror.aliyuncs.com"],
+  
+}
+
+```
+
+推送镜像
+
+```
+打标签
+tag 镜像名称 harbor仓库地址/镜像命名空间/镜像的名称:版本号
+tag nginx 192.168.111.156/library/nginx:v1
+
+docker login -u 用户名 -p 密码 192.168.111.156
+
+docker push 192.168.111.156/library/nginx:v1
+```
+
+
+
+
+

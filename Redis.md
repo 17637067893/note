@@ -1,4 +1,4 @@
-存储的数据类型 
+jav存储的数据类型 
 
 string 字符串
 
@@ -126,5 +126,134 @@ sunion key1 key2 返回两个集合的并集元素
 sdiff key1 key2 返回两个集合的差集元素
 ```
 
+#### springboot整合redis
 
+1 引入依赖
+
+```xml
+<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+<!--        springboot2.x redis需要的-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+```
+
+2 添加配置类
+
+```java
+package com.example.demo3.config;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
+
+@EnableCaching
+@Configuration
+public class RedisConfig extends CachingConfigurerSupport {
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
+        template.setConnectionFactory(factory);
+        //key序列化方式
+        template.setKeySerializer(redisSerializer);
+        //value序列化
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        //value hashmap序列化
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+        return template;
+    }
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+        //解决查询缓存转换异常的问题
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
+        // 配置序列化（解决乱码的问题）,过期时间600秒
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofSeconds(600)) //数据过期时间
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
+                .disableCachingNullValues();
+        RedisCacheManager cacheManager = RedisCacheManager.builder(factory)
+                .cacheDefaults(config)
+                .build();
+        return cacheManager;
+    }
+}
+
+```
+
+###### 使用缓存注解
+
+**@Cacheable**
+
+把方法的返回值存入redis中，如果有值 直接从缓存中读取，如果没有执行方法，一般用在查询方法上
+
+| value      | 必填  ，缓存的命名空间 |
+| ---------- | ---------------------- |
+| cacheNames | 等于value              |
+| key        | 缓存的key              |
+
+
+
+**@CachePut**
+
+每次执行方法都会将结果存入redis中，适用于新增方法参数同上
+
+
+
+**@CacheEvict**
+
+清空指定缓存，一般用在更新或删除方法上
+
+| 参数             | 作用                              |
+| ---------------- | --------------------------------- |
+| value            | 必填,指定命名空间                 |
+| cacheNames       | 等于 value                        |
+| key              | 缓存的key值                       |
+| allEntries       | 是否清空所有换粗默认为false       |
+| beforeInvocation | 是否在执行方法前清空，默认为false |
+
+测试  list添加    **‘list’**
+
+```java
+   @Cacheable(value = "test",key = "'list'")  
+    public List<User> selectList() {
+        List<User> users = this.baseMapper.selectList(null);
+        return users;
+    }
+```
+
+![image-20210514115621607](G:\note\image\image-20210514115621607.png)
 

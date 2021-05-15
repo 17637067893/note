@@ -1,4 +1,6 @@
-#### 搭建项目
+![image-20210514211235915](G:\note\image\image-20210514211235915.png)
+
+#### 案例
 
 1 springBoot引入依赖
 
@@ -8,6 +10,7 @@
     <artifactId>mybatis-plus-boot-starter</artifactId>
     <version>3.0.5</version>
 </dependency>
+//连接数据库的驱动
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
@@ -21,7 +24,9 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.datasource.url=jdbc:mysql://localhost:3306/mybatis_plus?serverTimezone=GMT%2B8
 spring.datasource.username=root
 spring.datasource.password=root
+#打印SQl语句
 mybatis-plus.configuration.log-impl=org.apache.ibatis.logging.stdout.StdOutImpl
+
 ```
 
 3 启动类
@@ -64,7 +69,41 @@ public interface UserMapper extends BaseMapper<User> {
 }
 ```
 
-#### 自动填充
+6 测试结果
+
+```
+userMapper.selectList(null).forEach(System.out::println);
+```
+
+#### 注解
+
+######  @TableName 
+
+数据库对应表名
+
+```java
+@TableName(value = "user")
+```
+
+###### @TableId 
+
+指定数据库主键
+
+```properties
+@TableId(value = "id",type =IdType.AUTO,exist = true) 
+value指定数据库主键 
+exist 数据库是否存在该字段 封装vo的时候用
+```
+
+| 值                 | 描述                                 |
+| :----------------- | ------------------------------------ |
+| IdType.AUTO        | 数据库自增                           |
+| IdType.NONE        | Mp set主键 雪花算法                  |
+| IdType.INPUT       | 手动输入                             |
+| IdType.ASSIGN_ID   | MP 分配ID，Long Integer String       |
+| IdType.ASSIGN_UUID | MP 分配 UUID String 主键必须是String |
+
+3 自动更新时间
 
 1 属性添加注解
 
@@ -83,17 +122,30 @@ private Date updateTime;
 public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
-        this.setFieldValByName("createTime", new Date(), metaObject);
+        this.setFieldValByName("createTime",new Date(),metaObject);
+        this.setFieldValByName("updateTime",new Date(),metaObject);
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        this.setFieldValByName("updateTime", new Date(), metaObject);
+        this.setFieldValByName("updateTime",new Date(),metaObject);
     }
-}
+
 ```
 
-#### 乐观锁
+```
+    @Test
+    void save() {
+        User user = new User();
+        user.setAge(20);
+        user.setEmail("email");
+        user.setName("小红");
+        int insert = userMapper.insert(user);
+        System.out.println(insert);
+    }
+```
+
+###### @version 乐观锁 
 
 **主要适用场景：**当要更新一条记录的时候，希望这条记录没有被别人更新，也就是说实现线程安全的数据更新
 
@@ -114,7 +166,7 @@ ALTER TABLE `user` ADD COLUMN `version` INT
 2 实体类添加字段
 
 ```
-@Version2@TableField(fill = FieldFill.INSERT)3private Integer version
+@Version2@TableField(fill = FieldFill.INSERT)private Integer version
 ```
 
 3 利用自动填充设置默认值
@@ -137,6 +189,23 @@ public class MybatisPlusConfig {
     public OptimisticLockerInterceptor optimisticLockerInterceptor() {       return new OptimisticLockerInterceptor()  
     }
 }
+
+新版插件
+     // 注册乐观锁插件与分页插件
+ 
+    /**
+     * 新的分页插件,一缓和二缓遵循mybatis的规则,需要设置 MybatisConfiguration#useDeprecatedExecutor = false 避免缓存出现问题(该属性会在旧插件移除后一同移除)
+     */
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+        //分页插件
+        mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        //乐观锁插件
+        mybatisPlusInterceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
+        
+        return mybatisPlusInterceptor;
+    }
 ```
 
 5 测试乐观锁
@@ -153,7 +222,145 @@ public void testOptimisticLocker() {
 }
 ```
 
-BaseMapper
+###### @EnumValue 
+
+将数据库字段映射成实体类枚举类型成员变量
+
+1 数据创建状态字段sex有几种值 枚举就写几种状态
+
+假设sex 只有 0， 1
+
+创建枚举
+
+``` java
+public enum  StatusEnum {
+    
+    MAN(0,"男"),
+    WOMAN(1,"女");
+    
+    @EnumValue   //添加注释
+    private Integer code;
+    private String value;
+
+    StatusEnum(Integer code, String value) {
+        this.code = code;
+        this.value = value;
+    }
+}
+
+```
+
+实体类添加变量
+
+```
+private StatusEnum sex;   //sex  和数据库字段对应
+```
+
+配置文件添加扫描枚举包
+
+```properties
+mybatis-plus.type-enums-package=com.xnxun.demo.enums
+```
+
+
+
+查询数据
+
+```
+User user1 = userMapper.selectById(1392284633368948741L);
+        System.out.println(user1);
+        
+User(id=1392284633368948741, name=小华3, age=20, email=email, sex=MAN, createTime=Wed May 12 09:50:39 CST 2021, updateTime=Wed May 12 10:23:01 CST 2021, version=3)        
+```
+
+###### @TableLogic 逻辑删除
+
+1 数据库添加字段 deleted
+
+2 实体类添加字段
+
+```
+@TableLogic
+private int deleted;
+```
+
+3 配置类添加 0 1状态
+
+```
+逻辑删除
+mybatis-plus.global-config.db-config.logic-delete-value=1
+mybatis-plus.global-config.db-config.logic-not-delete-value=0
+```
+
+4 测试代码
+
+```
+int i = userMapper.deleteById(1);   //只改deleted状态
+System.out.println(i);
+```
+
+#### 查询
+
+```
+@Resource
+private UserMapper userMapper;
+```
+
+###### 增
+
+
+
+###### 删
+
+```
+QueryWrapper<User> wrapper = new QueryWrapper<>();
+int delete = userMapper.delete(wrapper);
+```
+
+###### 改
+
+
+
+###### 查
+
+1 查询全部
+
+```
+List<User> users = userMapper.selectList(null);
+```
+
+2 根据条件查询
+
+ge >=
+
+gt >
+
+le <=
+
+lt <
+
+isNull
+
+isNotNull
+
+eq =
+
+ne !=
+
+between
+
+notBetween
+
+```java
+QueryWrapper<User> wrapper = new QueryWrapper<>();
+wrapper.eq("name","小红");  //eq 等于
+```
+
+3 多条件查询
+
+userMapper.selectByMap(map);
+
+userMapper.selectMap();  //查询的结果封装到map中
 
 ```java
 //多个id查询
@@ -163,22 +370,47 @@ List<User> users = userMapper.selectBatchIds(Arrays.asList(1L, 2L, 3L));
 HashMap<String, Object> map = new HashMap<>();
 map.put("name","Helen");
 map.put("age",18);
+
 List<User> users1 = userMapper.selectByMap(map);
 ```
 
-#### 分页查询
+4 allEq 多条件相等
 
-1 添加bean
-
-```JAVA
-//分页插件
-@Bean
-public PaginationInterceptor paginationInterceptor(){
-return new PaginationInterceptor();
+```java
+@Test
+public void testSelectList() {
+    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", 2);
+    map.put("name", "Jack");
+    map.put("age", 20);
+    queryWrapper.allEq(map);
+    List<User> users = userMapper.selectList(queryWrapper);
+    users.forEach(System.out::println);
 }
+
+SELECT id,name,age,email,create_time,update_time,deleted,version FROM user WHERE deleted=0 AND name = ? AND id = ? AND age = ? 
 ```
 
+4 模糊查询
+
+![image-20210108225039235](G:\note\image\image-20210108225039235.png)
+
+![image-20210108225128396](G:\note\image\image-20210108225128396.png)
+
+![image-20210108225058687](G:\note\image\image-20210108225058687.png)
+
+![image-20210108225207558](G:\note\image\image-20210108225207558.png)
+
+
+
+
+
+###### 分页查询
+
 2 查询
+
+新版不用配置插件
 
 ```
  @Test
@@ -194,47 +426,6 @@ return new PaginationInterceptor();
     }
 ```
 
-#### 删除
-
-物理删除  
-
-```java
-//普通删除
-int i = userMapper.deleteById(1L);
-//批量删除
-int i1 = userMapper.deleteBatchIds(Arrays.asList(1, 2, 3));
-```
-
-逻辑删除
-
-1 数据库添加deleted字段   
-
-deleted 1 为删除
-
-deleted 0 为没有删除
-
-```
-ALTER TABLE `user` ADD COLUMN `deleted` boolean
-```
-
-2 实体类添加deleted字段
-
-```java
-@TableLogic
-@TableField(fill = FieldFill.INSERT)
-private Integer deleted;
-```
-
-3 添加bean
-
-```
- //逻辑删除
- @Bean
- public ISqlInjector sqlInjector() {
- return new LogicSqlInjector();
- }
-```
-
 4 测试
 
 ```
@@ -242,6 +433,47 @@ int i = userMapper.deleteById(1L);
 ```
 
 ![image-20210108220427836](G:\note\image\image-20210108220427836.png)
+
+###### 自定义SQL(多表关联查询)
+
+1 封装实体类VO 根据需要
+
+```java
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductVo {
+    private Integer id;
+    private String productName;  //和数据库字段不一样
+    private String userName;  //和数据库字段不一样
+    private String userAge;   //和数据库字段不一样
+}
+```
+
+2  编写sql
+
+跟字段取别名和我们的vo的变量名一样
+
+```
+select p.id,p.name productName,u.name username,u.age userAge from product p,user u where p.user_id = u.id and u.id=#{id}
+```
+
+3 Dao创建方法
+
+```java
+@Select("select p.id,p.name productName,u.name username,u.age userAge from product p,user u where p.user_id = u.id and u.id=#{id}")
+
+List<ProductVo> productList(Integer id);
+```
+
+4 测试
+
+```java
+List<ProductVo> productVos = userMapper.productList(4);
+        System.out.println(productVos);
+```
+
+
 
 #### 性能分析插件
 
@@ -267,78 +499,90 @@ spring.profiles.active=dev
 
 测试执行sql
 
-#### 复杂条件插叙
 
-1
 
-ge >=
 
-gt >
 
-le <=
 
-lt <
-
-isNull
-
-isNotNull
-
-eq =
-
-ne !=
-
-between
-
-notBetween
-
-```java
-@Test
-public void testDelete() {   
-QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-    queryWrapper
-        .isNull("name")
-        .ge("age", 12)
-        .isNotNull("email")
-        .between("age", 20, 30);
-    int result = userMapper.delete(queryWrapper);
-    System.out.println("delete return count = " + result);
-
-}
-```
-
-allEq 多条件相等
-
-```java
-@Test
-public void testSelectList() {
-    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-    Map<String, Object> map = new HashMap<>();
-    map.put("id", 2);
-    map.put("name", "Jack");
-    map.put("age", 20);
-    queryWrapper.allEq(map);
-    List<User> users = userMapper.selectList(queryWrapper);
-    users.forEach(System.out::println);
-}
-
-SELECT id,name,age,email,create_time,update_time,deleted,version FROM user WHERE deleted=0 AND name = ? AND id = ? AND age = ? 
-```
-
-![image-20210108225039235](G:\note\image\image-20210108225039235.png)
-
-![image-20210108225058687](G:\note\image\image-20210108225058687.png)
-
-![image-20210108225128396](G:\note\image\image-20210108225128396.png)
 
 ![image-20210108225146947](G:\note\image\image-20210108225146947.png)
 
-![image-20210108225207558](G:\note\image\image-20210108225207558.png)
+
 
 ![image-20210108225223258](G:\note\image\image-20210108225223258.png)
 
 ![image-20210108225234635](G:\note\image\image-20210108225234635.png)
 
 ![image-20210108225250029](G:\note\image\image-20210108225250029.png)
+
+
+
+#### 代码生成器
+
+1 引入依赖
+
+```xml
+  <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
+```
+
+2 启动类内
+
+```java
+@SpringBootApplication
+@MapperScan("com.xnxun.demo.mapper")
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+        //创建generator对象
+        AutoGenerator autoGenerator =new AutoGenerator();
+        //数据源
+        DataSourceConfig dataSourceConfig = new DataSourceConfig();
+        dataSourceConfig.setDbType(DbType.MYSQL);
+        dataSourceConfig.setUrl("jdbc:mysql://192.168.111.156:3306/mybatis_plus?useUnicode=true&characterEncoding=UTF-8&useSSL=false");
+         dataSourceConfig.setUsername("root");
+        dataSourceConfig.setPassword("root");
+        dataSourceConfig.setDriverName("com.mysql.cj.jdbc.Driver");
+        autoGenerator.setDataSource(dataSourceConfig);
+           //全局配置
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setOutputDir(System.getProperty("user.dir")+"/src/main/java");
+        globalConfig.setOpen(false);
+        globalConfig.setAuthor("southwind"); //作者信息
+        globalConfig.setServiceName("%sService");  //去掉接口名称前的I
+        autoGenerator.setGlobalConfig(globalConfig);
+        //包信息
+        PackageConfig packageConfig = new PackageConfig();
+        packageConfig.setParent("com.xnxun.demo");
+        packageConfig.setModuleName("generator"); //路径下生成generator包
+        packageConfig.setController("controller"); //控制器的文件夹
+        packageConfig.setService("service");
+        packageConfig.setServiceImpl("service.impl");
+        packageConfig.setMapper("mapper");
+        packageConfig.setEntity("entity");
+        autoGenerator.setPackageInfo(packageConfig);
+        //配置策略
+        StrategyConfig strategyConfig = new StrategyConfig();
+        strategyConfig.setEntityLombokModel(true);
+        //strategyConfig.setInclude("user")  生成数据库内的部分表
+        strategyConfig.setNaming(NamingStrategy.underline_to_camel);
+        strategyConfig.setColumnNaming(NamingStrategy.underline_to_camel);
+        autoGenerator.setStrategy(strategyConfig);
+        autoGenerator.execute();
+    }
+
+}
+```
+
+
 
 #### cloud oss
 

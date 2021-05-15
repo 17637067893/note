@@ -1,5 +1,82 @@
 
 
+```
+https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E
+```
+
+
+
+![image-20210508132210087](G:\note\image\image-20210508132210087.png)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.10.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>gateway</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>gateway</name>
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-alibaba-dependencies</artifactId>
+			<version>2.2.5.RELEASE</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>tomcat-embed-core</artifactId>
+					<groupId>org.apache.tomcat.embed</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies -->
+			<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies -->
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Hoxton.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud</groupId>
+				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
+				<version>2.2.5.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
+
+```
+
+
+
 #### Spring Cloud
 
 Spring Cloud 是一套完整的微服务解决方案，基于 Spring Boot 框架，准确的说，它不是一个框架，而是一个大的容器，它将市面上较好的微服务框架集成进来，从而简化了开发者的代码量。
@@ -1222,78 +1299,22 @@ ribbon也可以自定义策略。具体方法包括：
   }
 ```
 
-新建cloud-consumer-feign-order80
-
 1 pom
 
 ```xml
  <dependencies>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.atguigu.springcloud</groupId>
-            <artifactId>cloud-api-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+     <dependency>
+         <groupId>org.springframework.cloud</groupId>
+         <artifactId>spring-cloud-starter-openfeign</artifactId>
+     </dependency>
+</dependencies>
 ```
 
-2 yml配置
-
-```yml
-server:
-  port: 80
-eureka:
-  client:
-    register-with-eureka: false
-    service-url:
-      defaultZone: http://eureka7001.com:7001/eureka, http://eureka7002.com:7002/eureka
-```
-
-3 主动类
+2 主动类
 
 ```java
-package com.atguigu.springcloud;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-
 @SpringBootApplication
-@EnableFeignClients  开起Feign
+@EnableFeignClients(basePackages = "com.xnxun.product.feign")  开起指定feign的文件夹不用@Component注解
 public class OrderFeignMain80 {
     public static void main(String[] args) {
         SpringApplication.run(OrderFeignMain80.class,args);
@@ -1304,20 +1325,9 @@ public class OrderFeignMain80 {
 4 接口并新增注解@FeignClient
 
 ```
-package com.atguigu.springcloud.service;
-
-import com.atguigu.springcloud.entities.CommonResult;
-import com.atguigu.springcloud.entities.Payment;
-import feign.Param;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
-@Component
-@FeignClient(value = "CLOUD-PAYMENT-SERVICE")
+@Component  //basePackages = "com.xnxun.product.feign" 需要添加@Component
+@FeignClient(value = "CLOUD-PAYMENT-SERVICE") //电泳的
 public interface PaymentFeignService {
-
     @GetMapping(value = "/payment/get/{id}")
     public CommonResult getPaymentById(@PathVariable("id") Long id);
 }
@@ -1327,17 +1337,6 @@ public interface PaymentFeignService {
 5 controller
 
 ```java
-package com.atguigu.springcloud.controller;
-
-import com.atguigu.springcloud.entities.CommonResult;
-import com.atguigu.springcloud.entities.Payment;
-import com.atguigu.springcloud.service.PaymentFeignService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-
 @RestController
 public class OrderFeignController {
 
@@ -1709,14 +1708,6 @@ public String paymentCircuitBreaker_fallback(@PathVariable("id") Integer id){
 ##### 网关解决跨域
 
 ```java
-package com.atguigui.gulimall.gateway.config;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsWebFilter;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-
 @Configuration
 public class GulimallCorsConfig{
     @Bean
@@ -1734,53 +1725,14 @@ public class GulimallCorsConfig{
 }
 ```
 
-
-
-1 新建cloud-gateway-gateway9527
-
 2 pom
 
 ```xml
-<dependencies>
-        <!--新增gateway-->
+       <!--新增gateway-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
-        <dependency>
-            <artifactId>demo1</artifactId>
-            <groupId>org.example</groupId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
 ```
 
 2 yml
@@ -1808,17 +1760,59 @@ spring:
           uri: lb://cloud-payment-service
           predicates:
             - Path=/payment/lb/**   #断言,路径相匹配的进行路由
-
-
-eureka:
-  instance:
-    hostname: cloud-gateway-service
-  client:
-    service-url:
-      register-with-eureka: true
-      fetch-registry: true
-      defaultZone: http://eureka7001.com:7001/eureka
 ```
+
+谷粒商城gateway
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: payment_routh #路由的ID，没有固定规则但要求唯一，建议配合服务名
+          uri: https://www.baidu.com
+          predicates:
+            - Query=url,baidu   #断言,路径相匹配的进行路由
+
+        - id: payment_routh2
+          uri:  https://www.qq.com
+          predicates:
+            - Query=url,qq   #断言,路径相匹配的进行路由
+
+        - id: product_route # 产品微服务
+          uri: lb://gulimall-product
+          predicates:
+            - Path=/api/product/**   #断言,路径相匹配的进行路由
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+
+
+        - id: member_route # 会员
+          uri: lb://gulimall-member
+          predicates:
+            - Path=/api/member/**   #断言,路径相匹配的进行路由
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+
+
+
+        - id: thrid_route  # 第三方服务
+          uri: lb://gulimall-third-party
+          predicates:
+            - Path=/api/thirdparty/**   #断言,路径相匹配的进行路由
+          filters:
+            - RewritePath=/api/thirdparty/(?<segment>.*),/$\{segment}
+
+
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**   #断言,路径相匹配的进行路由
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+```
+
+
 
 3 启动类
 
@@ -2118,6 +2112,18 @@ public class ConfigClientController {
 
 ![image-20210108130252783](G:\note\image\image-20210108130252783.png)
 
+编写配置文件
+
+1 数据持久化   执行mysql文件
+
+2 配置数据库
+
+![image-20210508171121826](G:\note\image\image-20210508171121826.png)
+
+3 配置单![image-20210508171147652](G:\note\image\image-20210508171147652.png)点启动
+
+
+
 打开localhost:8848/nacos
 
 ###### provider
@@ -2126,20 +2132,23 @@ public class ConfigClientController {
 
 1 pom
 
-父pom
+nacos的依赖管理
 
-```
-<!--spring cloud alibaba 2.1.0.RELEASE-->
-<dependency>
-  <groupId>com.alibaba.cloud</groupId>
-  <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-  <version>2.1.0.RELEASE</version>
-  <type>pom</type>
-  <scope>import</scope>
-</dependency>
+```xml
+<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.alibaba.cloud</groupId>
+				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
+				<version>2021.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 ```
 
-笨模块pom
+本模块pom自动使用父模块的版本
 
 ```xml
 <dependencies>
@@ -2153,24 +2162,10 @@ public class ConfigClientController {
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-devtools</artifactId>
         <scope>runtime</scope>
         <optional>true</optional>
     </dependency>
-    <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <optional>true</optional>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-test</artifactId>
-        <scope>test</scope>
-    </dependency><dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
     <version>1.2.62</version>
@@ -2251,7 +2246,7 @@ public class PaymentController
 
 2 pom
 
-```
+```xml
 <dependencies>
     <!--SpringCloud ailibaba nacos -->
     <dependency>
@@ -2540,6 +2535,10 @@ sentinel-dashboard-1.7.0.jar文件  原型 java -jar启动 访问8080端口
 
 ```
 
+
+
+
+
 3 yml
 
 ```
@@ -2585,6 +2584,30 @@ public class MainApp8401
 }
 ```
 
+###### warm up 图解
+
+![image-20210513212249959](G:\note\image\image-20210513212249959.png)
+
+###### 降级
+
+RT
+
+![image-20210513213409618](G:\note\image\image-20210513213409618.png)
+
+异常比例
+
+![image-20210513213601247](G:\note\image\image-20210513213601247.png)
+
+异常数
+
+![image-20210513214006504](G:\note\image\image-20210513214006504.png)
+
+###### 热点规则
+
+![image-20210513220104569](G:\note\image\image-20210513220104569.png)
+
+![image-20210513220443630](G:\note\image\image-20210513220443630.png)
+
 5 controller
 
 fallback运行时异常
@@ -2598,7 +2621,6 @@ package com.atguigu.springcloud.alibaba.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 
 
@@ -2623,7 +2645,7 @@ public class FlowLimitController
 }    
 ```
 
-设置全局方法
+###### 设置全局限流处理方法方法
 
 ```java
 package com.atguigu.springcloud.alibaba.myhandler;
@@ -2645,12 +2667,35 @@ public class CustomerBlockHandler {
 ```java
 @GetMapping("/rateLimit/customerBlockHandler")
 @SentinelResource(value = "customerBlockHandler",
-        blockHandlerClass = CustomerBlockHandler.class,
-        blockHandler = "handlerException2")
+        blockHandlerClass = CustomerBlockHandler.class, //限流的类
+        blockHandler = "handlerException2") //类中的方法
 public CommonResult customerBlockHandler()
 {
     return new CommonResult(200,"按客戶自定义",new Payment(2020L,"serial003"));
 ```
+
+###### 运行时异常fallback
+
+如果程序异常
+
+![image-20210513223355462](G:\note\image\image-20210513223355462.png)
+
+配置fallback 方法
+
+````java
+  @GetMapping("/test1")
+    @SentinelResource(value = "fallback",fallback = "handlerFallback")
+    public String get(){
+        int i = 10/0;
+        return "order";
+    }
+
+    public String handlerFallback(Throwable e){
+        return "自定义fallback"+e.getMessage();
+    }
+````
+
+![image-20210513223601251](G:\note\image\image-20210513223601251.png)
 
 sentinel整合ribbon
 

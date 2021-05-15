@@ -87,7 +87,7 @@
 
 1、 SpringBoot Starter：他将常用的依赖分组进行了整合，将其合并到一个依赖中，这样就可以一次性添加到项目的Maven或Gradle构建中；
 
- 
+
 
 2、 使编码变得简单，SpringBoot采用 JavaConfig的方式对Spring进行配置，并且提供了大量的注解，极大的提高了工作效率。
 
@@ -231,7 +231,9 @@ mvn -f springboot-first clean package
 
 打完jar包后，我们切入到对应的jar包里面执行
 
-#### 默认扫描器basepackage
+#### 注解
+
+basepackage
 
 springboot的主启动类所在的package就是扫描器的basepackage
 
@@ -239,7 +241,62 @@ springboot的主启动类所在的package就是扫描器的basepackage
 
 ![image-20201222231052328](G:\note\image\image-20201222231052328.png)
 
-#### 源码解析
+###### 1 @Configuration
+
+```java
+@Configuration(proxyBeanMethods = false) //Lite模式每次启动不会检查容器中有没有当前bean 重新创建新的
+@Configuration(proxyBeanMethods = true) // Full模式 每次启动会检查容器中有没有当前bean 没有重新创建新的  有就不创建
+
+配置类组件之间无依赖关系用Lite模式加速容器启动过程，减少判断
+配置类组件之间有依赖关系，方法会被调用得到之前单实例组件，  • 用Full模式
+```
+
+###### 2 @Import
+
+```
+@Import({User.class, DBHelper.class})
+ *      给容器中自动创建出这两个类型的组件、默认组件的名字就是全类名
+ *
+```
+
+###### 3 @Conditional
+
+条件注解
+
+![image-20210513113313149](G:\note\image\image-20210513113313149.png)
+
+###### 4 @ImportResource
+
+原生配置文件引入
+
+```
+@ImportResource("classpath:beans.xml")
+public class MyConfig {}
+
+======================测试=================
+        boolean haha = run.containsBean("haha");
+        boolean hehe = run.containsBean("hehe");
+        System.out.println("haha："+haha);//true
+        System.out.println("hehe："+hehe);//true
+```
+
+###### 5 @ConfigurationProperties
+
+把配置文件的数值和 对象的属性绑定
+
+```
+@ConfigurationProperties(prefix = "mycar")
+```
+
+###### 6 @EnableConfigurationProperties
+
+@EnableConfigurationProperties =  @Component + @ConfigurationProperties
+
+```java
+@EnableConfigurationProperties(Car.class)
+//1、开启Car配置绑定功能
+//2、把这个Car这个组件自动注册到容器中
+```
 
 @AutoConfigurationPackage
 
@@ -740,6 +797,81 @@ public List<Map<String, Object>> query(){
 }
 ```
 
+#### 请求参数
+
+###### 1 @RequestParam
+
+```java
+ //获取指定参数
+    @GetMapping("/test1")
+    public String test1(@RequestParam(value = "username",required = false,defaultValue = "小华") String name){
+        return name;
+    }
+```
+
+###### 2 @PathVariable
+
+```java
+ @GetMapping("/test2/{id}/{username}")
+    public String test2(@PathVariable("id") String id,@PathVariable("username") String username){
+        System.out.println(id);
+        System.out.println(username);
+        return username;
+    }
+
+全部参数集中到map中
+@GetMapping("/test2/{id}/{username}")
+    public Map<String,String> test2(@PathVariable Map<String,String> map){
+        System.out.println(map);
+        return map;
+    }
+```
+
+###### 3 @RequestHeader
+
+```java
+ @GetMapping("/test3")            @RequestHeader("host") String host //获取单个属性
+    public Map<String,String> test3(@RequestHeader Map<String,String> map){
+
+        System.out.println(map);
+        return map;
+    }
+
+```
+
+###### 4 @CookieValue
+
+```java
+ @GetMapping("/test2")
+    public String test2(@CookieValue("pgv_pvi") String pgv_pvi){
+        System.out.println(pgv_pvi);
+        return pgv_pvi;
+    }
+```
+
+5 POST请求
+
+```java
+@PostMapping("/hello")
+    public String hello(@RequestParam("name") String name,
+                        @RequestParam("age") Integer age) {
+        return "name：" + name + "\nage：" + age;
+    }
+```
+
+
+
+```java
+ @PostMapping("/test3")          //  @RequestHeader("host") String host //获取单个属性
+    public String test3(@RequestParam Map<String,Object> content){
+        System.out.println(content.get("name"));
+        System.out.println(content.get("password"));
+        return "test3";
+    }
+```
+
+
+
 #### Mybaties
 
 1 引入依赖
@@ -915,7 +1047,12 @@ public class TestUser {
     }
 }
 
+
 ```
+
+#### 整合redis
+
+
 
 #### Spring MVC自动配置
 
@@ -1221,3 +1358,4 @@ public class User {
 
 
 
+![image-20210513233015237](G:\note\image\image-20210513233015237.png)
