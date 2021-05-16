@@ -2605,6 +2605,76 @@ masterSlaveRule: #读写规则
 
 #### Redis集群
 
+###### redis-cluster
+
+创建 6 个 redis 节点    3 主 3 从方式，从为了同步备份，主进行 slot 数据分片
+
+```shell
+for port in $(seq 7001 7006); \
+do \
+mkdir -p /mydata/redis/node-${port}/conf
+touch /mydata/redis/node-${port}/conf/redis.conf
+cat << EOF >/mydata/redis/node-${port}/conf/redis.conf
+port ${port}
+cluster-enabled yes 
+cluster-config-file nodes.conf
+cluster-node-timeout 5000
+cluster-announce-ip 192.168.111.156
+cluster-announce-port ${port}
+cluster-announce-bus-port 1${port}
+appendonly yes
+EOF
+docker run -p ${port}:${port} -p 1${port}:1${port} --name redis-${port} \
+-v /mydata/redis/node-${port}/data:/data \
+-v /mydata/redis/node-${port}/conf/redis.conf:/etc/redis/redis.conf \
+-d redis:5.0.7 redis-server /etc/redis/redis.conf; \
+done
+```
+
+建立集群模式
+
+```shell
+docker exec -it redis-7001 bash
+redis-cli --cluster create 192.168.111.156:7001 192.168.156.10:7002 192.168.156.10:7003 192.168.156.10:7004 192.168.156.10:7005 192.168.156.10:7006 --cluster-replicas 1
+```
+
+![image-20210516220025707](G:\note\image\image-20210516220025707.png)
+
+测试集群效果
+
+随便进入某个 redis 容器
+
+```
+docker exec -it redis-7002 /bin/bash
+
+使用 redis-cli 的 cluster 方式进行连接
+redis-cli -c -h 192.168.111.156 -p 7006
+
+cluster info； 获取集群信息
+cluster nodes；获取集群节点
+```
+
+Get/Set 命令测试，将会重定向
+节点宕机，slave 会自动提升为 master，master 开启后变为 slave
+
+![image-20210516220438800](G:\note\image\image-20210516220438800.png)
+
+停止 6个redis容器
+
+```
+docker stop $(docker ps -a |grep redis-700 | awk '{ print $1}')
+```
+
+删除6个redis容器
+
+```
+docker rm $(docker ps -a |grep redis-700 | awk '{ print $1}')
+```
+
+
+
+
+
 #### Elasticsearch 集群
 
 ###### 1 集群原理
