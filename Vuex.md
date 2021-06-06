@@ -1,35 +1,35 @@
 #### 结构
-```
+```js
 import Vue from 'vue'
 import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-    count:0,
-    age:'18'
-  },
-  // methods 在mutation 改变state 同步函数不可以使用axios,第一个参数为state
-
-  mutations: {
-    add(state,num){
-      this.state.count++
+    state: {
+        count:0,
+        age:'18'
     },
-    setNum(state,val){
-      this.state.count=val
-    }
-  },
-//相当于 计算属性
-getters{
-  bigage:function(){
- return state.age + 20;
- }
+    // methods 在mutation 改变state 同步函数不可以使用axios,第一个参数为state
+
+    mutations: {
+        add(state,num){
+            this.state.count++
+        },
+        setNum(state,val){
+            this.state.count=val
+        }
+    },
+    //相当于 计算属性
+    getters{
+    bigage:function(){
+    return state.age + 20;
+}
 },
-  actions: {
-  },
-  modules: {
-  }
+    actions: {
+    },
+        modules: {
+        }
 })
 ```
 ```

@@ -1350,6 +1350,63 @@ public class OrderFeignController {
 }
 ```
 
+远程调用传参
+
+ 第一种
+
+```java
+服务者
+@GetMapping("/testFeign2")
+@ResponseBody
+public String testFeign2(@RequestParam(value = "num") Integer num){
+    System.out.println(num);
+    return "testFeign2";
+}
+
+消费者 接口
+@GetMapping("/testFeign2")
+String testFeign2(@RequestParam(value = "num") Integer num);
+
+controller 调用
+@GetMapping("/testFeign")
+    public String testFeign(){
+    String s = userService.testFeign2(300);
+    return "testFeign";
+}    
+```
+
+第二种
+
+```java
+提供者
+ @PostMapping("/testFeign2")
+    @ResponseBody
+    public String testFeign2(@RequestBody Map<String,String> map){
+    System.out.println(map);
+    return "testFeign2";
+}
+
+调用者 接口
+    @FeignClient(value = "user")
+    public interface UserService {
+    @PostMapping("/testFeign2")
+    String testFeign2(@RequestBody Map map);
+}  
+
+controller
+
+    @PostMapping("/testFeign")
+    public String testFeign(){
+    Map<String,String> map = new HashMap<>();
+    map.put("key1","100");
+    map.put("key2","200");
+    String s = userService.testFeign2(map);
+    return "testFeign";
+}
+```
+
+
+
 #### Hystrix
 
 ![image-20210107233244466](G:\note\image\image-20210107233244466.png)
@@ -1696,6 +1753,14 @@ public String paymentCircuitBreaker_fallback(@PathVariable("id") Integer id){
 ```
 
 #### gateway
+
+全局过滤器
+
+```
+https://blog.csdn.net/forezp/article/details/85057268?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-0&spm=1001.2101.3001.4242
+```
+
+
 
 ![image-20210108110320604](G:\note\image\image-20210108110320604.png)
 
@@ -2930,6 +2995,324 @@ feign:
 4 重启访问接口 就可以看到规则
 
 #### 分布式事务seata
+
+使用版1.4.1的版本
+
+###### 修改配置
+
+file.conf  //选择自己的db数据库
+
+![image-20210522162244748](C:\Users\gg\AppData\Roaming\Typora\typora-user-images\image-20210522162244748.png)
+
+registry.conf文件
+
+```
+  nacos {
+    application = "seata-server"
+    serverAddr = "127.0.0.1:8848"
+    group = "SEATA_GROUP"
+    namespace = ""
+    cluster = "default"
+    username = ""
+    password = ""
+  }
+```
+
+![image-20210522162324297](C:\软件\install\Typora\image-20210522162324297.png)
+
+![image-20210522162415449](G:\note\image\image-20210522162415449.png)
+
+新建config.txt文件
+
+![image-20210522162458063](G:\note\image\image-20210522162458063.png)
+
+```
+ transport.type=TCP
+transport.server=NIO
+transport.heartbeat=true
+transport.enableClientBatchSendRequest=true
+transport.threadFactory.bossThreadPrefix=NettyBoss
+transport.threadFactory.workerThreadPrefix=NettyServerNIOWorker
+transport.threadFactory.serverExecutorThreadPrefix=NettyServerBizHandler
+transport.threadFactory.shareBossWorker=false
+transport.threadFactory.clientSelectorThreadPrefix=NettyClientSelector
+transport.threadFactory.clientSelectorThreadSize=1
+transport.threadFactory.clientWorkerThreadPrefix=NettyClientWorkerThread
+transport.threadFactory.bossThreadSize=1
+transport.threadFactory.workerThreadSize=default
+transport.shutdown.wait=3
+service.vgroupMapping.my_test_tx_group=default
+service.default.grouplist=127.0.0.1:8091
+service.enableDegrade=false
+service.disableGlobalTransaction=false
+client.rm.asyncCommitBufferLimit=10000
+client.rm.lock.retryInterval=10
+client.rm.lock.retryTimes=30
+client.rm.lock.retryPolicyBranchRollbackOnConflict=true
+client.rm.reportRetryCount=5
+client.rm.tableMetaCheckEnable=false
+client.rm.tableMetaCheckerInterval=60000
+client.rm.sqlParserType=druid
+client.rm.reportSuccessEnable=false
+client.rm.sagaBranchRegisterEnable=false
+client.rm.tccActionInterceptorOrder=-2147482648
+client.tm.commitRetryCount=5
+client.tm.rollbackRetryCount=5
+client.tm.defaultGlobalTransactionTimeout=60000
+client.tm.degradeCheck=false
+client.tm.degradeCheckAllowTimes=10
+client.tm.degradeCheckPeriod=2000
+client.tm.interceptorOrder=-2147482648
+store.db.datasource=druid
+store.db.dbType=mysql
+store.db.driverClassName=com.mysql.jdbc.Driver
+store.db.url=jdbc:mysql://127.0.0.1:3306/seata?serverTimezone=GMT%2B8&useUnicode=true&rewriteBatchedStatements=true
+store.db.user=root
+store.db.password=root
+store.db.minConn=5
+store.db.maxConn=30
+store.db.globalTable=global_table
+store.db.branchTable=branch_table
+store.db.queryLimit=100
+store.db.lockTable=lock_table
+store.db.maxWait=5000
+store.redis.mode=single
+store.redis.single.host=192.168.194.129
+store.redis.single.port=6379
+store.redis.maxConn=10
+store.redis.minConn=1
+store.redis.maxTotal=100
+store.redis.database=0
+store.redis.queryLimit=100
+server.recovery.committingRetryPeriod=1000
+server.recovery.asynCommittingRetryPeriod=1000
+server.recovery.rollbackingRetryPeriod=1000
+server.recovery.timeoutRetryPeriod=1000
+server.maxCommitRetryTimeout=-1
+server.maxRollbackRetryTimeout=-1
+server.rollbackRetryTimeoutUnlockEnable=false
+server.distributedLockExpireTime=10000
+client.undo.dataValidation=true
+client.undo.logSerialization=jackson
+client.undo.onlyCareUpdateColumns=true
+server.undo.logSaveDays=7
+server.undo.logDeletePeriod=86400000
+client.undo.logTable=undo_log
+client.undo.compress.enable=true
+client.undo.compress.type=zip
+client.undo.compress.threshold=64k
+log.exceptionRate=100
+transport.serialization=seata
+transport.compressor=none
+metrics.enabled=false
+metrics.registryType=compact
+metrics.exporterList=prometheus
+metrics.exporterPrometheusPort=9898
+```
+
+![image-20210522162527461](G:\note\image\image-20210522162527461.png)
+
+```
+#!/usr/bin/env bash
+# Copyright 1999-2019 Seata.io Group.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at、
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+while getopts ":h:p:g:t:u:w:" opt
+do
+  case $opt in
+  h)
+    host=$OPTARG
+    ;;
+  p)
+    port=$OPTARG
+    ;;
+  g)
+    group=$OPTARG
+    ;;
+  t)
+    tenant=$OPTARG
+    ;;
+  u)
+    username=$OPTARG
+    ;;
+  w)
+    password=$OPTARG
+    ;;
+  ?)
+    echo " USAGE OPTION: $0 [-h host] [-p port] [-g group] [-t tenant] [-u username] [-w password] "
+    exit 1
+    ;;
+  esac
+done
+
+urlencode() {
+  for ((i=0; i < ${#1}; i++))
+  do
+    char="${1:$i:1}"
+    case $char in
+    [a-zA-Z0-9.~_-]) printf $char ;;
+    *) printf '%%%02X' "'$char" ;;
+    esac
+  done
+}
+
+if [[ -z ${host} ]]; then
+    host=localhost
+fi
+if [[ -z ${port} ]]; then
+    port=8848
+fi
+if [[ -z ${group} ]]; then
+    group="SEATA_GROUP"
+fi
+if [[ -z ${tenant} ]]; then
+    tenant=""
+fi
+if [[ -z ${username} ]]; then
+    username=""
+fi
+if [[ -z ${password} ]]; then
+    password=""
+fi
+
+nacosAddr=$host:$port
+contentType="content-type:application/json;charset=UTF-8"
+
+echo "set nacosAddr=$nacosAddr"
+echo "set group=$group"
+
+failCount=0
+tempLog=$(mktemp -u)
+function addConfig() {
+  curl -X POST -H "${contentType}" "http://$nacosAddr/nacos/v1/cs/configs?dataId=$(urlencode $1)&group=$group&content=$(urlencode $2)&tenant=$tenant&username=$username&password=$password" >"${tempLog}" 2>/dev/null
+  if [[ -z $(cat "${tempLog}") ]]; then
+    echo " Please check the cluster status. "
+    exit 1
+  fi
+  if [[ $(cat "${tempLog}") =~ "true" ]]; then
+    echo "Set $1=$2 successfully "
+  else
+    echo "Set $1=$2 failure "
+    (( failCount++ ))
+  fi
+}
+
+count=0
+for line in $(cat $(dirname "$PWD")/config.txt | sed s/[[:space:]]//g); do
+  (( count++ ))
+	key=${line%%=*}
+    value=${line#*=}
+	addConfig "${key}" "${value}"
+done
+
+echo "========================================================================="
+echo " Complete initialization parameters,  total-count:$count ,  failure-count:$failCount "
+echo "========================================================================="
+
+if [[ ${failCount} -eq 0 ]]; then
+	echo " Init nacos config finished, please start seata-server. "
+else
+	echo " init nacos config fail. "
+fi
+```
+
+运行 nacos-config.sh文件
+
+```
+sh nacos-config.sh -h 127.0.0.1 -p 8848 -g SEATA_GROUP 
+```
+
+查看nacos的配置文件
+
+![image-20210522162804447](G:\note\image\image-20210522162804447.png)
+
+启动seata  再nacos里可以看到
+
+![image-20210522162903033](G:\note\image\image-20210522162903033.png)
+
+###### 项目整合seata
+
+1 依赖
+
+```
+<dependency>
+			<groupId>io.seata</groupId>
+			<artifactId>seata-spring-boot-starter</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>io.seata</groupId>
+					<artifactId>seata-spring-boot-starter</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+```
+
+2 配置文件
+
+```
+seata:
+  enabled: true
+  enable-auto-data-source-proxy: true
+  tx-service-group: my_test_tx_group
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: 127.0.0.1:8848
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      group: SEATA_GROUP
+  service:
+    vgroup-mapping:
+      my_test_tx_group: default
+    disable-global-transaction: false
+  client:
+    rm:
+      report-success-enable: false
+```
+
+3 方法上添加注解
+
+```
+@GlobalTransactional
+    @GetMapping("/testSeata")
+    public String testSeata(){
+        String s = userService.testSeata();
+        return "testSeata";
+    }
+```
+
+问题一
+
+```
+@RestControllerAdvice  会影响事务回滚
+```
+
+
+
+
+
+
+
+
 
 ![image-20210108152316067](G:\note\image\image-20210108152316067.png)
 

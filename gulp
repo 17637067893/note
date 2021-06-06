@@ -1,4 +1,8 @@
-安装
+#### 安装
+
+gulp的依赖环境
+
+依赖 node 中的文件读取；
 
 1 全局安装  
 
@@ -10,10 +14,13 @@
 
 3 项目文件下创建gulpfile.js文件
 
-    var gulp = require('gulp');
+    ·var gulp = require('gulp');
     gulp.task('default',function(){
         console.log('函数内为执行的任务')
     })
+    
+    
+    运行指令  gulp 任务名称
 
 4 运行 gulp
 
@@ -275,7 +282,143 @@ gulp-open（打开浏览器）
     })
     ```
 
+学习
 
-​    
-​    
-​    
+```js
+const gulp = require("gulp")
+const cssmin = require('gulp-cssmin')
+const autoprefixer= require("gulp-autoprefixer");
+const less = require('gulp-less');
+const babel = require('gulp-babel');
+const uglify = require('gulp-uglify');
+const htmlmin = require('gulp-htmlmin');
+const del = require('del')
+const webserver = require('gulp-webserver')
+// gulp.task(任务名,function(){
+
+// })
+
+
+// gulp.src(路径信息)  //找到源文件
+
+// gulp.dest(路基信息)  //生成打包后的文件
+
+// gulp.watch(路径信息,任务名称)  //路径下的内容发生变化 就执行任务
+
+// gulp.series(任务1,任务2,任务3)  //逐个执行多个任务
+
+
+// gulp.parallel(任务1,任务2,任务3) //并行执行多个任务
+
+
+// pipe()  //管道函数 接受当前流 进入下一个管道函数
+
+// gulp.task("cssHandler",function(){
+//     return gulp //return 出去 gulp 能自动捕获流的结束 开启其他任务
+//     .src('./src/css/**')  //找到文件
+//     .pipe(cssmin())   //压缩文件 使用 插件gulp-cssmin
+//     .pipe(gulp.dest("./dist/css/")) //输出到文件
+// })
+ 
+const cssHandler = function(){
+    return gulp //return 出去 gulp 能自动捕获流的结束 开启其他任务
+    .src('./src/css/**')  //找到文件
+    .pipe(autoprefixer()) // gulp-autoprefixer //兼容性处理 也可以在package.json中添加browserlist
+    .pipe(cssmin())   //压缩文件 使用 插件gulp-cssmin
+    .pipe(gulp.dest("./dist/css/")) //输出到文件
+}
+
+const lessHanler = function(){
+    return gulp //return 出去 gulp 能自动捕获流的结束 开启其他任务
+    .src('./src/less/**')  //找到文件
+    // .pipe(autoprefixer({browsers:['last 2 viersion']})) // gulp-autoprefixer //兼容性处理 也可以在package.json中添加browserlist
+    .pipe(less())
+    .pipe(cssmin())   //压缩文件 使用 插件gulp-cssmin
+    .pipe(gulp.dest("./dist/less/")) //输出
+}
+
+const jsHandler = function(){
+    return gulp
+    .src('./src/js/**')
+    .pipe(babel({presets:['@babel/env']}))   //使用 gulp-babel@8   @babel/core  @babel/preset-env   转码
+    .pipe(uglify())   // gulp-uglify   压缩js文件
+    .pipe(gulp.dest("./dist/js/"))
+}
+
+const htmlHandler = function(){
+    return gulp
+    .src('./src/*.html')
+    .pipe(htmlmin({
+        collapseWhitespace:true,  // 移除空格
+        removeEmptyAttributes:true,  //移除空的原生属性
+        collapseBooleanAttributes:true,  //移除 checked类似布尔值属性
+        removeAttributeQuotes:true,  //移除属性上的双引号
+        minifyCSS:true,  //压缩style内的css代码
+        minifyJS:true,  //压缩script内的js
+        removeStyleLinkTypeAttributes:true  // 移除 style和link中的link属性
+    }))         //gulp-htmlmin
+    .pipe(gulp.dest("./dist"))                           
+}
+
+const imgHanlder = function(){
+    return gulp
+    .src("./src/imag/**")
+    .dest(gulp.dest("./dist/image"))
+}
+
+//删除文件任务
+const delHandler = function(){
+    return del(['./dist/'])
+}
+
+//监控文件
+const watchHandler = function(){
+    gulp.watch("./src/less/**",lessHanler);
+    gulp.watch("./src/css/**",cssHandler);
+    gulp.watch("./src/*.html",htmlHandler);
+    gulp.watch("./src/js/**",jsHandler);
+}
+
+const webHandler = function(){
+    return gulp
+    .src("./dist")
+    .pipe(webserver({
+        host:'localhost',
+        port:'8080',
+        livereload:true,
+        open:'./index.html',  //自动打开浏览器
+        proxies:[
+            {
+                //代理标识符
+            source:'/dt',
+            target:'https://www.baidu.com/sugrec?prod=pc_his&from=pc_web&json=1&sid=33986_31253_34004_33607_26350&hisdata=&_t=1622512837574&req=2&csor=0'
+            }
+        ]
+    }))
+}
+//配置默认任务
+
+// module.exports={
+//     cssHandler,
+//     lessHanler,
+//     jsHandler,
+//     htmlHandler,
+//     imgHanlder
+// }
+module.exports.default =gulp.series(delHandler,gulp.parallel(cssHandler,jsHandler,htmlHandler,lessHanler),webHandler,watchHandler)
+// gulp.task('default',()=>{
+//     console.log('====================================');
+//     console.log(666);
+//     console.log('====================================');
+//      return gulp
+//      .parallel(cssHandler,jsHandler,htmlHandler,lessHanler);
+// })
+
+
+// gulp 启动服务器  gulp-webserver
+
+
+
+//gulp打包组件
+```
+

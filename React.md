@@ -1,6 +1,28 @@
-#### 基本框架
+#### 消息订阅发布
 
 ```
+npm install pubsub-js
+```
+
+```react
+消息发布者
+
+PubSub.publishSync("user",{msg:"来电话了"})
+```
+
+在需要的地方接受消息
+
+```react
+PubSub.subscribe("user",(msg,data)=>{
+  console.log(data);
+})
+```
+
+
+
+#### 基本框架
+
+```react
 1 安装 react react-dom babel-standalone
 //引入文件
 <script src="./node_modules/react/umd/react.development.js"></script>
@@ -22,16 +44,21 @@ ReactDOM.render(dom,document.getElementById('app'))
 ```
 #### props类型验证
 
- ```
+ ```react
 import React from 'react';
 import propTypes from 'prop-types'
 
 export default class PropsTypeDemo extends React.Component{
+    //构造器 需要通过this.props访问prop需要创建 否则不需要构造器
     constructor(props){
         super(props)
         this.state = {
             num:'6'
         }
+    }
+    // 第二种 复用代码
+     static propTypes = {
+        number:propTypes.number.isRequired
     }
     render(){
         return(
@@ -41,7 +68,7 @@ export default class PropsTypeDemo extends React.Component{
         )
     }
 }
-// 接受的类型
+//第一种 接受的类型
 PropsTypeDemo.propTypes = {
     val:propTypes.string,
     //毕传
@@ -105,9 +132,41 @@ change=() => {
 	}
 ```
 
+#### React的this问题
+
+```react
+import React from "react";
+
+class Student extends React.Component{
+    constructor(){
+        super();
+        this.state={
+            name:"炎热",
+            status:true
+        }
+        //在构造函数内部声明demo变量指向 change的堆内存
+        // 这this.change为Student实例上没有change函数根据原型链 找到构造函数的change 再把demo变量的地址指向构造函数的change
+        console.log(this);
+        this.demo = this.change.bind(this);
+    }
+    change(){
+        //这个change函数虽然在Student类内部单，但是他绑定的在onClick函数回调上，
+        // 当我们点击的时候为window调用的由于react方法内部使用js的严格模式随意this为undinfined
+        console.log(this);
+    }
+    render(){
+        return(<h1 onClick={this.demo}></h1>)
+    }
+}
+
+export default Student;
+```
+
+
+
 #### 控制元素显示隐藏
 
-```
+```js
 class Father extends Component{
 	//定义组件状态
 	constructor(props) {
@@ -135,20 +194,26 @@ class Father extends Component{
 ```
 #### 绑定事件
 
-```
+1 通过OnXxx属性指定时间处理函数
+
+2 使用的是自定义疯转底层是事件
+
+3 通过event.target得到发生事件的DOM元素对象
+
+```react
 <button onClick = {this.change.bind(this)}>改变颜色</button>
 change(){
-		console.log(666)
-	}
+    console.log(666)
+}
 
 <button onClick = {this.change}>改变颜色</button>
 change=() => {
-		console.log(666)
-	}
+    console.log(666)
+}
 ```
 ##### 条件渲染
 
-```
+```react
 class Second extends Component{
     constructor(props){
         super(props)
@@ -174,19 +239,20 @@ class Second extends Component{
 ```
 #### 列表渲染
 
-```
-  show(index){
-        console.log(index)
-    }
-    render(){
-        let listArr = this.state.arr.map((Element,index) => {
-        let ele = <div style={{height:'30px',backgroundColor:'red'}}  onClick={()=>{this.show(Element)}} key={index}>{Element.item}</div>;
+```react
+show(index){
+    console.log(index)
+}
+render(){
+    let listArr = this.state.arr.map((Element,index) => {
+        let ele = <div style
+                      height:'30px',backgroundColor:'red'}}  onClick={()=>{this.show(Element)}} key={index}>{Element.item}</div>;
         return ele
-        })
-        return(<div>
+    })
+    return(<div>
             {listArr}
         </div>)
-    }
+}
 ```
 #### 发送请求
 
@@ -198,7 +264,9 @@ class Second extends Component{
 
 #### 路由
 
-```
+![image-20210524222913923](G:\note\image\image-20210524222913923.png)
+
+```react
 Router         总路由
 
 link           路由导航
@@ -281,13 +349,13 @@ this.props.history.push("/page2",{a:'ssss'})
 ![image.png](https://upload-images.jianshu.io/upload_images/16514325-e51e685b7704dcb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 离开页面前的提示
 
-```
+```react
 <Prompt when={!!this.state.val} message={"有数据没有保存"}></Prompt>
                 <input type="text" value={this.state.val} onChange={(e)=>{this.setState({val:e.target.value})}} name="" id=""/>
 ```
 
 setState
-```
+```react
 如果要更新视图必须调用setState
  <button onClick={this.change}>用户名</button>
                     <input value={this.state.title} placeholder="用户名"></input>
@@ -317,7 +385,7 @@ setState
 
 #### ref 获取元素
 
-```
+```react
 import React from 'react';
 
 export default class formDom extends React.Component{
@@ -341,7 +409,7 @@ export default class formDom extends React.Component{
 ```
 #### 受控组件()
 
-```
+```js
 元素的值来自于state 如要想要各边值要写对应的数据调用setState
 
 import React from 'react';
@@ -379,7 +447,7 @@ export default class formDom extends React.Component{
 ```
 #### 非受控组件
 
-```
+```js
 不用绑定onChange 调用setState
 import React from 'react';
 
@@ -405,7 +473,7 @@ export default class formDom extends React.Component{
 ```
 ##### 跨域解决
 
-```
+```js
 1 原生js jsonp
 
 <script>
@@ -458,7 +526,7 @@ Axios('/api/FingerUnion/list.php')
 ```
 #### 请求封装
 
-```
+```js
 src下创建
 utils/https.js
 
@@ -497,26 +565,26 @@ export default api
 
 #### 组件优化
 
-```
- <h2>组件优化</h2>
-                    <h3>1 路由有事件监听 定时器 离开页面应把事件清除掉</h3>
-                    <h2>2 父组件内使用setState导致页面重新渲染子组件也会跟着渲染
-                        解决 在子组件内使用 
-                        shouldComponentUpdate(nextProps,nexState){
-                            if(nextProps.num == this.props.num){
-                                return false
-                            }else{
-                                return true
-                            }
-                        }
-                    </h2>
+```react
+<h2>组件优化</h2>
+<h3>1 路由有事件监听 定时器 离开页面应把事件清除掉</h3>
+<h2>2 父组件内使用setState导致页面重新渲染子组件也会跟着渲染
+    解决 在子组件内使用 
+    shouldComponentUpdate(nextProps,nexState){
+        if(nextProps.num == this.props.num){
+            return false
+        }else{
+            return true
+        }
+    }
+</h2>
 
 Component 不会对数据比较
 PureComponent 会对数据进行比较渲染页面
 ```
 #### 高阶组件
 
-```
+```js
 import React from 'react';
 
 // 高阶组件 ：参数是组件返回值也是组件的函数
@@ -556,7 +624,7 @@ export default Demo4;
 ```
 #### 高阶组件的应用
 
-```
+```js
 import React from 'react'; 
 export const withFetch = (url) => (View) => {
     return class extends React.Component{
@@ -613,7 +681,7 @@ export default Banner
 ```
 #### 错误处理
 
-```
+```react
 import React from 'react';
 
 export default class ErrorBoundary extends React.Component{
@@ -647,7 +715,7 @@ export default class ErrorBoundary extends React.Component{
 
 ##### 权限登录
 
-```
+```js
 1 express 中 安装jsonwebtoken插件
 // 引入插件	
 var jwt = require('jsonwebtoken')
@@ -689,7 +757,7 @@ export default function(ComposedComponent){
 	class Authenticate extends React.Component{
 		componentWillMount(){
 			//判断是否登录
-			if(!this.props.isLogin){
+			if(!this..isLogin){
 				this.props.history.push('/login')
 			}
 		}
@@ -722,7 +790,7 @@ Info组件
 ```
 #### 上拉加载更多
 
-```
+```react
 getboundingclientrect().top获取元素距离顶部的距离
 //获取视图的高度
 const winHeight = document.documentElement.clientHeight
@@ -800,7 +868,7 @@ componentWillUnMount(){
 ```
 #### 选中元素切换样式
 
-```
+```react
 import React from "react"
 import "./style.less"
 
@@ -876,9 +944,136 @@ export default class Tabs extends React.Component {
     }
 }
 ```
-#### react HOOK
+#### redux
+
+安装redux react-redux redux-thunk
+
+创建store
+
+````js
+import {createStore,applyMiddleware} from "redux";
+import {composeWithDevTools} from "redux-devtools-extension"
+import reducer from "./reducer.js";
+import thunk from "redux-thunk";
+//根据reducer床架store
+const store = createStore(reducer,composeWithDevTools(applyMiddleware(thunk)));
+export default store;
+````
+
+2创建store
+
+```js
+
+// reducer接受之前的状态 state 修改state的type
+const initState={
+    number:10
+}
+const reducer = function(state=initState,action){
+    console.log('====================================');
+    console.log(state,action);
+    console.log('====================================');
+    switch(action.type){
+        case "add":
+            return {...state,number:state.number+action.data}
+        case "reduce":
+            return {...state,number:state.number-action.data}    
+        default:
+            return state;    
+    }
+}
+export default reducer;
+```
+
+3 创建action
+
+用于修改store的数据
+
+```js
+
+// 生成action对象 = store.dispatch('action', payload)
+
+//同步任务 返回一个对象
+export const createIncrementAction= (data)=>({type:"add",data});
+
+
+export const reduceIncrementAction= (data)=>({type:"reduce",data});
+
+//异步action返回一个function 不是一个对象没有type action属性 store没法处理需要中间件 redux-thunk
+export const reduceIncrementAsyncAction= (data)=>{
+    return (dispatch)=>{
+        setTimeout(()=>{
+            dispatch(reduceIncrementAction(data))
+        },1000)
+    }
+}
 
 ```
+
+根组件传入store
+
+```js
+import { Provider } from "react-redux";
+<Provider store={store}>
+      <App />
+  </Provider>
+```
+
+在组件里修改数据
+
+```react
+import React from 'react';
+import {connect} from "react-redux"
+import {createIncrementAction,reduceIncrementAction} from "../redux/actions.js"
+class About extends React.Component{
+    constructor(props){
+        super(props);
+        console.log(this.props);
+    }
+    render(){
+        return(
+            <>
+             <h2>{this.props.obj}</h2>
+             <button onClick={()=>{this.props.add(1)}}>add</button>
+             <button onClick={()=>{this.props.reduce(1)}}>reduce</button>
+            </>
+           
+        );
+    }
+}
+
+//state的属性映射到props里
+const mapStateToProps = (state,props)=>{
+    return{
+        obj:state.number
+    }
+}
+
+//把 dispatch映射到props上
+// const mapDispatchToProps = (dispatch,props)=>{
+//     return{
+//         add:(data)=>dispatch(createIncrementAction(data)),
+//         reduce:(data)=>dispatch(reduceIncrementAction(data))
+//     };
+// }
+//简写
+const mapDispatchToProps={
+    add:createIncrementAction, //提供一个acton 内部自动dispatch分发
+    reduce:reduceIncrementAction
+}
+export default connect(mapStateToProps,mapDispatchToProps)(About);
+```
+
+
+
+
+
+ 
+
+#### react HOOK
+
+###### useState
+
+```react
 强化了 函数式组件，是函数式组件也可以有状态
 
 第一 useState
@@ -906,8 +1101,8 @@ setArr([arr,...arr1])
 
 export default App;
 ```
-####  Effect
-```
+######  Effect
+```react
 //相当于 componentDidMount
 useEffect(()=>{
 
@@ -988,9 +1183,9 @@ const TodoForm = ({eventHandle}) => {
     )
 }
 ```
-#### useCallback
+###### useCallback
 
-```
+```react
 
 import React,{useState,useCallback} from 'react';
 
@@ -1000,10 +1195,10 @@ const Demo1 =() => {
     return(
         <div>
             <div>count   ==={count}</div>
-    <div>count1 ==  {count1}</div>
-    <button onClick={()=>{setCount(count+1)}}>按钮</button>
-     {/*   */}
-    <button onClick={useCallback(()=>{setCount1(count1+1)},[count])}>按钮1</button>
+            <div>count1 ==  {count1}</div>
+            <button onClick={()=>{setCount(count+1)}}>按钮</button>
+            {/*   */}
+            <button onClick={useCallback(()=>{setCount1(count1+1)},[count])}>按钮1</button>
         </div>
     )
 
@@ -1013,9 +1208,9 @@ export default Demo1
 
 ```
 
-#### useReducer的使用
+###### useReducer的使用
 
-```
+```react
 import React,{useState,useReducer} from 'react';
 
 const initState = {
@@ -1047,3 +1242,77 @@ function Counter(){
 
 export default Counter
 ```
+
+###### context
+
+跨越组件层级直接传递变量，实现共享
+
+```js
+父组件
+import React, { useState , createContext } from 'react';
+
+const CountContext = createContext()
+
+function Example(){
+
+    const [ count , setCount ] = useState(0);
+
+    return (
+        <div>
+            <p>You clicked {count} times</p>
+            <button onClick={()=>{setCount(count+1)}}>click me</button>
+    
+            <CountContext.Provider value={count}>
+            </CountContext.Provider>
+
+        </div>
+    )
+}
+export default Example;
+
+
+子组件
+import React, { useState, useContext } from 'react';
+
+function Counter(){
+    const count = useContext(CountContext)    //一句话就可以得到count
+    return (<h2>{count}</h2>)
+}
+```
+
+![image-20210525082108388](G:\note\image\image-20210525082108388.png)
+
+#### JSX 本质
+
+```
+jsx JSX的本质即React.createElement函数，React.createElement 即 h 函数，根据标签和属性,子节点解析返回vnode 然后通过patch挂载到对应的节点
+```
+
+#### 合成事件
+
+```properties
+DOM事件会冒泡到document上，document会生成一个统一的React event，在合成事件层会派发事件（通过target可以获取到哪个元素触发的事件，找到这个元素所在组件这个）
+
+为什么要合成事件机制？
+
+更好的兼容性和跨平台
+挂在到document，减少内存消耗，避免频繁解绑
+方便事件的统一管理（如事物机制）
+```
+
+#### redux-thunk
+
+```js
+1、redux-thunk 重写了 store.dispatch
+
+2、并且内部保存了 原来的 store.dispatch
+
+3、当你调用了 store.dispatch 的时候
+
+4、通过判断你 调用 dispatch 传入的参数类型来判断要进行什么操作
+
+5、当你传入的是函数，那么就执行你传入的函数，并把 重写后的 dispatch 继续传给你，让你可以继续套娃
+
+6、当你传入的是对象，那么就直接调用 原dispatch，然后传入的你对象，完成 reducer 操作
+```
+

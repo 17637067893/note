@@ -48,7 +48,8 @@ console.log("写入成功")
  }
  wr();
 ```
-##读取目录
+## 读取目录
+
 ```
 let readFloder = function(path){
     return new Promise((res,rej)=>{
@@ -321,10 +322,79 @@ response.setHeader('Content-Type', 'text/html');
  console.log("server start")
 })
 ```
-NPM包上传
+###### NPM包上传
+
 ```
 1 创建文件加  npm int 初始化
 2 创建文件文件
 3 命令行 npm login 登陆
 4 npm publish 发布包
+5 npm view less versions 查看所有版本
 ```
+
+npm outdated 查看过期版本
+
+![image-20210527080608294](G:\note\image\image-20210527080608294.png)
+
+符号
+
+```
+^  "less": "^2.7.3"  锁定主版本号
+~  "less": "~2.7.3"  锁定主版本号 和次版本号
+"less": "2.7.3"  没有符号  锁定此版本号
+"less": * 最新版本号
+```
+
+#### MongonDB
+
+###### 数据类型
+
+![image-20210527135104016](G:\note\image\image-20210527135104016.png)
+
+1 
+
+![image-20210527140506529](G:\note\image\image-20210527140506529.png)
+
+```
+db  查看当前数据库
+show dbs  查看所有数据库
+use music 创建/切换数据库
+db.stats()  查看数据状态
+db.dropDatabase() //删除当前数据库
+
+db.createCollection("xiaoming") 创建集合  相当于表
+db.getCollectoinNames()  //获取当前数据下的所有集合
+
+db.user.insert([{name:"小明",age:"100"}]) //插入多条数据
+db.user.find() //查询所有数据
+
+db.user.update({name:"小明"},{$set：{age:9999}})  //修改语句 第一对象是修改的条件  后面是修改的内容 
+
+db.user.update({name:"小明"}，{$inc:{age:100}})  //把当前age+100
+
+db.user.update({name:"小明"}，{$inc:{age:1000},$set:{name:"小红"}}) //age+1000 name改为 小红
+
+db.user.remove({age:10}) //删除
+db.user.distinct("name") //查询去重后的数据
+db.user.find({age:18})  //查询age=18 的数据
+db.user.find({age:{$gt:18}})  //查询年龄大于18 $get >=
+db.user.find({age:{$lt:18}})  //年龄小于 18    $lte <=
+db.user.find({age:{$gte:26,$lte:36}})  age >=26 <= 36
+db.user.find({name:/华/})  查询年龄中含有华的
+db.user.find({name:/^华/}) 以华开头的name
+db.user.find().limit(10).skip(5) //查询5-10之间的数据
+
+```
+
+#### 阻塞与 非阻塞
+
+```
+阻塞方法同步执行  非阻塞方法异步执行
+```
+
+#### 并发和吞吐量
+
+```
+在 Node.js 中 JavaScript 的执行是单线程的，因此并发性是指事件循环在完成其他工作后执行 JavaScript 回调函数的能力。任何预期以并行方式运行的代码必须让事件循环能够在非 JavaScript 操作（比如 I/O ）执行的同时继续运行。
+```
+

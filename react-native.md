@@ -9,7 +9,7 @@ keytool -list -keystore .\my-release-key.keystore 查看sha1的值
 获取 packageName 在build.gradle文中的  applicationId "com.reactnativeapp"
 ```
 2 获取定位
-```
+```react
 import {View,Text,StyleSheet,Image,PermissionsAndroid} from 'react-native'
 import { init, Geolocation} from 'react-native-amap-geolocation'
  getLocation = async () => {
@@ -31,7 +31,7 @@ import { init, Geolocation} from 'react-native-amap-geolocation'
       }
 ```
 字体图标的使用
-```
+```react
  1 安装插件 
  yarn add react-native-vector-icons
  react-native link react-native-vector-icons
@@ -45,7 +45,7 @@ import { init, Geolocation} from 'react-native-amap-geolocation'
  
 ```
  路由
- ```
+ ```react
  1 安装插件
  npm install @react-navigation/native
  
@@ -120,7 +120,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
  ```
  使用redux
- ```
+ ```react
  1 yarn add redux react-redux
  2 创建仓库 store文件夹
   新增 index.js文件
@@ -222,7 +222,7 @@ yarn ios
 yarn react-native run-ios
 ```
 简单案例
-```
+```react
 修改app.js文件
 
 import React from 'react';
@@ -263,7 +263,7 @@ return(
 export default App
 ```
 样式不会继承混合样式写在数组能 后边的样式可以覆盖前边的样式
-```
+```react
 import React from 'react';
 import {SafeAreaView,View,Text,StyleSheet} from 'react-native';
 
@@ -309,7 +309,6 @@ export default Demo3
 ```
 ![截屏2020-05-27下午9.17.54.png](https://upload-images.jianshu.io/upload_images/16514325-71b5a2986c626d89.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-
 //阴影
 	textShadow:{
 		fontSize:40,
@@ -318,8 +317,9 @@ export default Demo3
 		textShadowRadius:1
 	}
 
-组件的State 状态
-```
+###### State 状态
+
+```react
 import React from 'react';
 
 import {StyleSheet,View,Text,SafeAreaView} from 'react-native';
@@ -356,8 +356,9 @@ class Demo6 extends React.Component{
 
 export default Demo6
 ```
-组件传值props
-```
+###### props
+
+```react
 import React from 'react';
 
 import {SafeAreaView,View,Text} from 'react-native';
@@ -397,11 +398,11 @@ const Demo7 = ()=>{
 	 </SafeAreaView>
 	)
 }
-
 export default Demo7
 ```
-TextInput 组件的使用
-```
+###### TextInput
+
+```react
 import React from 'react';
 
 import {SafeAreaView,View,Text,TextInput,TouchableOpacity,StyleSheet} from 'react-native';
@@ -529,8 +530,9 @@ class Demo8 extends React.Component{
 
 export default Demo8
 ```
-图片组件 Image
-```
+###### Image
+
+```react
 import React from 'react';
 
 import {SafeAreaView,View,Text,ScrollView,Image} from 'react-native'
@@ -563,8 +565,36 @@ class Demo9 extends React.Component{
 
 export default Demo9
 ```
-activityIndicator活动指示器 loading
+支持GIF图片
+
+[Image · React Native 中文网](https://reactnative.cn/docs/image)
+
+默认情况下 Android 是不支持 GIF 和 WebP 格式的。你需要`android/app/build.gradle`文件中根据需要手动添加以下模块：
+
 ```
+dependencies {
+  // 如果你需要支持Android4.0(API level 14)之前的版本
+  implementation 'com.facebook.fresco:animated-base-support:1.3.0'
+
+  // 如果你需要支持GIF动图
+  implementation 'com.facebook.fresco:animated-gif:2.0.0'
+
+  // 如果你需要支持WebP格式，包括WebP动图
+  implementation 'com.facebook.fresco:animated-webp:2.1.0'
+  implementation 'com.facebook.fresco:webpsupport:2.0.0'
+
+  // 如果只需要支持WebP格式而不需要动图
+  implementation 'com.facebook.fresco:webpsupport:2.0.0'
+}
+```
+
+然后重启项目
+
+###### activityIndicator
+
+活动指示器 loading
+
+```react
 import React from 'react';
 
 import {SafeAreaView,View,Text,Button,StyleSheet,TouchableOpacity,ActivityIndicator} from 'react-native';
@@ -598,8 +628,11 @@ class Demo10 extends React.Component{
 
 export default Demo10
 ```
-Alert 对话框
-```
+###### Alert 
+
+对话框
+
+```react
 import React from 'react';
 
 import {Alert,TouchableOpacity, Modal,View,SafeAreaView,Text,Button,StyleSheet} from 'react-native';
@@ -656,7 +689,10 @@ const styles = StyleSheet.create({
 
 export default Demo11
 ```
-AysncStorage 异步存储 使用 async await 或者 then()
+###### AysncStorage
+
+ 异步存储 使用 async await 或者 then()
+
 ```
 import React from 'react';
 
@@ -731,7 +767,8 @@ const styles = StyleSheet.create({
 })
 export default Demo12
 ```
-动画Animated
+###### Animated
+
 ```
 import React from 'react';
 import {SafeAreaView,View,StyleSheet,Animated,TouchableOpacity} from 'react-native';
@@ -789,7 +826,8 @@ const styles = StyleSheet.create({
 
 export default Demo13
 ```
-开关组件 Switch 
+###### 开关组件 Switch 
+
 ```
 import React from 'react';
 import {SafeAreaView,View,Text,Switch,StyleSheet} from 'react-native';
@@ -821,7 +859,8 @@ class Demo14 extends React.Component{
 
 export default Demo14
 ```
-导航栏
+###### 导航栏
+
 ```
 import React, { Component } from 'react';
 import {View, Text, StatusBar, StyleSheet, TouchableOpacity} from 'react-native'
@@ -871,7 +910,8 @@ const styles = StyleSheet.create ({
     }
 })
 ```
-选择器Picker
+###### 选择器Picker
+
 ```
 import React from 'react';
 
@@ -927,3 +967,377 @@ const styles = StyleSheet.create({
 
 export default Demo16
 ```
+
+#### 搭建项目
+
+1 初始化项目 查看官网
+
+```
+npx react-native run-android
+
+```
+
+###### 调试
+
+查看网络请求 在项目index.js加入下面代码 在浏览器可以看产网路请求
+
+```
+GLOBAL.XMLHttpRequest = GLOBAL.originalXMLHttpRequest || GLOBAL.XMLHttpRequest
+
+```
+
+react-native-debugger
+
+[Releases · jhen0409/react-native-debugger (github.com)](https://github.com/jhen0409/react-native-debugger/releases)
+
+下载后解压 关闭浏览器的调试页面打开软件在等待调试页面 然后在程序中进入debug模式
+
+#### mobx
+
+使用步骤
+
+安装依赖
+
+- `mobx` 核心库
+- `mobx-react` 方便在react中使用mobx技术的库
+- `@babel/plugin-proposal-decorators` 让 `rn` 项目支持 `es7` 的装饰器语法的库
+
+```
+yarn add mobx mobx-react @babel/plugin-proposal-decorators
+```
+
+2 在 `babel.config.js`添加以下配置
+
+```
+plugins: [
+    ['@babel/plugin-proposal-decorators', { 'legacy': true }]
+  ]
+```
+
+3 新建文件 `mobx\index.js` 用来存放 全局数据 
+
+```react
+import { observable, action } from "mobx";
+
+class RootStore {
+  // observable 表示数据可监控 表示是全局数据
+  @observable name = "hello";
+  // action行为 表示 changeName是个可以修改全局共享数据的方法
+  @action changeName(name) {
+    this.name = name;
+  }
+}
+
+export default new RootStore();
+```
+
+4  在根组件中挂载
+
+通过 `Provider` 来挂载和传递
+
+```react
+import React, { Component } from 'react';
+import { View} from 'react-native';
+import rootStore from "./mobx";
+import { Provider} from "mobx-react";
+class Index extends Component {
+  // 正常
+  render() {
+    return (
+      <View  >
+        <Provider rootStore={rootStore} >
+          <Sub1></Sub1>
+        </Provider>
+      </View>
+    );
+  }
+}
+```
+
+5 其他组件中使用
+
+```react
+import React, { Component } from 'react';
+import { View, Text } from 'react-native';
+import {inject,observer } from "mobx-react";
+
+@inject("rootStore") // 注入 用来获取 全局数据的
+@observer //  当全局发生改变了  组件的重新渲染 从而显示最新的数据
+class Sub1 extends Component {
+  changeName = () => {
+   // 修改全局数据   
+    this.props.rootStore.changeName(Date.now());
+  }
+  render() {
+    console.log(this);
+    return (
+      <View><Text onPress={this.changeName}>{this.props.rootStore.name}</Text></View>
+    );
+  }
+}
+
+export default Index;
+```
+
+#### [react-navigation](https://www.npmjs.com/package/react-navigation)
+
+1. 安装依赖
+
+   ```
+   yarn add react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view  @react-navigation/stack @react-navigation/native
+   ```
+
+2. ```react
+   import * as React from 'react';
+   import { Button, View, Text } from 'react-native';
+   import { NavigationContainer } from '@react-navigation/native';
+   import { createStackNavigator } from '@react-navigation/stack';
+   
+   function HomeScreen({ navigation }) {
+     return (
+       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+         <Text>Home Screen</Text>
+         <Button
+           title="Go to Details"
+           onPress={() => navigation.navigate('Details')}
+         />
+       </View>
+     );
+   }
+   
+   function DetailsScreen() {
+     return (
+       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+         <Text>Details Screen</Text>
+       </View>
+     );
+   }
+   
+   const Stack = createStackNavigator();
+   
+   function App() {
+     return (
+       <NavigationContainer>
+         <Stack.Navigator initialRouteName="Home">
+                          去掉头部标题
+           <Stack.Screen headerMode="none" name="Home" component={HomeScreen} />
+           <Stack.Screen name="Details" component={DetailsScreen} />
+         </Stack.Navigator>
+       </NavigationContainer>
+     );
+   }
+   
+   export default App;
+   
+   ```
+
+   抽离出Nav文件
+
+   新建nav文件  配置路由  在app.js中引入文件
+
+   ```react
+   import React from 'react';
+   import { Button, View, Text } from 'react-native';
+   import { NavigationContainer } from '@react-navigation/native';
+   import { createStackNavigator } from '@react-navigation/stack';
+   import Login from "./pages/account/login/index"
+   function HomeScreen({ navigation }) {
+     return (
+       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+         <Text>Home Screen</Text>
+         <Button
+           title="Go to Details"
+           onPress={() => navigation.navigate('Details')}
+         />
+       </View>
+     );
+   }
+   
+   function DetailsScreen() {
+     return (
+       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+         <Text>Details Screen</Text>
+       </View>
+     );
+   }
+   
+   const Stack = createStackNavigator();
+   
+   function Nav() {
+     return (
+       <NavigationContainer>
+       <Stack.Navigator headerMode="none"  initialRouteName= "Login" >
+           <Stack.Screen name="Home" component={HomeScreen} />
+           <Stack.Screen name="Login" component={Login} />
+           <Stack.Screen name="Details" component={DetailsScreen} />
+         </Stack.Navigator>
+       </NavigationContainer>
+     );
+   }
+   
+   export default Nav;
+   
+   ```
+
+   ###### 顶部导航栏融合背景图片
+
+   ######  translucent={true}
+
+   ```react
+   <StatusBar backgroundColor="transparent" translucent={true}/>
+                    <Image style={{width:"100%",height:200}} source={require("../../../res/profileBackground.jpg")}></Image>
+             
+   ```
+
+   ###### 像素转换
+
+   ```react
+   import {Dimensions} from "react-native";
+   
+   // 元素宽度转dp 
+   // 设计稿宽度 /元素宽度 = 手机屏幕宽度 /手机中元素的宽度
+   // 手机中元素的宽度 = 手机屏幕宽度 * 设计稿元素宽度 / 设计稿宽度  375
+   
+   // 屏幕宽度
+   
+   export const screenWidth = Dimensions.get("window").width;
+   export const screenHeight = Dimensions.get("window").height;
+   
+   /***将px转dp
+    */
+   export const pxToDp = (elePx)=> screenWidth * elePx / 375
+   ```
+
+   react-native-element
+
+   1 添加依赖
+
+   yarn add react-native-elements react-native-vector-icons
+
+   ```
+   yarn add react-native-elements react-native-vector-icons
+   ```
+
+   2 配置图标
+
+   [react-native-vector-icons](https://github.com/oblador/react-native-vector-icons) 的其他使用
+
+   编辑 `android/app/build.gradle` 
+
+   ```
+   添加字体的
+   project.ext.vectoricons = [
+       iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf' ] // Name of the font files you want to copy
+   ]
+   添加图标的
+   apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+   ```
+
+   3 重启项目
+
+   4 使用ui组件
+
+   ```
+   import { Icon } from 'react-native-elements'
+   
+   <Icon
+     name='rowing' />
+   ```
+
+   ###### 关闭黄色警告
+   
+   ![image-20210526105327718](G:\note\image\image-20210526105327718.png)
+   
+   在index.js中添加如下代码
+   
+   ```react
+   console.ignoredYellowBox = ['Warning: BackAndroid is deprecated. Please use BackHandler instead.','source.uri should not be an empty string','Invalid props.style key'];
+    
+   console.disableYellowBox = true // 关闭全部黄色警告
+   ```
+   
+   ###### 高德地图
+
+分别使用了两个功能，一个是AndroidSDK和一个web服务
+
+1 [申请 高度地图的key](https://lbs.amap.com/api/android-location-sdk/guide/create-project/get-key)
+
+2 下载依赖
+
+```
+yarn add  react-native-amap-geolocation
+```
+
+3    编辑 `android/settings.gradle`，设置项目路径：
+
+```
++ include ':react-native-amap-geolocation'
++ project(':react-native-amap-geolocation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-amap-geolocation/lib/android')
+```
+
+4 编辑 `android/app/build.gradle`，新增依赖
+
+```
++ include ':react-native-amap-geolocation'
++ project(':react-native-amap-geolocation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-amap-geolocation/lib/android')
+```
+
+5  编辑 `MainApplication.java`：
+
+```
++ import cn.qiuxiang.react.geolocation.AMapGeolocationPackage;
+
+public class MainApplication extends Application implements ReactApplication {
+  @Override
+        protected List<ReactPackage> getPackages() {
+          @SuppressWarnings("UnnecessaryLocalVariable")
+          List<ReactPackage> packages = new PackageList(this).getPackages();
+          // Packages that cannot be autolinked yet can be added manually here, for example:
++         packages.add(new AMapGeolocationPackage());
+          return packages;
+        }
+}
+```
+
+6 代码
+
+```react
+
+import { PermissionsAndroid, Platform } from "react-native";
+import { init, Geolocation } from "react-native-amap-geolocation";
+import axios from "axios";
+class Geo {
+  async initGeo() {
+    if (Platform.OS === "android") {
+      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+    }
+    await init({
+      ios: "e8b092f4b23cef186bd1c4fdd975bf38",
+      android: "e8b092f4b23cef186bd1c4fdd975bf38"
+    });
+    return Promise.resolve();
+  }
+  async getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+      console.log("开始定位");
+      Geolocation.getCurrentPosition(({ coords }) => {
+        resolve(coords);
+      }, reject);
+    })
+  }
+  async getCityByLocation() {
+    const { longitude, latitude } = await this.getCurrentPosition();
+    const res = await axios.get("https://restapi.amap.com/v3/geocode/regeo", {
+      params: { location: `${longitude},${latitude}`, key: "83e9dd6dfc3ad5925fc228c14eb3b4d6", }
+    });
+    return Promise.resolve(res.data);
+  }
+}
+
+
+export default new Geo();
+
+```
+
+
+

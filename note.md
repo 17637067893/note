@@ -1,5 +1,44 @@
 ## 3月7号
 
+解决跨域
+
+1 jsonp
+
+![image-20210526004014237](G:\note\image\image-20210526004014237.png) 
+
+2 后端设置请求头
+
+![image-20210526004040161](G:\note\image\image-20210526004040161.png)
+
+3 proxy代理
+
+```js
+ const { createProxyMiddleware } = require('http-proxy-middleware');  //注意写法，这是1.0以后的版本，最好按抄
+
+module.exports = function (app) {
+     app.use(createProxyMiddleware('/api',
+         {
+            target: 'localhost:9089',
+             pathRewrite: {
+                '^/api': '/',
+             },
+             changeOrigin: true,
+             secure: false, // 是否验证证书
+             ws: true, // 启用websocket
+        }
+    ));
+ };
+
+```
+
+4 Nginx代理
+
+![image-20210526004149852](G:\note\image\image-20210526004149852.png)
+
+5 gateway网关
+
+6 添加@@CrossOrigin
+
 张娜物联网卡 8986112024008358926
 
 张娜 妇女节的后一天
@@ -9,9 +48,9 @@
 宝塔主机
 
 ```
-http://39.105.146.1:8888/12e673b0
-username: 1isetgur
-password: 9e943514
+http://39.105.146.1:8888/77d8962c
+username:1ukoxjyo
+password: 002a667f
 ```
 
 包月主机 
@@ -129,5 +168,32 @@ github
 ```
 17637067893
 qq851088072
+```
+
+#### 查看端口占用
+
+```
+netstat -aon|findstr 8080  //查看PID
+```
+
+![image-20210521225900767](G:\note\image\image-20210521225900767.png)
+
+```
+tasklist|findstr 8080  根据PID  查看进程
+```
+
+![image-20210521230038157](G:\note\image\image-20210521230038157.png)
+
+```
+杀掉进程使用taskkill -PID 进程号 -F
+
+/PID processid 指定要终止的进程的 PID。
+
+/F 指定强制终止进程。
+```
+
+```
+netstat -aon|finstr 8888  8150  10002 10003
+taskkill -PID 
 ```
 
