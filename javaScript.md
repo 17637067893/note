@@ -209,13 +209,15 @@ f1(11).then(res => {
 ##### 手写map
 
 ```js
- function map(arr,fn){
-     let newArr = [];
-     for(let i=0;i<arr.length;i++){
-         newArr[i] = fn(arr[i],i,arr);
-     }
-     return newArr
- }
+Array.prototype.my_map =  function(fn){
+    let resArr = [];
+    let that = this;
+    for(let i=0;i<arr.length;i++){
+        resArr.push(fn.call(that,arr[i],i));
+    }
+
+    return resArr;
+}
 
 const arr = [1,2,3,4];
 

@@ -1,3 +1,5 @@
++create-react-app my_app
+
 #### 消息订阅发布
 
 ```
@@ -1102,7 +1104,16 @@ setArr([arr,...arr1])
 export default App;
 ```
 ######  Effect
+
+与 componentDidMount 或 componentDidUpdate 不同，使用 useEffect 调度的 effect 不会阻塞浏览器更新屏幕，这让你的应用看起来响应更快。大多数情况下，effect 不需要同步地执行。在个别情况下（例如测量布局），有单独的 useLayoutEffect Hook 供你使用，其 API 与 useEffect 相同。
+
 ```react
+// componentDidUpdate(prevProps, prevState) {
+//     if(prevState.count !== this.state.count) {
+//         document.title = `You clicked ${this.state.count} times`
+//     }
+// }
+
 //相当于 componentDidMount
 useEffect(()=>{
 
@@ -1185,30 +1196,43 @@ const TodoForm = ({eventHandle}) => {
 ```
 ###### useCallback
 
+useCallback 可以说是 useMemo 的语法糖
+
+```js
+const memoCallback= useCallback(callback,array)
+
+返回一个 memoized 回调函数。
+
+callback是一个函数用于处理逻辑
+1 array 控制useCallback重新执⾏的数组，array改变时才会重新执⾏useCallback不传数组，每次更新都会重新计算
+2 空数组，只会计算一次
+3 依赖对应的值，对应的值发生变化重新计算
+useCallback返回值是callback本身（useMemo返回的是callback函数的返回值）
+```
+
+
+
 ```react
 
-import React,{useState,useCallback} from 'react';
-
-const Demo1 =() => {
-    const [count,setCount] =  useState(0)
-    const [count1,setCount1] = useState(0)
-    return(
-        <div>
-            <div>count   ==={count}</div>
-            <div>count1 ==  {count1}</div>
-            <button onClick={()=>{setCount(count+1)}}>按钮</button>
-            {/*   */}
-            <button onClick={useCallback(()=>{setCount1(count1+1)},[count])}>按钮1</button>
-        </div>
+function App () {
+  const [ count, setCount ] = useState(0)
+  const add = useCallback(() => count + 1, [count])
+  // const add = useCallback(() => count + 1, []) 执行一次
+  return (
+    <div>
+      点击次数: { count }
+      <br/>
+      次数加一: { add() }
+      <button onClick={() => { setCount(count + 1)}}>点我</button>
+    </div>
     )
-
 }
-
-export default Demo1
 
 ```
 
 ###### useReducer的使用
+
+reducer函数是共享的,但是数据不是共享的，就是如果你把它导出，在多个文件里面使用，当改变一个reducer里面值的时候,是不会一起发生变化的
 
 ```react
 import React,{useState,useReducer} from 'react';
@@ -1314,5 +1338,33 @@ DOM事件会冒泡到document上，document会生成一个统一的React event�
 5、当你传入的是函数，那么就执行你传入的函数，并把 重写后的 dispatch 继续传给你，让你可以继续套娃
 
 6、当你传入的是对象，那么就直接调用 原dispatch，然后传入的你对象，完成 reducer 操作
+```
+
+#### react 渲染流程
+
+```
+jsx会被babel编译为createElement函数调用 ，接受type,config,children 返回一个虚拟DOM对象。然后通过ReactDOM.render()渲染成真实DOM，在更新数据时使用render函数。根据diff算法比较新旧DOM,渲染到真实DOM 
+```
+
+#### setState异步更新
+
+```
+接受新的新状态不会立即更新存入pendingStates队列中
+如果通过addEventListener直接添加的或者狗钩子函数中的就是异步的，其他的例如定时器引起的都是异步的
+根据内部isBatchingUpdate变量默认为false 同步更新，如果调用事件处理函数会修改为batchUpdates修改为true异步更新
+```
+
+constructor
+
+![image-20210608161855188](G:\note\image\image-20210608161855188.png)
+
+```
+super()就是相当于把父类的中this对象过继给子类 super(),那么子类也就不能够使用this对象
+如果constructor中想要方位prop必须使用super(props),如果
+
+constructor(){
+  ser()
+}
+
 ```
 

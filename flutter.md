@@ -1,4 +1,312 @@
-##一起皆组件，对象用() 包裹
+#### dart
+
+1 需要安装dart的SDK
+
+2 vscode中安装插件 dart code runder
+
+新建index.dart  右键 code runer
+
+```
+main() {
+  print("你好");
+}
+```
+
+#### 声明变量
+
+```dart
+变量声明
+1 var 声明不带类型 可以自动推导
+var str="你好";
+
+2 变量类型声明
+  String str="你好";
+
+常量声明
+const  声明时就要赋值 不能改变
+const str="常量";
+
+
+final 声明时可以不赋值 运行时再赋值
+final str3 = new DateTime.now(); //运行时才赋值
+```
+
+#### 数据类型
+
+######  整型
+
+```
+int = 100;
+```
+
+字符串
+
+```
+String name="小明";
+
+多行字符串
+String txt = """
+第一行
+第二行
+""";
+
+字符串拼接
+String str1 = "$name $txt";
+String str2 = name +""+txt;
+```
+
+###### 布尔
+
+````
+bool show = true;
+````
+
+###### 集合
+
+list
+
+```
+List arr = ["小明",20];
+
+指定集合类型
+var arr1 = <String>["小明","小红"];
+
+常用属性
+length 长度
+reversed 翻转
+isEmpty 为空
+isNotEmpty 不为空
+
+常用方法
+add()
+addAll 拼接数组
+indexOf 查找 //不存在 返回 -1
+fillRange(startIndex,endIndex,value) 修改
+remove 删除
+removeAt  根据索引删除
+insert(index,value);
+insertAll(index,list)；
+toList() //其他类型转List
+join()  //list转字符串
+split()  字符串转list
+list.forEach
+map
+```
+
+set
+
+//也具有集合的方法
+
+```
+无序不重复
+var s = new Set();
+s.add()
+```
+
+###### Maps
+
+```
+Map obj = {"name":"小明","age":20};
+
+obj["name"];
+obj.keys()  获取所有key
+obj.values() 获取所有value
+obj.isEmpty()  为空
+obj.isNotEmpty() 不为空
+obj.addAll({"a":10,"b":20});
+obj.containsValue("age") //true
+obj.forEach((k,v) => print('${k}: ${v}'));
+obj.map((key,value)=>{print("$key  $value");})
+```
+
+###### 类
+
+```dart
+class Person {
+  String name = "小明";
+  int age = 23;
+  //构造函数
+  Person(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  String getInfo() {
+    return this.name;
+  }
+}
+
+链式操作
+    var p = new Person("小明", 20);
+  p
+    ..name = "小胖"
+    ..age = 30
+    ..getInfo();
+
+
+继承
+class NewPerson extends Person {
+  NewPerson(name, age) : super(name, age);
+}
+```
+
+抽象方法
+
+```dart
+abstract class Animal {
+  late String name;
+  say();
+  eat() {
+    print("抽象方法");
+  }
+}
+
+class Dog extends Animal {
+  @override
+  say() {
+    print("说话");
+  }
+}
+```
+
+接口
+
+```
+abstract class A {
+  saya();
+}
+
+abstract class B {
+  sayb();
+}
+
+class C implements A, B {
+  @override
+  saya() {
+    // TODO: implement saya
+    throw UnimplementedError();
+  }
+
+  @override
+  sayb() {
+    // TODO: implement sayb
+    throw UnimplementedError();
+  }
+}
+```
+
+###### mixins
+
+一个类继承多个类
+
+```dart
+class A {
+  saya(){}
+}
+
+class B {
+  sayb(){}
+}
+
+class C with A, B {}
+```
+
+###### 泛型
+
+```
+T getData<T>(T value) {
+  return value;
+}
+```
+
+
+
+###### 判断类型
+
+```
+//类型判断
+var str = "123456";
+if (str is String) {
+print("string类型");
+} else if (str is int) {
+print("整数类型");
+}
+```
+
+#### 运算
+
+```
+  int a = 13;
+  int b = 5;
+  a + b;
+  a - b;
+  a * b;
+  a / b;  除
+  a % b;   取余
+  a ~/ b;  取整
+  
+  ??== 如果b不为空就不赋值 如果为空就赋值
+  int b;
+  b?? = 23;
+  
+  a+=10;
+```
+
+###### 三目运算
+
+```
+var name=true?"小明":"小红";
+```
+
+###### 类型转换
+
+```
+var num="20"；
+ 
+int.parse(num)；  //装整型
+double.parse("20.333")；  //double
+var n = 100;
+n.toString(); //字符串
+
+//判断字符串是否为空
+str.isEmpty
+str==null
+str.isNaN
+```
+
+#### 循环语句
+
+for
+
+```dart
+for (int i = 0; i <= 10; i++) {
+    print(i);
+}
+```
+
+while
+
+```
+int i=1;
+while(i<10){
+  print(i);
+  i++;
+}
+```
+
+#### 函数
+
+```
+int getNum(){
+var num = 123;
+return num;
+}
+
+getNum();
+
+String user(String name;int age;sex="男"){}
+```
+
+#### 创建项目
 
 1 按照官网搭建环境
 2 创建文件
@@ -6,196 +314,1180 @@ flutter create myapp
 cd myapp
 3 打开模拟器后
 flutter run
-// 子元素自动适配屏幕
-AspectRatio(
- aspectRatio: 16/9,
-child:
-)
 
+###### 颜色
 
-// 宽度满屏
-widith:double.infinity
-
-## 动态组件接受参数
 ```
-class OrderContentList extends StatefulWidget {
+Colors.yellow
+Color.fromRGBO(244, 233, 121, 0.5)
+```
 
-int type;定义个type 属性
+第一个组件
 
-OrderContentList(
+```dart
+import "package:flutter/material.dart";
 
-  this.type
+void main() {
+  runApp(new Center(child: MyApp()));
+}
 
-);
-
+class MyApp extends StatelessWidget {
   @override
-
-  _OrderContentListState createState() => _OrderContentListState();
-
-}
-
-
-
-在void initState() {
-
-    // TODO: implement initState
-
-    super.initState();
-
-    print('${widget.type}'); 在initSatte中 widget.type可以取出来
-
-  }
-```
-
-
-Text组件
-```
-//Widget 组件
-// Scaffold 脚手架
-import 'package:flutter/material.dart';
-
-void main ()=>runApp(MyApp());
-
-class MyApp extends StatelessWidget{
-@override
-Widget build(BuildContext context){
- return MaterialApp(
-  title:'Text Widget' ,
- home:new Scaffold(
-// 头部组件
-appBar:new AppBar(
-title:new Text('头部组件')
-)
-// 身体组件
-body:Center(
-// 所有属性在Text()写
-child:Text('这是文字组件',
-//文字左右居中
-textAlign:TextAlign.center  //left  right
-//最多显示行数
-maxLines:'1',
-//超出样式   默认
-overflow:TextOverflow.cip  // ellipsis  。。。  fade 渐变
-文字样式
-style:TextStyle(
-//字体
-fontSize:25,
-color:Color.fromARGB(255,255,125,125),
-//下划线
-decoration:TextDecoration.underline,
-//下划线风格
-decorationStyle:TextDecorationStyle.dashed , // solid 
-)
-)
-)
-
-)
-)
-}
-}
-
-
-```
-Container 组件相当于 div
-```
-// Container 组件 => div
-
-import 'package:flutter/material.dart';
-
-void main () => runApp(MyApp());
-
-class MyApp extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
+    //MaterialApp根组件
     return MaterialApp(
-      title:'主题',
-      home:new Scaffold(
-        appBar:new AppBar(
-          title:new Text('导航栏'),
+      //进入app的主页面
+      home: Scaffold(
+        //顶部导航
+        appBar: AppBar(title: Text("标题")),
+        //内容区域
+        body: Center(
+          child: Text('你好flutter',
+              textDirection: TextDirection.ltr, //字体左排
+              style: TextStyle(
+                  fontSize: 40.0, color: Color.fromRGBO(244, 233, 121, 0.5))),
         ),
-        body:Center(
-          // 相当于 div 不设置大小 默认满屏宽高 100%
-          child:Container(
-            child:new Text('这是Container组件',style:TextStyle(
-              fontSize:25,
-              color:Color.fromRGBO(255, 125, 0, 1),
-            )),
-            //Container 子组件的对齐方式
-            //alignment:Alignment.center, //居中 centerLeft  centerRight
-            alignment:Alignment.topLeft, //底部居中 bottomRight bottomLeft topLeft topRight
-            width: 500,
-            height:500,
-            // 背景色 Colors
-            // color:Colors.tealAccent
-            // 0x 后边开始  FF表示透明度 16进制  之后的556600 代表RGB色值
-            //  color: const Color(0xbb556600),
-            //背景渐变 不能与color同时存在
-            decoration: new BoxDecoration(
-              // RadialGradient 中心渐变    LinearGradient线性渐变
-              gradient:const LinearGradient(
-              //   begin: Alignment.topLeft,  开始位置
-              //  end: Alignment.bottomRight,  结束位置
-                colors:[Colors.lightBlue,Colors.greenAccent,Colors.purple],
-                // titleMode:TitleMode.repeated,
-              ),
-                //border                             color:Colors.red   const Color(0xbb556600)
-              border:Border.all(width: 5,color:Colors.red),
-            ),
-             //padding值 四周
-              //padding: const EdgeInsets.all(30),
-              padding:const EdgeInsets.fromLTRB(10,40,50,100),
-              // margin 
-              margin:const EdgeInsets.fromLTRB(20,40,80,100),
-            
-          )
-        )
-      )
+      ),
+      //主题颜色
+      theme: ThemeData(primarySwatch: Colors.yellow),
     );
   }
 }
 
 ```
-Image组件
-```
-import 'package:flutter/material.dart';
 
-void main => runApp(MyApp());
-lass MyApp extends StatelessWidget{
+#### 组件
+
+###### Text
+
+```dart
+Text(
+                  "你好",
+                //左对齐
+                textAlign: TextAlign.center,
+                //从左排序
+                textDirection: TextDirection.ltr,
+                //溢出显示
+                overflow: TextOverflow.clip,
+                //最大行
+                maxLines: 2,
+                // 样式
+                style: TextStyle(fontSize: 30),
+              )
+```
+
+###### TextStyle
+
+```dart
+TextStyle(
+                    // 字体大小
+                    fontSize: 30,
+                    //字体加粗
+                    fontWeight: FontWeight.bold,
+                    //颜色
+                    color: Colors.blue,
+                    // 文本行与行的高度，作为字体大小的倍数（取值1~2，如1.2）
+                    height: 2,
+                    // none 不显示装饰线条，underline 字体下方，overline 字体上方，lineThrough穿过文字
+                    decoration: TextDecoration.none),
+              )
+```
+
+###### 输入框
+
+[(3条消息) Flutter TextField详解_yechaoa-CSDN博客_flutter textfield](https://blog.csdn.net/yechaoa/article/details/90906689)
+
+```dart
+class Demo extends StatefulWidget {
+  const Demo({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context){
-    return MaterialApp(
-      title:'Img Widget',
-      home: new Scaffold(
-        appBar:new AppBar(
-          title: new Text('Img组件学习')
-        ),
-        body:Center(
-          child:Container(
-            // 图片地址
-            child:new Image.network('http://t7.baidu.com/it/u=3204887199,3790688592&fm=79&app=86&f=JPEG?w=4610&h=2968',
-             //填充方式
-            fit:BoxFit.fill,
-            color:Colors.blue,
-            // 颜色覆盖到图片上
-            colorBlendMode:BlendMode.modulate,
-            repeat: ImageRepeat.repeat, //图片重复方向
-            //颜色混合
-            width: 50.0,
-            height: 100.0,
-            ),
-            height: 300,
-            width: 300,
-            // padding: const EdgeInsets.all(10),
-            margin: const EdgeInsets.all(30),
-            // color: Colors.indigoAccent,
+  _DemoState createState() => _DemoState();
+}
+
+class _DemoState extends State<Demo> {
+  TextEditingController controller = TextEditingController();
+  String _textStr = "默认";
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller = TextEditingController();
+    //获取值
+    controller.addListener(() {
+      setState(() {
+        _textStr = controller.text;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Text(this._textStr),
+          TextField(
+            //密码框
+            // obscureText: true,
+            controller: controller,
+            maxLength: 2,
+            maxLines: 2,
+            onTap: () {},
+            decoration: InputDecoration(
+                icon: Icon(Icons.pedal_bike),
+                hintText: "请输入内容",
+                border: OutlineInputBorder()),
+          ),
+          SizedBox(
+            height: 20,
           )
-        )
+        ],
+      ),
+    );
+  }
+}
+
+```
+
+###### checkbox
+
+```dart
+class Demo extends StatefulWidget {
+  const Demo({Key? key}) : super(key: key);
+
+  @override
+  _DemoState createState() => _DemoState();
+}
+
+class _DemoState extends State<Demo> {
+  bool selected = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Text("${this.selected}"),
+          SizedBox(
+            height: 20,
+          ),
+          Checkbox(
+              value: this.selected,
+              activeColor: Colors.amber,
+              onChanged: (value) {
+                setState(() {
+                  this.selected = value!;
+                });
+              }),
+          CheckboxListTile(
+              value: this.selected,
+              secondary: const Icon(Icons.alarm_on),
+              title: const Text("标题一"),
+              subtitle: Text("标题二"),
+              onChanged: (val) {
+                setState(() {
+                  this.selected = val!;
+                });
+              })
+        ],
+      ),
+    );
+  }
+}
+
+```
+
+###### radio
+
+```dart
+
+class Demo extends StatefulWidget {
+  const Demo({Key? key}) : super(key: key);
+
+  @override
+  _DemoState createState() => _DemoState();
+}
+
+class _DemoState extends State<Demo> {
+  int selected = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Text("${this.selected == 1 ? '男' : '女'}"),
+          SizedBox(
+            height: 20,
+          ),
+          Text("男"),
+          Radio(
+              value: 1,
+              groupValue: this.selected,
+              onChanged: (int? val) {
+                print(val);
+                setState(() {
+                  this.selected = val!;
+                });
+              }),
+          Text("女"),
+          Radio(
+              value: 2,
+              groupValue: this.selected,
+              onChanged: (int? val) {
+                print(val);
+                setState(() {
+                  this.selected = val!;
+                });
+              }),
+          RadioListTile(
+            value: 1,
+            onChanged: (int? value) {
+              setState(() {
+                this.selected = value!;
+              });
+            },
+            groupValue: this.selected,
+            title: Text("一级标题"),
+            subtitle: Text("二级标题"),
+            secondary: Icon(Icons.camera),
+            selected: this.selected == 1,
+          ),
+          RadioListTile(
+            value: 2,
+            onChanged: (int? value) {
+              setState(() {
+                this.selected = value!;
+              });
+            },
+            groupValue: this.selected,
+            title: Text("一级标题"),
+            subtitle: Text("二级标题"),
+            secondary: Icon(Icons.palette),
+            selected: this.selected == 2,
+          ),
+        ],
       ),
     );
   }
 }
 ```
-ListView 列表组件
+
+###### Switch
+
+```dart
+class Demo extends StatefulWidget {
+  const Demo({Key? key}) : super(key: key);
+
+  @override
+  _DemoState createState() => _DemoState();
+}
+
+class _DemoState extends State<Demo> {
+  late bool selected;
+
+  @override
+  void initState() {
+    super.initState();
+    selected = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Text("${this.selected == 1 ? '男' : '女'}"),
+          SizedBox(
+            height: 20,
+          ),
+          Switch(
+              value: this.selected,
+              activeColor: Colors.red,
+              activeTrackColor: Colors.green,
+              activeThumbImage: NetworkImage(
+                  "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3868620627,2694438302&fm=58"),
+              onChanged: (val) {
+                setState(() {
+                  this.selected = val;
+                });
+              }),
+          Text(
+            "三：SwitchListTile",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          SizedBox(
+            width: 200,
+            child: SwitchListTile(
+              // 是否选中 是否打开
+              value: this.selected,
+              // 当打开关闭的时候的回调
+              onChanged: (val) {
+                setState(() {
+                  this.selected = val;
+                });
+              },
+              // 选中时 滑块的颜色
+              activeColor: Colors.red,
+              // 选中时 滑道的颜色
+              activeTrackColor: Colors.black,
+              // 选中时 滑块的图片
+//              activeThumbImage: AssetImage("images/hashiqi.jpg"),
+              // 未选中时 滑块的颜色
+              inactiveThumbColor: Colors.green,
+              // 未选中时 滑道的颜色
+              inactiveTrackColor: Colors.amberAccent,
+              // 未选中时 滑块的颜色
+              inactiveThumbImage: AssetImage("images/hashiqi.jpg"),
+              // 标题
+              title: Text("标题"),
+              // 副标题 在标题下面的
+//              subtitle: Text("副标题"),
+              // 是不是三行， true 时： subtitle 不能为null， false时可以为 null
+//              isThreeLine: true,
+              // 如果为 true ，则 text 和 icon 都用 activeColor 时的color
+//              selected: true,
+              // 是否垂直密集居中
+              dense: true,
+              // 左边的一个东西
+              secondary: Icon(Icons.access_time),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+```
+
+
+
+###### Container
+
+```dart
+Container(
+    width: 100,
+    height: 100,
+    //文字居中
+    alignment: Alignment.center,
+    //外部填充
+    margin: EdgeInsets.only(top: 30, left: 120),
+    padding: EdgeInsets.only(bottom: 20, right: 30),
+    //背景颜色
+    // color: Colors.blue,
+    decoration: BoxDecoration(
+        color: Colors.yellow,
+        //圆角
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        //边框颜色
+        border: Border.all(color: Colors.pink, width: 2.0),
+        //背景渐变
+        gradient: RadialGradient(
+            colors: [Colors.red, Colors.orange],
+            center: Alignment.topLeft,
+            radius: .98),
+        //阴影颜色
+        boxShadow: [
+            BoxShadow(
+                color: Colors.black45,
+                offset: Offset(2.0, 2.0),
+                blurRadius: 4.0)
+        ]),
+    child: Text("container"),
+)
+```
+
+###### Padding
+
+```dart
+Padding(
+    // padding: EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
+    padding: EdgeInsets.all(10),
+    child: Text("padding组件"),
+));
+```
+
+###### Row
+
+```dart
+Row({
+    Key key,
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,//将子Widget放置在什么位置
+    MainAxisAlignment.start，从左边开始布局
+        MainAxisAlignment.end，从右边开始布局
+        MainAxisAlignment.center，从中间开始布局
+        MainAxisAlignment.spaceBetween，相邻两个widget之间的距离相等
+        MainAxisAlignment.spaceAround，子widget平均分配空间，最左最又的组件离边的边距，为两个widget边距的一半，具体请自行设置查看效果
+        MainAxisAlignment.spaceEvenly，子widget平均分配空间，包括最左最右的widget离边的空间
+        MainAxisSize mainAxisSize = MainAxisSize.max,//设置Row在主轴上应该占据多少空间
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,//子元素应该如何沿着横轴放置，默认中间对齐
+    CrossAxisAlignment.satrt//设置子元素上边对齐
+        CrossAxisAlignment.end//设置子元素下边对齐
+        CrossAxisAlignment.stretch//每个子元素的上下对齐Row的上下边，相当于是拉伸操作
+        CrossAxisAlignment.baseline,//相当于CrossAxisAlignment.start,但是需要配合textBaseline，不然会报错
+    TextDirection textDirection,//设置子widget的左右显示方位，只有在crossAxisAlignment为start、end的时候起作用；
+    VerticalDirection verticalDirection = VerticalDirection.down,//设置垂直方向上的方向，通常用于Column中,在Row中使用的话，会影响子widget是上边距对齐，还是下边距对齐，跟 CrossAxisAlignment.end， CrossAxisAlignment.start相互影响，选择使用
+    TextBaseline textBaseline,//配合CrossAxisAlignment.baseline一起使用
+    List<Widget> children = const <Widget>[],//存放一组子widget
+}
+
+    Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+            Icon(Icons.opacity),
+            Icon(Icons.settings),
+            Container(
+                color: Colors.redAccent,
+                width: 100.0,
+                height: 100.0,
+                child: Text('data'),
+            ),
+            Icon(Icons.ondemand_video),
+        ],
+    )
+```
+
+###### Expanded
+
+```dart
+Expanded(
+    flex: 2,
+    child: Container(
+        alignment: Alignment.center,
+        height: 20,
+        color: Colors.blue,
+    ),
+)
+```
+
+###### Image
+
+```dart
+Image(
+    // image:AssetImage(),
+    image: NetworkImage(
+        "https://cdn2.jianshu.io/assets/default_avatar/9-cceda3cf5072bcdd77e8ca4f21c40998.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/120/h/120"), //: 加载网络图片
+    width: 100.0,
+    height: 100.0,
+    alignment: Alignment.center, //对其方式
+    // fit: BoxFit.contain, 将图片的内容完整居中显示，通过按比例缩小
+    //      BoxFit.cover：按比例放大图片的
+    //      BoxFit.fill：把图片不按比例放大/缩小到组件的大小显示
+    //      BoxFit.scaleDown：如果图片宽高大于组件宽高，则让图片内容完全居中显示
+    repeat: ImageRepeat.repeat,
+    color: Color(0xFFFFFF00),
+)
+    
+头像
+    CircleAvatar(
+    backgroundImage: NetworkImage(
+        "https://cdn2.jianshu.io/assets/default_avatar/9-cceda3cf5072bcdd77e8ca4f21c40998.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/120/h/120"),
+    radius: 30,
+
+图片裁剪
+    
+    ClipRRect(
+        child: Image.network(
+            imgUrl,
+            scale: 8.5,
+            fit: BoxFit.cover,
+        ),
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+        ),
+    )    
+```
+
+
+
+###### ListTitle
+
+![image-20210607134016352](G:\note\image\image-20210607134016352.png)
+
+```dart
+ListTile(
+    //左侧icon
+    leading: new Icon(Icons.phone),
+    右侧icon
+    trailing: new Icon(Icons.arrow_forward_ios),
+    //内容区域
+    contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+    enabled: true,
+    onTap: () => print("被点击了"),
+    onLongPress: () => print("被长按了"),
+    title: Text("标题"),
+    subtitle: Text("二级标题"),
+),
+```
+
+###### ListView
+
+```dart
+ListView(
+    //水平
+    scrollDirection: Axis.vertical,
+    //是否倒序
+    reverse: false,
+    children: [
+        ListTile(
+            title: Text("标题"),
+            subtitle: Text("二级标题"),
+        ),
+        ListTile(
+            title: Text("标题"),
+            subtitle: Text("二级标题"),
+        ),
+    ],
+```
+
+###### ListView.builder
+
+```dart
+ListView.builder(
+    itemCount: 10,
+    padding: EdgeInsets.all(10.0),
+    itemBuilder: (context, index) {
+        return ListTile(
+            title: Text("第 $index 个"),
+        );
+    }));
+```
+
+###### ListView.separated
+
+![image-20210607135148603](G:\note\image\image-20210607135148603.png)
+
+```dart
+ListView.separated(
+        itemCount: 10,
+        padding: EdgeInsets.all(10.0),
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text("第 $index 个"),
+          );
+        },
+        separatorBuilder: (context, index) {
+          return Divider(color: Colors.red);
+        },
+      ),
+```
+
+###### 循环创建列表
+
+```dart
+class ListComponent extends StatelessWidget {
+  List<Widget> _getList() {
+    List<Widget> list = [];
+    for (int i = 0; i < 20; i++) {
+      list.add(ListTile(title: Text("第 ${i + 1} 个列表")));
+    }
+    return list;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: ListView(
+        children: _getList(),
+      ),
+    );
+  }
+}
+```
+
+###### GridView.builder
+
+```dart
+GridView.builder(
+    //子Item的个数
+    itemCount: 20,
+    //生成item
+    itemBuilder: (context, index) {
+        return ListTile(
+            title: Text("第 ${index} 题"),
+        );
+    },
+    //布局方式
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        //主方向 间隔
+        mainAxisSpacing: 12,
+        // 副轴间隔
+        crossAxisSpacing: 12,
+        // item 宽高比
+        childAspectRatio: 2.1,
+        // 每列数
+        crossAxisCount: 4),
+),
+```
+
+###### GridView.count
+
+```dart
+class ListComponent extends StatelessWidget {
+    List<Widget> _getList() {
+        List<Widget> list = [];
+        for (int i = 0; i < 20; i++) {
+            list.add(ListTile(title: Text("第 ${i + 1} 个列表")));
+        }
+        return list;
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        return Container(
+            child: GridView.count(
+                //水平子Widget之间间距
+                crossAxisSpacing: 10.0,
+                //垂直子Widget之间间距
+                mainAxisSpacing: 30.0,
+                //GridView内边距
+                padding: EdgeInsets.all(10.0),
+                //一行的Widget数量
+                crossAxisCount: 2,
+                //子Widget宽高比例
+                childAspectRatio: 2.0,
+                //子Widget列表
+                children: _getList()));
+    }
+}
+
+```
+
+###### 自定义组件
+
+```dart
+class IconContainer extends StatelessWidget {
+  double size = 30.0;
+  Color color = Colors.red;
+  IconData icon;
+  IconContainer(this.size, this.color, this.icon);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 100.0,
+      width: 100.0,
+      color: Colors.red,
+      child: Center(
+        child: Icon(this.icon, color: this.color, size: this.size),
+      ),
+    );
+  }
+}
+
+调用
+IconContainer(20.0, Colors.black, Icons.download),
+```
+
+###### Stack
+
+```dart
+Stack(
+    //Alignment(0,0)代表居中，Alignment(-1,-1)表示左上，Alignment(0,-1)表示中上，Alignment(1,-1)表示右上，Alignment(1,1)表示右下
+    alignment: Alignment(0, 0),
+    children: [
+        Container(
+            color: Colors.blue,
+            width: 100.0,
+            height: 100.0,
+        ),
+        Text("测试")
+    ],
+));
+```
+
+定位
+
+```dart
+Stack(
+    //Alignment(0,0)代表居中，Alignment(-1,-1)表示左上，Alignment(0,-1)表示中上，Alignment(1,-1)表示右上，Alignment(1,1)表示右下
+    alignment: Alignment(0, 0),
+    children: [
+        Container(
+            color: Colors.blue,
+            width: 200.0,
+            height: 200.0,
+        ),
+        Text("测试"),
+        Align(
+            alignment: Alignment.topLeft,
+            child: Icon(
+                Icons.account_circle,
+                size: 40,
+                color: Colors.red,
+            )),
+        Positioned(
+            left: 10,
+            top: 10,
+            width: 60,
+            height: 60,
+            child: Container(
+                color: Colors.black,
+            ),
+        )
+    ],
+));
+```
+
+###### AspectRatio
+
+```dart
+AspectRatio(
+    aspectRatio: 3 / 1,
+    child: Container(
+        color: Colors.red,
+    ),
+));
+```
+
+###### Card
+
+```dart
+Colors.blueAccent,
+          //z轴的高度，设置card的阴影
+          shadowColor: Colors.amber,
+          elevation: 20.0,
+          //设置shape，这里设置成了R角
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+          ),
+          //对Widget截取的行为，比如这里 Clip.antiAlias 指抗锯齿
+          clipBehavior: Clip.antiAlias,
+          semanticContainer: false,
+          child: Container(
+            color: Colors.deepPurpleAccent,
+            width: 200,
+            height: 150,
+            alignment: Alignment.center,
+            child: Text(
+              "Card",
+              style: TextStyle(fontSize: 28, color: Colors.white),
+            ),
+          ),
+        )
+```
+
+###### 按钮
+
+```dart
+TextButton(
+    child: Text("爱你"),
+    onPressed: () {print("55");},
+),
+
+OutlinedButton(onPressed: (){}, child: Text("爱你")),
+
+ElevatedButton(
+    onPressed: (){
+        this.setState(() {
+            num++;
+        });
+        print(num);
+    }, child: Text("爱你"),
+    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Color(0xffEDFCF5)),foregroundColor:MaterialStateProperty.all(Color(000))),)
+
+    IconButton(
+    icon: Icon(Icons.error),
+    onPressed: () {
+        print("object");
+    }),
+```
+
+###### wrapp
+
+```dart
+Wrap(
+          // 主轴上的item距离
+          spacing: 20,
+          //交叉轴上空间之间的距离
+          runSpacing: 20,
+          alignment: WrapAlignment.start,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              color: Colors.black,
+              child: Text("按钮"),
+            ),
+            Container(
+              width: 100,
+              height: 100,
+              color: Colors.black,
+              child: Text("按钮"),
+            ),
+            Container(
+              width: 100,
+              height: 100,
+              color: Colors.black,
+              child: Text("按钮"),
+            )
+          ],
+        )
+```
+
+###### 动态组件
+
+```dart
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int num=1;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Text("${num}"),
+        TextButton(
+          child: Text("爱你"),
+            onPressed: () {
+              this.setState(() {
+                num++;
+              });
+              },
+        )],
+    ),
+      );
+  }
+}
+```
+
+###### Scaffold
+
+```dart
+Scaffold(
+    appBar: AppBar(
+        //导航颜色
+        backgroundColor: Colors.green,
+        //左侧按钮
+        leading: IconButton(
+            icon: Icon(Icons.eject),
+            onPressed: () {
+                print("按钮图标");
+            },
+        ),
+        title: Text("MenuPage"),
+        //右侧按钮
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
+    ),
+    body: Container(
+        child: Text("MenuPage"),
+    ),
+);
+```
+
+###### 顶部导航栏
+
+```dart
+顶部导航
+	需要将Scaffold组件包裹在DefaultTabController组件内
+	
+
+DefaultTabController(
+    length: 2, //配置顶部tab的数量
+    child:Scaffold(
+      appBar: AppBar(
+          title: Text(this.title2),
+          bottom: TabBar(   顶部导航栏TabBar在bottom中设置
+            tabs: <Widget>[    导航栏bar
+              Tab(text:"顶部1"),   bar中的文字标签内容
+              Tab(text:"顶部2")
+            ],
+         ),
+       ),
+      body: TabBarView(  点击bar对应的内容,第一个组件对应第一个bar,第二个对应第二个,以此类推
+        children: <Widget>[
+        
+            Text("第一个bar内容")
+            Home()
+        ],
+      ),
+    ),
+);
+
+
+在导航栏中嵌套顶部导航栏设置
+
+	比如已经设置底部导航栏再设置其中页面的顶部导航栏
+	
+		出现问题:
+			因为底部导航栏已经使用过Scaffold设置了顶部栏目主题信息,再使用顶部导航栏
+			时候还要使用Scaffold设置,这就导致了会有两个顶部栏目，即两个标题
+		
+		解决方案:
+			将顶部导航栏的内容放置自身Scaffold的title中,这样导航栏信息就会出现在底部导航栏设置的Scaffold的下面
+		
+		如下:
+		 DefaultTabController(
+		      length: 2,
+		      child: Scaffold(
+		      
+		        appBar: AppBar(
+		        
+		          title: Row(   //因为title接收组件,故在title中设置导航栏
+		            children: <Widget>[
+		              Expanded(
+		                child: TabBar(
+		                  tabs: <Widget>[
+		                    Tab(text: '分类1'),
+		                    Tab(text: '分类2',)
+		                  ],
+		                )
+		              )
+		            ],
+		          ),
+		          
+		        ),
+		         body:TabBarView(
+		            children: <Widget>[
+		              Text('分类111'),
+		              Text('分类222')
+		            ],
+		          ),
+		      ),
+		    );
+
+
+顶部导航栏参数配置
+	在TabBar中与tabs同级设置
+	
+    indicatorColor: Colors.red,  bar的下划线指示器选中颜色
+    isScrollable: true,  导航栏是否可以滑动
+    indicatorWeight:  bar的下划线指示器的高度
+    indicatorPadding: ,  bar的下划线指示器的padding
+    labelColor: Colors.red,  标签文字颜色
+    indicatorSize: TabBarIndicatorSize.label, 下划线指示器与标签文字等宽,默认为tab与bar等宽
+    labelStyle: , 标签文字样式
+    labelPadding: , 标签文字padding 
+    unselectedLabelColor: Colors.green,   未选中文字标签颜色
+    unselectedLabelStyle: ,  未选中文字标签样式
+```
+
+###### [TabController定义顶部tab切换](https://www.cnblogs.com/yuyujuan/p/11026724.html)
+
+通过DefaultTabController组件实现了AppBar里面的顶部导航切换，但是在项目中有数据请求，上拉加载更多等操作的时候，前面的写法，就不是很方便操作，因此，在flutter里面，还提供了一个用于实现顶部导航的组件：tabController
+
+要使用tabController组件，就必须是在一个继承StatefulWidget的动态组件，并且还要实现SingleTickerProviderStateMixin这个类，
+
+实例化TabController，实例化的时候需要传入两个参数，其中第一个是固定写法，第二个代表Tab个数。
+
+![img](G:\note\image\1304208-20190615101547710-823057787.png)
+
+```dart
+import 'package:flutter/material.dart';
+
+class TabBarControllerPage extends StatefulWidget {
+  TabBarControllerPage({Key key}) : super(key: key);
+
+  _TabBarControllerPageState createState() => _TabBarControllerPageState();
+}
+
+class _TabBarControllerPageState extends State<TabBarControllerPage> with SingleTickerProviderStateMixin {
+  TabController _tabController;
+
+  @override
+  void initState() {  
+    super.initState();
+    _tabController=new TabController(
+      vsync: this,
+      length: 2
+    );
+  }  
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("TabBarControllerPage"),
+        bottom: TabBar(
+          controller: this._tabController, 
+          tabs: <Widget>[
+            Tab(text:"热销"),
+            Tab(text:"推荐"),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: this._tabController, 
+        children: <Widget>[
+          Center(child: Text("热销")),
+          Center(child: Text("推荐"))
+        ],
+      ),
+    );
+  }
+}
+```
+
+###### BottomNavigationBar
+
+点击tab接受对应index 根据index渲染页面的List
+
+```dart
+class TabsPage extends StatefulWidget {
+
+  @override
+  _TabsPageState createState() => _TabsPageState();
+}
+
+class _TabsPageState extends State<TabsPage> {
+  int currentIndex = 0;
+  List listTabs = [
+    Text("home1"),
+    Text("home2"),
+    Text("home3"),
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("标题"),
+      ),
+      body: this.listTabs[this.currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: this.currentIndex,
+        iconSize: 30.0,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index){
+          setState(() {
+            this.currentIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home),title:Text("首页1")),
+          BottomNavigationBarItem(icon: Icon(Icons.category),title:Text("首页2")),
+          BottomNavigationBarItem(icon: Icon(Icons.home),title:Text("首页3")),
+        ],
+      ),
+    );
+  }
+}
+```
+
+###### 侧边栏
+
+```dart
+class Tabs extends StatefulWidget {
+  // Tabs({Key key}) : super(key: key);
+  // _TabsState createState() => _TabsState();
+  final index;
+  Tabs({Key? key, this.index = 0}) : super(key: key);
+
+  _TabsState createState() => _TabsState(this.index);
+}
+
+class _TabsState extends State<Tabs> {
+  // int _currentIndex=0;
+  int _currentIndex = 0;
+  _TabsState(index) {
+    this._currentIndex = index;
+  }
+  List _pageList = [
+    Text("第1页"),
+    Text("第2页"),
+    Text("第3页"),
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Flutter Demo"),
+      ),
+      body: this._pageList[this._currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: this._currentIndex, //配置对应的索引值选中
+        onTap: (int index) {
+          setState(() {
+            //改变状态
+            this._currentIndex = index;
+          });
+        },
+        iconSize: 36.0, //icon的大小
+        fixedColor: Colors.red, //选中的颜色
+        type: BottomNavigationBarType.fixed, //配置底部tabs可以有多个按钮
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("首页")),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.category), title: Text("分类")),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text("设置"))
+        ],
+      ),
+      drawer: Drawer(
+          child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                // child: DrawerHeader(
+                //   child: Text('你好'),
+                //   decoration: BoxDecoration(
+                //     color:Colors.yellow,
+                //     image: DecorationImage(
+                //       image: NetworkImage("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3230740943,2194698121&fm=27&gp=0.jpg"),
+                //       fit:BoxFit.cover,
+                //     ),
+                //   ),
+                // ),
+                child: UserAccountsDrawerHeader(
+                  currentAccountPicture: CircleAvatar(
+                    backgroundImage: NetworkImage(
+                        "https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1547205045,3791549413&fm=27&gp=0.jpg"),
+                  ),
+                  accountName: Text('侧边栏'),
+                  accountEmail: Text('12345678@qq.com'),
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                    image: NetworkImage(
+                        "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3230740943,2194698121&fm=27&gp=0.jpg"),
+                    fit: BoxFit.cover,
+                  )),
+                ),
+              ),
+            ],
+          ),
+          ListTile(
+              leading: CircleAvatar(child: Icon(Icons.home)),
+              title: Text('我的主页')),
+          Divider(), //一根线的效果
+          ListTile(
+            leading: CircleAvatar(child: Icon(Icons.people)),
+            title: Text('用户中心'),
+            onTap: () {
+              Navigator.of(context).pop(); //隐藏侧边栏
+              Navigator.pushNamed(context, '/user'); //路由跳转
+            },
+          ),
+          Divider(),
+          ListTile(
+              leading: CircleAvatar(child: Icon(Icons.settings)),
+              title: Text('设置中心')),
+        ],
+      )),
+    );
+  }
+}
+
+```
+
+
+
+###### ListView 
+
 ```
 import 'package:flutter/material.dart';
 
@@ -233,475 +1525,200 @@ class MyApp extends StatelessWidget{
   }
 }
 ```
-网格组件 GridView
+###### 时间
+
 ```
-import 'package:flutter/material.dart';
+1 获取当前时间
+var now = new DateTime.now(); //  2021-06-08 00:28:46.473818
+now.microsecondsSinceEpoch //时间戳
 
-void main ()=> runApp(MyApp());
+//格式化库
+date_format: ^2.0.2
 
-class MyApp extends StatelessWidget{
+import 'package:date_format/date_format.dart';
+
+
+formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd]) //根据日期
+print(formatDate(DateTime.fromMicrosecondsSinceEpoch(1623112126473818),[yyyy, '-', mm, '-', dd])); //根据时间戳格式化
+```
+
+#### 基本路由
+
+```dart
+//一个按钮
+ onPressed: () {
+     //跳转页面
+     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+         //需要跳转的页面  传递参数
+         return HomePage(title: "title");
+     }));
+ },
+    
+//返回按钮
+onPressed:(){
+    Navigator.of(context).pop();
+},
+
+
+//接受参数
+class HomePage extends StatelessWidget {
+    
+  String title;
+  HomePage({this.title = "HomePage"});
+    
   @override
-  Widget build(BuildContext context){
-    return MaterialApp(
-      title:'gridView组件',
-      home:Scaffold(
-        appBar:new AppBar(
-          title: new Text('gridView组件'),
-        ),
-        
-        body:GridViewCount(),
-        // body:OilGridView(), 
-      ),
-    );
-  }
-}
-
-// 另一种写法
-class OilGridView extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return GridView(
-      gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        // 纵轴间距
-        mainAxisSpacing: 2,
-        // 横轴间距
-        crossAxisSpacing: 3,
-        // 宽 高 比
-        childAspectRatio: 0.7,
-      ),
-       children: <Widget>[
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-            fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-            fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-            fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-            fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-            fit:BoxFit.cover),
-             new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-             fit:BoxFit.cover),
-              new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-              fit:BoxFit.cover),
-               new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-               fit:BoxFit.cover),
-                new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',
-                fit:BoxFit.cover),
-          ],
-    );
-  }
-}
-
-
-//横轴具有最大个数
-class GridViewCount extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return GridView.count(
-          // 四周的间距
-          padding: const EdgeInsets.all(10),
-          //横轴的数量
-          crossAxisCount: 4,
-          //纵轴的间距
-          mainAxisSpacing: 20,
-          //横轴的间距
-          crossAxisSpacing: 10,
-          // 宽 高 比
-          childAspectRatio: 0.7,
-          children: <Widget>[
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-            new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-             new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-              new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-               new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-                new Image.network('http://t9.baidu.com/it/u=4241966675,2405819829&fm=79&app=86&f=JPEG?w=1280&h=854',fit:BoxFit.cover),
-          ],
-        );
-  }
-}
-```
-Row 水平布局
-```
-import 'package:flutter/material.dart';
-
-void main ()=> runApp(MyApp());
-
-class MyApp extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return MaterialApp(
-      title:'Row 布局',
-      home:Scaffold(
-        appBar:new AppBar(
-          title:new Text('标题')
-        ),
-        body:Row3(),
-      ),
-    );
-  }
-}
-//不灵活的水平布局
-class Row1 extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return new Row(
-          children: <Widget>[
-            new RaisedButton(onPressed: (){},
-            color:Colors.green[400],
-            child:new Text('按钮1')
-            ),
-             new RaisedButton(
-                onPressed: (){},
-                color:Colors.redAccent,
-                child:new Text('红色按钮')
-              ),
-            new RaisedButton(onPressed: null,
-            color:Colors.blue,
-            child:new Text('按钮')
-            ),
-             new RaisedButton(onPressed: null,
-            color:Colors.blue,
-            child:new Text('按钮')
-            ),
-             new RaisedButton(onPressed: null,
-            color:Colors.blue,
-            child:new Text('按钮')
-            ),
-          ],
-        );
-  }
-}
-//灵活的布局 自动充满一行
-class Row2 extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return new Row(
-      children: <Widget>[
-        Expanded(
-          child: new RaisedButton(onPressed: (){},
-          color:Colors.greenAccent,
-          child:new Text('按钮')
-          ),
-        ),
-         Expanded(
-          child: new RaisedButton(onPressed: (){},
-          color:Colors.greenAccent,
-          child:new Text('按钮')
-          ),
-        ),
-         Expanded(
-          child: new RaisedButton(onPressed: (){},
-          color:Colors.greenAccent,
-          child:new Text('按钮')
-          ),
-        ),
-        Expanded(
-          child: new RaisedButton(onPressed: (){},
-          color:Colors.greenAccent,
-          child:new Text('按钮')
-          ),
-        ),
-      ],
-    );
-  }
-}
-// 灵活与不灵活一起
-class Row3 extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return new Row(
-      children: <Widget>[
-        new RaisedButton(onPressed: (){},
-        color:Colors.green[400],
-        child:new Text("按钮")
-        ),
-        //这个固定其余充满空间
-        Expanded(child:new RaisedButton(onPressed: (){},
-        color:Colors.green[400],
-        child:new Text("按钮")
-        ),),
-        new RaisedButton(onPressed: (){},
-        color:Colors.green[400],
-        child:new Text("按钮")
-        ),
-      ],
-    );
-  }
-}
-```
-Column 垂直布局
-```
-// cross轴：cross轴我们称为幅轴，是和主轴垂直的方向。比如Row组件，那垂直就是幅轴，Column组件的幅轴就是水平方向的。
-//不灵活的水平布局
-class Column3 extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return new Column(
-      //依据最宽的文字 其余的居中
-      crossAxisAlignment: CrossAxisAlignment.center,
-      // 竖直方向对齐
-      mainAxisAlignment: MainAxisAlignment.center,
-      // CrossAxisAlignment.star：居左对齐。
-      // CrossAxisAlignment.end：居右对齐。
-      // CrossAxisAlignment.center：居中对齐。
-      children: <Widget>[
-        Text('6666'),
-        Text('6666777777'),
-        Text('6666'),
-        Text('6666'),
-      ],
-    );
-  }
-}
-```
-stack 层叠布局
-```
-import 'package:flutter/material.dart';
-
-void main ()=> runApp(MyApp());
-
-class MyApp extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    //适用于连个元素层叠
-    var stack = new Stack(
-      // 定位  x y  0到1 
-      alignment:const FractionalOffset(0.5, 0.9),
-      children: <Widget>[
-        new CircleAvatar(
-          backgroundImage:new NetworkImage('http://b-ssl.duitang.com/uploads/item/201703/26/20170326161532_aGteC.jpeg'),
-          radius:100,
-        ),
-        new Container(
-          decoration: new BoxDecoration(
-            color:Colors.lightBlue[50],
-          ),    
-          padding: EdgeInsets.all(2),
-          child: new Text('王红旗'),
-        ),
-      ],
-    );
-    return MaterialApp(
-      title:'Stack层叠布局',
-      home:Scaffold(
-        appBar:new AppBar(
-          title:new Text('stack层叠布局')
-        ),
-        body:Center(child:stack)
-      )
-    );
-  }
-}
-```
-Positioned 多个层叠绝对定位
-```
-import 'package:flutter/material.dart';
-
-void main ()=> runApp(MyApp());
-
-class MyApp extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    //适用于连个元素层叠
-    var stack = new Stack(
-      // 定位  x y  0到1 
-      alignment:const FractionalOffset(0.5, 0.9),
-      children: <Widget>[
-        new CircleAvatar(
-          backgroundImage:new NetworkImage('http://b-ssl.duitang.com/uploads/item/201703/26/20170326161532_aGteC.jpeg'),
-          radius:100,
-        ),
-        // 相当于绝对定位
-        new Positioned(
-          top:140,
-          left:80,
-          child:new Text('name')
-        ),
-        new Positioned(
-          top:160,
-          left:85,
-          child:new Text('age')
-        ),
-      ],
-    );
-    return MaterialApp(
-      title:'Stack层叠布局',
-      home:Scaffold(
-        appBar:new AppBar(
-          title:new Text('stack层叠布局')
-        ),
-        body:Center(child:stack)
-      )
-    );
-  }
-}
-```
-card 布局
-```
-import 'package:flutter/material.dart';
-
-void main ()=> runApp(MyApp());
-
-class MyApp extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    var card = new Card(
-      child:new Column(
-       children: <Widget>[
-          ListTile(
-          title:new Text('文不能'),
-          subtitle: new Text('计数棒：17637067893'),
-          // 左侧图标
-          leading:new Icon(Icons.arrow_upward,color:Colors.amberAccent),
-          //右侧图标
-          // trailing: Icon(Icons.more_vert),
-        ),
-        //分割线
-        new Divider(),
-        ListTile(
-          title:new Text('文不能'),
-          subtitle: new Text('计数棒：17637067893'),
-          leading:new Icon(Icons.arrow_upward,color:Colors.amberAccent)
-        ),
-        new Divider(),
-        ListTile(
-          title:new Text('文不能'),
-          subtitle: new Text('计数棒：17637067893'),
-          leading:new Icon(Icons.arrow_upward,color:Colors.amberAccent)
-        ),
-        new Divider(),
-       ],
-      ),
-    );
-    return MaterialApp(
-      title:'卡片布局',
-      home:Scaffold(
-        appBar:new AppBar(
-          title:new Text('卡片布局'),
-        ),
-        body:Center(child:card),
-      ),
-    );
-  }
-}
-```
-路由 Navigator
-```
-//  pushReplacementName 替换路径
-// 返回根路径 
-Navigator.of(context).pushAndRemoveUntil(
-new MaterialPageRoute(builder:(context) => new Tabs),
-(route)=>route == null
-)
-
-import 'package:flutter/material.dart';
-
-void main(){
-  runApp(MaterialApp(
-    title:'导航演示1',
-    home:new FirstScreen()
-  ));
-}
-
-class FirstScreen extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return new Scaffold(
-      appBar:AppBar(title:Text('导航页面')),
-      body:Center(
-        child: RaisedButton(
-          child: Text('查看详情'),
-          onPressed: (){
-            Navigator.push(context,new MaterialPageRoute(
-              builder: (context) => new SecondScreen())
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class SecondScreen extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      appBar:AppBar(
-        title:Text('详情页面'),
-      ),
-      body: Center(child:RaisedButton(
-          child: Text('返回'),
-          onPressed: (){
-            Navigator.pop(context);
-          },
-      ),),
-    );
-  }
-}
-```
-## 命名路由
-```
-main.dart中   使用
-
-
-import './components/demo15/home.dart';
-import './routes/Routes.dart';
-
-class MyApp extends StatelessWidget {
-    @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    print(this.title);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("homepage"),
       ),
-      //命名路由
-      home:HomePage(),
-   // 使用路由
-      onGenerateRoute:onGenerateRoute
+      body: Container(
+        child: Text(this.title),
+      ),
     );
   }
 }
-
-
-新建路由文件
-import 'package:flutter/material.dart';
-import '../components/demo15/pages/page1.dart';
-import '../components/demo15/pages/page2.dart';
-import '../components/demo15/pages/page3.dart';
-
-// 配置页面路由
-  final routes={
-    '/page1':(context,{arguments})=>Page1(arguments:arguments),
-    '/page2':(context,{arguments})=>Page2(arguments:arguments),
-    '/page3':(context,{arguments})=>Page3(arguments:arguments),
-  };
-
-// 实现跳转
-  var onGenerateRoute = (RouteSettings settings) {
-    // 统一处理
-    final String name = settings.name;
-    final Function pageContentBuilder =routes[name];
-    if (pageContentBuilder != null) {
-      if (settings.arguments != null) {
-        final Route route = MaterialPageRoute(
-            builder: (context) => pageContentBuilder(context,
-                arguments: settings.arguments));
-        return route;
-      } else {
-        final Route route = MaterialPageRoute(
-            builder: (context) => pageContentBuilder(context));
-        return route;
-      }
-    }
-  };
 ```
+
+#### 替换路由
+
+```
+Navigator.of(context).pushReplacementNamed("/register");
+```
+
+#### 返回跟路由
+
+```dart
+ //返回到指定根路由
+Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (context) => new Tabs(index: 2,)),
+    (route) => route == null);
+```
+
+
+
+#### 返回按钮传值
+
+1 重写按钮
+
+```dart
+appBar: AppBar(
+    title: Text("homepage"),
+    leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () {
+            Navigator.of(context).pop("返回消息");
+        },
+    ),
+),
+```
+
+2 使用WillPopScope组件
+
+```dart
+WillPopScope(
+    child:Scaffold(),//包括其他组件
+    OnWillPop:(){
+        Navigator.of(context).pop("title")
+            return Future.value(true)
+    }
+)
+```
+
+#### 命名路由
+
+```dart
+创建路由配置
+final routes = {
+  "/home": (context) => HomePage(),
+  '/MenuPage': (context, {arguments}) => MenuPage(arguments: arguments),
+};
+
+//固定写法
+var onGenerateRoute = (RouteSettings settings) {
+  // 统一处理
+  final String? name = settings.name;
+  final Function? pageContentBuilder = routes[name];
+  if (pageContentBuilder != null) {
+    if (settings.arguments != null) {
+      final Route route = MaterialPageRoute(
+          builder: (context) =>
+              pageContentBuilder(context, arguments: settings.arguments));
+      return route;
+    } else {
+      final Route route =
+          MaterialPageRoute(builder: (context) => pageContentBuilder(context));
+      return route;
+    }
+  }
+};
+
+点击按钮传参
+Navigator.pushNamed(context, '/MenuPage', arguments: "你好")
+//接受参数
+class MenuPage extends StatelessWidget {
+  final arguments;
+  MenuPage({this.arguments});
+  @override
+  Widget build(BuildContext context) {
+    print(this.arguments);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("MenuPage"),
+      ),
+      body: Container(
+        child: Text("MenuPage"),
+      ),
+    );
+  }
+}
+```
+#### 动态组件传参
+
+```dart
+1 添加路由
+'/product': (context, {arguments}) => ProductPage(arguments: arguments),
+
+2 页面跳转
+Navigator.pushNamed(context, '/product', arguments: {"id": 1000});
+
+3 接受参数
+通过构造函数层层传递
+class ProductPage extends StatefulWidget {
+  final arguments;
+  const ProductPage({this.arguments, Key? key}) : super(key: key);
+
+  @override
+  _ProductPageState createState() =>
+      _ProductPageState(arguments: this.arguments);
+}
+
+class _ProductPageState extends State<ProductPage> {
+  var arguments;
+  _ProductPageState({this.arguments});
+  @override
+  void initState() {
+    super.initState();
+    print(this.arguments);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("商品页面"),
+      ),
+      body: Container(
+        child: Text("商品页面"),
+      ),
+    );
+  }
+}
+```
+
+
+
 底部导航切换页面显示
 
 ```
@@ -1411,7 +2428,7 @@ class _WrapDemoState extends State<WrapDemo> {
   }
 }
 ```
-## ExpansionTile
+#### ExpansionTile
 
 ![截屏2020-06-02下午12.32.19.png](https://upload-images.jianshu.io/upload_images/16514325-f6653ba7c69c237e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
@@ -1450,7 +2467,7 @@ class ExpansionTileDemo extends StatelessWidget {
   }
 }
 ```
-## ExpansionPanelList
+#### ExpansionPanelList
 ![截屏2020-06-02下午1.20.27.png](https://upload-images.jianshu.io/upload_images/16514325-33580cd8215cc7f7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 ```
 // ExpansionPanelList 必须放在可滚动的控件内
@@ -1525,7 +2542,7 @@ class _ExpansionPanelListDemoState extends State<ExpansionPanelListDemo> {
   }
 }
 ```
- ## 波浪行
+ #### 波浪行
 ![截屏2020-06-02下午2.04.53.png](https://upload-images.jianshu.io/upload_images/16514325-98385003c658a4c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ```
@@ -1579,7 +2596,7 @@ class BottomClipperTest extends CustomClipper<Path>{
 
 }
 ```
-## 打开引用前的动画
+#### 打开引用前的动画
 ![截屏2020-06-02下午2.47.56.png](https://upload-images.jianshu.io/upload_images/16514325-697b6fc3c929ee8b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 ```
 import 'package:flutter/material.dart';
@@ -1785,7 +2802,7 @@ class _DraggableDemoState extends State<DraggableDemo> {
   }
 }
 ```
-## 侧边栏
+#### 侧边栏
 ![image.png](https://upload-images.jianshu.io/upload_images/16514325-ad694921ebebaeea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
@@ -1855,7 +2872,8 @@ class HomePage extends StatelessWidget {
   }
 }
 ```
-表单
+#### 表单
+
 ```
 import 'package:flutter/material.dart';
 
@@ -1956,108 +2974,10 @@ class _TextDemoState extends State<TextDemo> {
   }
 }
 ```
-## CheckBox
-```
-import 'package:flutter/material.dart';
 
-class CheckBoxDemo extends StatefulWidget {
-  @override
-  _CheckBoxDemoState createState() => _CheckBoxDemoState();
-}
 
-class _CheckBoxDemoState extends State<CheckBoxDemo> {
-  var flag = true;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Checkbox(value: flag, onChanged: (val){
-              setState(() {
-                flag = val;
-              });
-            },
-            activeColor: Colors.red,)
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            Text(flag?'选中':'未选中')
-          ],
-        ),
-        SizedBox(height: 50,),
-        Divider(),
-        CheckboxListTile(
-          value: flag,
-          onChanged: (v){
-            setState(() {
-              flag = v;
-            });
-          },
-          title: Text('标题'),
-          subtitle: Text('二级标题'),
-          secondary: Icon(Icons.hdr_off),
-        )
-      ],
-    ),
-    );
-  }
-}
-```
+#### 时间控件
 
-单选框
-```
- RadioListTile(
-                value:2,
-                onChanged: (v){
-                  setState(() {
-                      this.sex=v;
-                  });
-                },
-                groupValue:this.sex ,
-                 title: Text("标题"),
-                subtitle:Text("这是二级标题") ,
-                secondary:Image.network('https://www.itying.com/images/flutter/1.png'),
-                selected: this.sex==2,
-            ),
-             RadioListTile(
-                value:2,
-                onChanged: (v){
-                  setState(() {
-                      this.sex=v;
-                  });
-                },
-                groupValue:this.sex ,
-                 title: Text("标题"),
-                subtitle:Text("这是二级标题") ,
-                secondary:Image.network('https://www.itying.com/images/flutter/1.png'),
-                selected: this.sex==2,
-            ),
-
- Radio(
-          //       value: 1,
-          //       onChanged: (v){
-          //         setState(() {
-          //           sex = v;
-          //         });
-          //       },
-          //       groupValue: sex,
-          //     ),
-          //     Text('美女'),
-          //      Radio(
-          //       value: 2,
-          //       onChanged: (v){
-          //         setState(() {
-          //           sex = v;
-          //         });
-          //       },
-          //       groupValue: sex,
-          //     )
-```
-时间控件
 ```
 // 获取当前时间 new DateTime.now();
 // 转换成时间戳 now.millisecondsSinceEpoch
@@ -2162,7 +3082,7 @@ class _DateDemoState extends State<DateDemo> {
 }
 
 ```
-时间第三方库
+#### 时间第三方库
 
 ```
 import 'package:flutter/material.dart';
@@ -2247,7 +3167,8 @@ class _OtherDateTimeState extends State<OtherDateTime> {
   }
 }
 ```
-轮播图 swiper
+#### 轮播图 swiper
+
 ```
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
@@ -2311,17 +3232,12 @@ class _SwiperDemoState extends State<SwiperDemo> {
 }
 
 ```
-弹框 dialog
-```
-import 'package:flutter/material.dart';
+#### 弹框 dialog
 
-class DialogDemo extends StatefulWidget {
-  @override
-  _DialogDemoState createState() => _DialogDemoState();
-}
+![image-20210608085221521](G:\note\image\image-20210608085221521.png)
 
-class _DialogDemoState extends State<DialogDemo> {
-  // 确定取消 对话框
+```dart
+// 确定取消 对话框
   _alertDialog ()async {
     var result = await showDialog(context: context,
      builder: (context) {
@@ -2350,6 +3266,13 @@ class _DialogDemoState extends State<DialogDemo> {
     );
      print(result);
   }
+```
+
+simpleDialog
+
+![image-20210608085350379](G:\note\image\image-20210608085350379.png)
+
+```
     _simpleDialog ()async {
     var result = await showDialog(context: context,
      builder: (context) {
@@ -2385,8 +3308,15 @@ class _DialogDemoState extends State<DialogDemo> {
      },
     );
      print(result);
-  }  
-  _modelBottomSheet() async{
+  } 
+```
+
+bottom
+
+![image-20210608085524795](G:\note\image\image-20210608085524795.png)
+
+```
+_modelBottomSheet() async{
     var result = showModalBottomSheet(context: context,
      builder:(context){
        return Container(
@@ -2419,112 +3349,72 @@ class _DialogDemoState extends State<DialogDemo> {
        );
      }
      );
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('弹框'),
-      ),
-      body: Center(
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            RaisedButton(onPressed: (){
-              _alertDialog();
-            },child:Text('alertDialog')),
-            RaisedButton(onPressed: (){
-              _simpleDialog();
-            },child:Text('_simpleDialog')),
-            RaisedButton(onPressed: (){
-              _modelBottomSheet();
-            },child:Text('底部弹框'))
-          ],
-        ),
-      ),
-    );
-  }
-}
 ```
-数据请求与渲染
-##  http
-```
-import 'dart:convert';
 
-import 'package:flutter/material.dart';
-// import 'dart:convert' as convert;
-import 'package:http/http.dart' as http;
-
-// 数据请求回来的是JSON 字符串 要转换成Map类型才能用
-
-//  json.encode(mapData) Map 转换成JSON 字符串
-
-//  json.decode(JSONData)  Json 转 map
-
-  // _getList(){
-  //   // List<Widget> list=[];
-  //   Widget content;
-  //   content= ListView(
-  //     children:_mapData.map((item){
-  //     return ListTile(
-  //           title: Text('${item['username']}'),
-  //           subtitle:Text('${item['title']}') ,
-  //         );
-  //       }).toList(),
-  //   );
-  //   return content;
-  // }
-
-
-var url = "http://iwenwiki.com/api/FingerUnion/list.php";
-
-class RequestDemo extends StatefulWidget {
-  RequestDemo({Key key}) : super(key: key);
+####  数据请求
+```dart
+class GetData extends StatefulWidget {
+  const GetData({Key? key}) : super(key: key);
 
   @override
-  _RequestDemoState createState() => _RequestDemoState();
+  _GetDataState createState() => _GetDataState();
 }
 
-class _RequestDemoState extends State<RequestDemo> {
-  List _mapData=[];
+class _GetDataState extends State<GetData> {
+  List list = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _getDate();
+    // this._getData();
+    //获取数据
+    this.getHttp();
   }
 
-  _getDate() async {
-    var result = await http.get(url);
-    if (result.statusCode == 200) {
+  _getData() async {
+    var url = Uri.parse('http://jd.itying.com/api/pcate');
+    var response = await http.get(url);
+    // await http .post(url, body: {'name': 'doodle', 'color': 'blue'}); //get请求
+    // post请求
+    print('Response status: ${response.statusCode}');
+    print(response.body is Map);
+    if (response.statusCode == 200) {
       setState(() {
-         this._mapData = jsonDecode(result.body)['data'];
+        this.list = json.decode(response.body)["result"];
       });
-    } else {
-      print(result.statusCode);
     }
   }
 
-  
+  void getHttp() async {
+    try {
+      var response = await Dio().get('http://jd.itying.com/api/pcate');
+      print(response.data['result']);
+      setState(() {
+        this.list = response.data['result'];
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('数据请求'),
-      ),
-      body:_mapData.length>0?ListView(
-        children:_mapData.map((value){
-          return ListTile(
-            title: Text("${value['title']}"),
-            leading: Image.network("${value['cover']}",fit: BoxFit.cover,),
-          );
-        }).toList()
-      ):Text('数据加载中'),
+    print(this.list.length);
+    return Container(
+      child: this.list.length > 0
+          ? ListView.builder(
+              itemBuilder: (context, index) {
+                return Text(
+                  this.list[index]['title'],
+                  style: TextStyle(fontSize: 50, color: Colors.green),
+                );
+              },
+              itemCount: this.list.length,
+            )
+          : Text("数据加载中"),
     );
   }
 }
-
 ```
 #### DIO
 ```
@@ -2698,7 +3588,7 @@ import '../routers/application.dart';
             Application.router.navigateTo(context, "/detail?id=${item['id']}");
           },
 ```
-## 数据持久化 shared_preferences
+#### 数据持久化 shared_preferences
 ```
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -2785,3 +3675,54 @@ class _CartPageState extends State<CartPage> {
 }
 
 ```
+
+#### Provider
+
+1 引入依赖
+
+2 创建provider文件
+
+```dart
+import 'package:flutter/cupertino.dart';
+
+// ignore: unused_import
+import 'package:provider/provider.dart';
+
+class CountProvider extends ChangeNotifier {
+  int _count = 0;
+
+  //获取值
+  get count => _count;
+  //添加值
+  add() {
+    _count++;
+    notifyListeners();
+  }
+}
+
+```
+
+3 main.dart导入
+
+```dart
+void main() => runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => CountProvider(), //一个文件一行
+        )
+      ],
+      child: MyApp(),
+    ));
+```
+
+4 获取 修改
+
+```dart
+
+//当前文件                 获取值的方法
+Provider.of<CountProvider>(context).count.toString()
+
+//修改值
+context.read<CountProvider>().add();  //调用修方法
+```
+
