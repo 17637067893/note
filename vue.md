@@ -59,8 +59,6 @@ export default defineComponent({
 </script>
 ```
 
-
-
 ###### 2 ref
 
 ```js
@@ -98,6 +96,8 @@ export default defineComponent({
 </template>
 
 <script lang="ts">
+    
+    
 import {defineComponent,toRef} from 'vue'
 export default defineComponent({
  setup(){
@@ -118,9 +118,54 @@ ref和toRef的区别
 
 ```
 1 ref 本质是拷贝，修改响应式数据不会影响元数据，界面会刷新
-2 toRef 是引用关心 修改数据元数据也会改变但不会刷新视图
+2 toRef 是引用关系 修改数据元数据也会改变但不会刷新视图
 3 toRef接受两个参数 ref一个参数
 toRefs  多个属性都变成响应式数据，并且要求响应式数据和原始数据关联，并且更新响应式数据的时候不更新界面
+```
+
+###### 4 使用声明周期
+
+```js
+import { onMounted} from 'vue'
+setup: () => {
+    onMounted(()=>{
+        console.log("onMounted");
+    })
+}
+```
+
+###### 5 请求数据
+
+```js
+import { reactive, onMounted } from 'vue'
+
+export default {
+    setup() {
+        const state = reactive({
+            hits: []
+        })
+        onMounted(async () => {
+            const data = await fetch(
+                'https://hn.algolia.com/api/v1/search?query=vue'
+            ).then(rsp => rsp.json())
+            state.hits = data.hits
+        })
+        return state
+    }
+}
+```
+
+###### 6 获取DOM
+
+```
+<h1 ref="myRef"></h1>
+
+import {ref,onMounted} from "vue";
+
+const myRef=ref(null);
+onMounted(()=>{
+  console.log(myRef.value)
+})
 ```
 
 
@@ -164,7 +209,7 @@ function userCounter(){
 }
 ```
 
-#### ref函数
+###### ref函数
 
 ref 和 reactive 一样都是实现响应式数据的方法
 
@@ -537,6 +582,8 @@ export default{
 
 #### keep-alive
 
+keep-alive
+
 ```html
 <keep-alive>
   <router-view></router-view>
@@ -549,6 +596,9 @@ export default{
   <component :is="User"></component>    
 </keep-alive>
 </router-view>
+
+keep-alive 是vue内部的一个组件，接受includes exclude不缓存组件的数组，在created时 创建缓存保存vnode节点对象cache 和对象的keys值，在mounted是，会监听includes和exclueds数组的更新cache里缓存，在destroy时会清空cache容器
+在render时通过  getFirstComponentChild 获取第一个子组件通过name在include与exclude进行匹配，如果匹配成功通过组件的name和tag生成的组件ID在cache容器中取出缓存的vnode，改在到节点上
 ```
 
 #### globalProperties
@@ -594,6 +644,10 @@ export default defineComponent({
 
 ![image-20210605095129814](G:\note\image\image-20210605095129814.png)
 
+```
+1 vue3.0中在创建虚拟DOM树时，会根据DOM中的内部会不会发生变化添加静态标记，在调用diff算法比较新旧DOM时 只会比较带静态标记的节点
+```
+
 ### ![image-20210603155511754](G:\note\image\image-20210603155511754.png)
 
 ![image-20210603155529074](G:\note\image\image-20210603155529074.png)
@@ -604,13 +658,11 @@ export default defineComponent({
 
 ![image-20210603191811055](G:\note\image\image-20210603191811055.png)
 
-
-
 ```
 Obserser订阅者
 Dep 收集依赖
 watcher观察者
-当Vue创建实例时会遍历data属性利用Object.defineProperty,为每个属性添加getter,getter方法数据劫持，在getter时进行依赖，setter时派发更新，当数据更新时通过getter方法里的dep.notify()方法通知wather去对比更新视图；
+当Vue创建实例时会遍历data属性利用Object.defineProperty,为每个属性添加getter,getter方法数据劫持，在getter时进行依赖，setter时派发更新，当数据更新时通过getter方法里的dep.notify()方法通知wather去调用upate函数更新视图；
 
 
 缺点
@@ -621,10 +673,8 @@ watcher观察者
 ###### vue3.0
 
 ```
-使用了proxy代理进行数据劫持，Reflect修改数据 在setter 中使用track收集依赖 setter时通过trigger派发更新
+使用了proxy代理进行数据劫持，Reflect修改数据 在getter 中使用track收集依赖 setter时通过trigger派发更新
 ```
-
-
 
 nextick
 
@@ -653,7 +703,7 @@ new Vue()实例data是一个对象，但是组件中data必须是一个函数
 computer 原理
 
 ```
-在initComputed的时候，会将compotuted的每个key添加一个watcher，watcher的getter方法就是我们写的函数，当依赖变化时 将lazy设置为true，并不计算值，然后将computed的key通过设置defineProperty getter setter设置到vm上，让组件的渲染watcher 收集依赖，当依赖变化时，触发渲染watcher更新方法，会判断dirty 如果true计算更新 如果为false直接取值
+在initComputed的时候，会将compotuted的每个key添加一个watcher，watcher的getter方法就是我们写的函数，初始时把dirty设置为出，获取computed属性值时，根据setter计算出值，并保存在观察者上，然后把dirty设置为false，之后再次获取值时从观察者上直接取值，如果setter的依赖会发生变化，会修改dirty为true,下次重新计算值
 ```
 
 ##### 兄弟组件传值
@@ -907,15 +957,29 @@ export default defineComponent({
 		}
 	}
 </script>
+
+
+//传递响应式数据
+
+let theme = ref("dark");
+provide("theme",theme);
+setInterval(()=>{
+  theme.value+="1";
+},1000)
+
+接受
+<h1>{{theme}}</h1>
+const theme = inject("theme")
 ```
 
 #### vuex原理
 
 ```
-vuex就是一个类或者是对象,上面有个.install方法 install 方法中有mixin方法,实现了在before之前调用vuexInit方法 给Vue实例上挂载$store = store属性
+vuex就是一个类或者是对象,上面有个.install方法 install 方法中有applymixin方法,实现了在before之前调用vuexInit方法 给Vue实例上挂载$store = store属性
 由于vue的插件机制 Vue.use()时会调用install方法执行后续操作
 
-vuex是响应式的原因是 会把state方法vue实例的data中,利用data的响应式原理
+vuex是响应式的原因是 
+会把state方法vue实例的data中,利用data的响应式原理
 
 getter mutations actions
 
@@ -940,21 +1004,71 @@ router.push({path:'/about',query:{id:100}}) //刷新不消失
 
 ```
 1 已经存在的元素可以直接被监听到 新增的元素不会被监听到
-2 监听的方式 是重写了素组的七个方法，执行这些方法时调用deo.notify通知视图更新
+2 监听的方式 是重写了素组的七个方法，执行这些方法时调用dep.notify通知视图更新
 3 vue3.0 使用了proxy代理已经决绝了这种问题
 ```
 
 #### Vue异步更新DOM
 
 ```
-1 修改数据调用getter 触发water 把书友的watcher封装到到一个队列中
-2 然后执行nextTick传入flushSchedulerQueue回调对watcher做一些优先级处理，
-3 由于nextTick内封装了浏览器的异步API,所以就会异步调用watcher更新视图
+ 1 数据发生改变时触发watcher.update方法，在方法内部调用queueWatcher，把当前watcher存入到队列中还会对watcher去重，
+ 2 然后调用nextTick传入flushScheduleQueue传入wacher队列,通过nextTick内部封装类浏览器的异步API，在执行任务时，执行队列内部的每个watcher方法更新视图
+ 3 然后调用resetScheduleState重置状态等待下一轮更新
 ```
 
 #### watcher deep=true
 
 ```
 如果为true 会调用 traverse，对对象进行深度的递归收集依赖，只要依赖发生变化就更新视图
+```
+
+#### vue渲染原理
+
+```
+1 第一次渲染时通过render生成一个虚拟DOM树
+2 第二次渲染次通过render生成新的DOM树
+3 通过patch函数比较新旧DOM只把变化的地方渲染到页面
+```
+
+#### nextTick
+
+```
+ nextTick 方法会传入两个参数，一个回调函数，一个上下文。将回调函数存入callback数组中，判断是否正在执行回调函数，如果没有就执行timeFunc,利用内部的异步API执行callback中的方法
+```
+
+#### hash 和history
+
+引入路由的核心 改变试图的同时不会向后端发出请求
+
+```
+区别
+1 地址栏hash带#号
+2 hash 模式下  仅hash符号之前的内容会被包含在请求中，如http://www.abc.com,因此对于后端来说，即使没有做到对路由的全覆盖，也不会返回404错误。
+3 history模式下 前端的URL必须和实际向后端发起请求的URL一致。如htttp://www.abc.com/book/id。如果后端缺少对/book/id 的路由处理，将返回404错误
+```
+
+#### 路由懒加载
+
+```
+const routers = [
+    {
+        path: '/',
+        name: 'index',
+        component: () => import('@/components/Two')
+    }
+]
+```
+
+#### Vue异步组件
+
+只有在组件需要渲染的时候进行加载组件并缓存;
+
+#### Vue 和React Diff算法的区别
+
+```
+1 若果节点类型相同，calssName不同vue认为是不同的元素，会删除重建，react认为是相同的元素，修改属性
+2 vue 比较新旧DOM时调用Patch函数，一边比较一遍渲染DOM
+3 Vue vue 采用两边中间双指针比较，react 采用从左到右index，lastIndex比较
+如果一个元素从最后一个移动到第一个，vue会直接移动，react会逐个移动
 ```
 

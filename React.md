@@ -1,4 +1,6 @@
-+create-react-app my_app
+```
+npx create-react-app my-app
+```
 
 #### 消息订阅发布
 
@@ -19,8 +21,6 @@ PubSub.subscribe("user",(msg,data)=>{
   console.log(data);
 })
 ```
-
-
 
 #### 基本框架
 
@@ -44,6 +44,14 @@ ReactDOM.render(dom,document.getElementById('app'))
 </script>
 </body>
 ```
+#### constructor super
+
+```
+1如果不写 constructor 会react 会设置一个默认的
+2 如果写constructor必须写super()继承父类的this
+3 super(props)的作用就是在父类的构造函数中给props赋值一个对象this.props=props这样就能在它的下面定义你要用到的属性了，然而其他的由于没有传参就直接赋值为undefind
+```
+
 #### props类型验证
 
  ```react
@@ -109,19 +117,20 @@ class Father extends Component{
 <Father txt="666666" ></Father>
 ```
 子传父
-```
+```js
 父组件定义函数 传给子组件
-fn=(val)=>{
-		this.state.msg += val;
-		console.log(this.state.msg)
-	}
-	render(){
-		return(
-		  <div className="App">
-			<Father send={this.fn} ></Father>
-		  </div>
-		)
-	}
+fn=(val)=>{ //创建函数
+    this.state.msg += val;
+    console.log(this.state.msg)
+}
+render(){
+    return(
+        <div className="App">
+                  //通过props传入到子组件中
+                <Father send={this.fn} ></Father>
+        </div>
+        )
+}
 
 //子组件调用并传值
 <button onClick = {()=>{this.props.send(6)}}>改变颜色</button>
@@ -129,6 +138,7 @@ fn=(val)=>{
 
 <button onClick = {this.change}>改变颜色</button>
 change=() => {
+         //子组件通过 props.send()触发传入的函数
 		 this.props.send(1);
 		console.log(this.props)
 	}
@@ -624,6 +634,43 @@ class Demo4 extends React.Component{
 
 export default Demo4;
 ```
+1 属性代理
+
+```jsx
+function ppHOC(WrappedComponent) {
+  return class PP extends React.Component {
+    render() {
+      const newProps = {
+        user: currentLoggedInUser
+      }
+      return <WrappedComponent {...this.props} {...newProps}/>
+    }
+  }
+}
+```
+
+2 反向继承
+
+```jsx
+function ppHOC(WrappedComponent) {
+  return class ExampleEnhance extends WrappedComponent {
+    ...
+    componentDidMount() {
+      super.componentDidMount();
+    }
+    componentWillUnmount() {
+      super.componentWillUnmount();
+    }
+    render() {
+      ...
+      return super.render();
+    }
+  }
+}
+```
+
+
+
 #### 高阶组件的应用
 
 ```js
@@ -1065,76 +1112,45 @@ const mapDispatchToProps={
 export default connect(mapStateToProps,mapDispatchToProps)(About);
 ```
 
-
-
-
-
- 
-
 #### react HOOK
 
 ###### useState
 
 ```react
-强化了 函数式组件，是函数式组件也可以有状态
+const [number,setNumber] = useState(0);
 
-第一 useState
-import React,{useState} from 'react';
+//传入值
+setNumber(num+1);
 
-
-function App() {
-  const [number,setNumber] = useState(0)
-  function reduce(){
-    // 修改为1000
-    // setNumber(1000)
-    //数值加+1
-    setNumber(number+1)
-//数组的话
-setArr([arr,...arr1])
-  }
-  return (
-    <div className="App">
-      <div>number:{number}</div>
-      <button onClick={()=>setNumber(number+1)}>增加</button>
-      <button onClick={reduce}>减少</button>
-    </div>
-  );
-}
-
-export default App;
+//传入函数
+setNumber((prevNumber)=>{
+    return prevNumber+1
+})
 ```
-######  Effect
+######  useEffect
 
-与 componentDidMount 或 componentDidUpdate 不同，使用 useEffect 调度的 effect 不会阻塞浏览器更新屏幕，这让你的应用看起来响应更快。大多数情况下，effect 不需要同步地执行。在个别情况下（例如测量布局），有单独的 useLayoutEffect Hook 供你使用，其 API 与 useEffect 相同。
+与 componentDidMount 或 componentDidUpdate 不同，
+
+使用 useEffect 调度的 effect 不会阻塞浏览器更新屏幕，
+
+这让你的应用看起来响应更快。大多数情况下，effect 不需要同步地执行。在个别情况下（例如测量布局），有单独的 useLayoutEffect Hook 供你使用，其 API 与 useEffect 相同。
 
 ```react
-// componentDidUpdate(prevProps, prevState) {
-//     if(prevState.count !== this.state.count) {
-//         document.title = `You clicked ${this.state.count} times`
-//     }
-// }
+//没有依赖限制每次都执行
+useEffect(()=>{})
 
-//相当于 componentDidMount
-useEffect(()=>{
+//空数组只在页面加载时执行一次
+useEffect(()=>{},[])
 
-},[])
-//相当于 componentDidMount  componentDidUpdate
-useEffect(()=>{
-})
+// 相当于 componentDidMount 只有count发生变化才会执行componentDidUpdate
+useEffect(()=>{},[count])
 
-相当于 componentDidMount 只有count发生变化才会执行componentDidUpdate
-useEffect(()=>{
+//返回值函数 在页面卸载时执行
+useEffect(()=>{return function(){ 相当于 componentWillUnMount }})
 
-},[count])
+默认的useEffect（不带[]）中return的清理函数，它和componentWillUnmount有本质区别的，默认情况下return，在每次useEffect执行前都会执行，并不是只有组件卸载的时候执行。
 
-
-//相当于 componentDidMount componentDidUpdate componentWillUnMount
-useEffect(()=>{
-
-    return function(){
-     相当于 componentWillUnMount
-    }
-})
+默认的useEffect（不带[]）中return的清理函数，它和componentWillUnmount有本质区别的，默认情况下return，在每次useEffect执行前都会执行，并不是只有组件卸载的时候执行。
 
 使用
 
@@ -1143,8 +1159,6 @@ import React,{useState,useEffect} from 'react';
 // 无副作用
 function DemoEffect (){
     const [count,setCount] = useState(10)
-    // const [timer,setTimer] = useState(null)
-    //useDeffect 代替 componentWillMount  componentDidUpdate
     useEffect(()=>{
         let  timer = setTimeout(()=>{
             setCount(count + 1)
@@ -1194,43 +1208,54 @@ const TodoForm = ({eventHandle}) => {
     )
 }
 ```
-###### useCallback
+###### useCallback useMemo memo
 
-useCallback 可以说是 useMemo 的语法糖
+首先memo用来优化函数式组件的类似于PureComponent
+
+useMemo返回的是一个缓存的值，即memoized 值，而useCallback返回的是一个memoized 回调函数。
 
 ```js
-const memoCallback= useCallback(callback,array)
-
-返回一个 memoized 回调函数。
-
-callback是一个函数用于处理逻辑
-1 array 控制useCallback重新执⾏的数组，array改变时才会重新执⾏useCallback不传数组，每次更新都会重新计算
-2 空数组，只会计算一次
-3 依赖对应的值，对应的值发生变化重新计算
-useCallback返回值是callback本身（useMemo返回的是callback函数的返回值）
-```
-
-
-
-```react
-
-function App () {
-  const [ count, setCount ] = useState(0)
-  const add = useCallback(() => count + 1, [count])
-  // const add = useCallback(() => count + 1, []) 执行一次
+//当counter变化才更新组件
+const Counter = memo(function Counter(props) {
+  console.log('counter')
   return (
-    <div>
-      点击次数: { count }
-      <br/>
-      次数加一: { add() }
-      <button onClick={() => { setCount(count + 1)}}>点我</button>
-    </div>
-    )
-}
+      <div>
+          double is : {props.counter}
+      </div>
+  )
+})
 
 ```
 
-###### useReducer的使用
+useMemo
+
+```
+useMemo(()=>{})  //第二个参数不传 每次更新都会执行函数
+useMemo(()=>{},[])  //传入空数组 只会在首次加载页面执行函数
+useMemo(()=>{},[count===2])  // 首次加载页面执行 在count 1->2 2->3 时会执行
+```
+
+useCallback
+
+`seMemo`返回的是一个函数，则可以用`useCallback`省略顶层的函数
+
+```js
+这样返回的函数就会在组件重渲染时产生相同的句柄
+useMemo使用
+const onClick = useMemo(() => {
+    这里返回的依然是函数
+    return () => {
+        console.log('click')
+    }
+}, []);
+
+//useCallback使用
+const onClick = useCallback(() => {
+    console.log('click')
+}, []);
+```
+
+###### useReducer
 
 reducer函数是共享的,但是数据不是共享的，就是如果你把它导出，在多个文件里面使用，当改变一个reducer里面值的时候,是不会一起发生变化的
 
@@ -1267,15 +1292,21 @@ function Counter(){
 export default Counter
 ```
 
-###### context
+###### useContext
 
 跨越组件层级直接传递变量，实现共享
+
+const value = useContext(MyContext);
+
+上层组件中距离当前组件最近的 `<MyContext.Provider>` 的 `value` prop 决定
+
+即使祖先使用了React.memo 或shouldComponentUpdate,也会在组件本身用useContext时重新渲染
 
 ```js
 父组件
 import React, { useState , createContext } from 'react';
-
-const CountContext = createContext()
+//暴露出这个文件
+export const CountContext = createContext()
 
 function Example(){
 
@@ -1285,8 +1316,9 @@ function Example(){
         <div>
             <p>You clicked {count} times</p>
             <button onClick={()=>{setCount(count+1)}}>click me</button>
-    
+
             <CountContext.Provider value={count}>
+                <Counter />
             </CountContext.Provider>
 
         </div>
@@ -1297,7 +1329,7 @@ export default Example;
 
 子组件
 import React, { useState, useContext } from 'react';
-
+import {CountContext} from 父组件的位置
 function Counter(){
     const count = useContext(CountContext)    //一句话就可以得到count
     return (<h2>{count}</h2>)
@@ -1305,6 +1337,59 @@ function Counter(){
 ```
 
 ![image-20210525082108388](G:\note\image\image-20210525082108388.png)
+
+###### useReducer 加 useContext
+
+```jsx
+父组件
+import { useReducer,createContext } from "react";
+import Demo3 from "./components/Demo3";
+const initialState = {count: 0};
+
+export const reducerContext = createContext();
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return {...state,count:state.count+ action.payload};
+    default:
+      throw new Error();
+  }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({type: 'increment',payload:10})}>+</button>
+      {/* 把dispatch传出去 */}
+      <reducerContext.Provider value={{dispatch}}>
+        <Demo3></Demo3>
+      </reducerContext.Provider>
+    </>
+  );
+}
+export default App;
+
+子组件
+import {useContext} from "react";
+import {reducerContext} from "../App"
+function Demo3(){
+    // 接受dispatch函数
+   const {dispatch} = useContext(reducerContext);
+    function add(){
+        console.log(dispatch);
+        dispatch({type:"increment",payload:3})
+    }
+    return (<>
+      <h1>demo3</h1>
+      <button onClick={add}>按钮</button>
+     </>);
+}
+
+export default Demo3;
+```
 
 #### JSX 本质
 
@@ -1315,13 +1400,26 @@ jsx JSX的本质即React.createElement函数，React.createElement 即 h 函数�
 #### 合成事件
 
 ```properties
-DOM事件会冒泡到document上，document会生成一个统一的React event，在合成事件层会派发事件（通过target可以获取到哪个元素触发的事件，找到这个元素所在组件这个）
+ handleButtonClick = (event) =>{
+      //  event.nativeEvent.stopPropagation(); //阻止冒泡但是元素的其他事件还是会执行
+        event.nativeEvent.stopImmediatePropagation(); // 阻止冒泡,本元素其他事件不会执行
+        //该事件绑定的元素都在docuemnt上，执行时虽然没有阻止冒泡 但是在componentDidMount中绑定的事件还是会执行
+        console.log("button");
+        this.setState({
+            show:true
+        })
+       
+    }）
 
 为什么要合成事件机制？
 
 更好的兼容性和跨平台
 挂在到document，减少内存消耗，避免频繁解绑
 方便事件的统一管理（如事物机制）
+
+在组件挂载节点利用组件内声明的事件类型，document上注册事件，并制定统一回调函数dispatchEvent
+ 还会把所有的事件存储到对象(listenerBank)中 
+ 然后点击元素时会在冒泡到document时，触发dispatch，生成合成事件，获取所有父级元素查找listenerBack对象执行合成事件
 ```
 
 #### redux-thunk
@@ -1342,16 +1440,44 @@ DOM事件会冒泡到document上，document会生成一个统一的React event�
 
 #### react 渲染流程
 
-```
+```properties
 jsx会被babel编译为createElement函数调用 ，接受type,config,children 返回一个虚拟DOM对象。然后通过ReactDOM.render()渲染成真实DOM，在更新数据时使用render函数。根据diff算法比较新旧DOM,渲染到真实DOM 
+
+调度 调和 提交
+
+调度阶段
+根据requestIdleCallback 利用浏览器每帧渲染的空闲时间调度任务
+
+调和阶段
+根据虚拟DOM构建对应的Fiber链表，并在fiber记录更新的副作用
+
+提交阶段
+遍历effect链表 更新真实的DOM
 ```
 
-#### setState异步更新
+#### setState异步更p新
+
+setState是同步还是异步
+
+在声明周期和合成事件中是异步的,在原生事件或者定时器中是同步的
+
+传入对象和传入函数的区别
+
+ 传入对象，如果多次处理同一个变量会做合并处理
+
+传入函数 会接受上次的值，和props依次链式调用
 
 ```
-接受新的新状态不会立即更新存入pendingStates队列中
-如果通过addEventListener直接添加的或者狗钩子函数中的就是异步的，其他的例如定时器引起的都是异步的
-根据内部isBatchingUpdate变量默认为false 同步更新，如果调用事件处理函数会修改为batchUpdates修改为true异步更新
+首先调用enqueueSetState(this,particalState)
+获取fiber对象，计算过期时间，根据过期时间获取优先级
+使用createUpdate创建updata对象
+enqueueUpdate把update存入队列中
+调用 scheduleWork调度方法的更新，进根据过期时间判断优先级，在一定过期时间范围内合并任务，找到fiber的根节点从根节点处理
+使用 performUnitOfWork 进行diff DOM 
+然后在commit阶段遍历effectList更新真实的DOM
+
+使用processUpdateQueue()函数根据updateQueue队列得到最新的state
+把这些任务放入到 flushSyncCallbackQueue队列然后创建微任务方法，去执行队列中的方法更新DOM
 ```
 
 constructor
@@ -1366,5 +1492,232 @@ constructor(){
   ser()
 }
 
+```
+
+#### Redux
+
+原理
+
+```js
+作者：Nero
+链接：https://zhuanlan.zhihu.com/p/74279078
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+createStore(reducer, preloadedState, enhancer) {
+  // 转换参数
+  if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+    enhancer = preloadedState
+    preloadedState = undefined
+  }
+
+  function getState() {
+    // 返回当前的state， 可以调用store.getState()获取到store中的数据，
+    ...
+  }
+
+  function subscribe(listener) {
+    // 订阅一个更新函数（listener），实际上的订阅操作就是把listener放入一个listeners数组
+    // 然后再取消订阅，将更新函数从listeners数组内删除
+    // 但是注意，这两个操作都是在dispatch不执行时候进行的。因为dispatch执行时候会循环执行更新函数，要保证listeners数组在这时候不能被改变
+    ...
+  }
+
+  function dispatch(action) {
+    // 接收action，调用reducer根据action和当前的state，返回一个新的state
+    // 循环调用listeners数组，执行更新函数，函数内部会通过store.getState()获取state，此时的state为最新的state，完成页面的更新
+    ...
+  }
+
+  return {
+    dispatch,
+    subscribe,
+    getState,
+  }
+
+}
+```
+
+1 redux的工作流程
+
+```
+1 使用reducer创store,页面通过store.getState()获取store
+2 store.subscribe(render)收集页面更新放入数组中
+3 调用dispatch之后 返回新的state 调用listener函数更新页面
+```
+
+###### 1 为什么返回新的state
+
+```
+1 在dispatch时会判断是否为新的state如果为新的才会调用listener函数 触发页面更新
+```
+
+###### 2 applyMiddleware中间件
+
+```
+会重写diapatch方法，如果是函数就执行他，如果返回的是原来的对象就用原来的方式处理他
+```
+
+#### react Fiber
+
+```
+为了解决diff时间过长导致的卡顿问题,React Fiber用类似于requestIdleCallback的机制来做异步diff。但是之前的数据结构不支持这样的异步diff，于是React Fiber实现了类似于链表的数据结构，将原来递归diff变为现在的遍历diff，这样就方便做中断和恢复了。
+```
+
+#### render props
+
+把一些功能封装成组件通过函数传入子组件中，子组件使用这个函数就可以实现功能
+
+应用场景 
+
+1 通用业务抽离
+
+```jsx
+父组件
+<Demo4>
+    {({on,toggle})=>(<div>
+            {on && <h1>传入函数</h1>}
+            <button onClick={toggle}>按钮</button>
+     </div>)
+     }
+</Demo4>
+     
+组件内
+class Demo4 extends React.Component{
+    state = {
+        on:false
+    }
+    toggle = ()=>{
+        this.setState({
+            on:!this.state.on
+        })
+    }
+    render(){
+        const {children} = this.props;
+        return(
+            <div>
+               <h1>Demo4</h1>
+               {children({
+                   on:this.state.on,
+                   toggle:this.toggle
+               })}
+            </div>
+        );
+    }
+}
+```
+
+#### 自定义hook
+
+1 自定义hook，就是一个函数封装一些公用的逻辑。
+
+```jsx
+function useCounter() {
+    let [number, setNumber] = useState(0);
+    useEffect(() => {
+        setInterval(() => {
+            setNumber(number => number + 1);
+        }, 1000);
+    }, []);
+    return number;
+}
+function Counter1() {
+    let number = useCounter();
+    return (
+        <div>{number}</div>
+    )
+}
+function Counter2() {
+    let number = useCounter();
+    return (
+        <div>{number}</div>
+    )
+}
+
+function App() {
+    return (
+        <div>
+            <Counter1 />
+            <h1 />
+            <Counter2 />
+        </div>
+    )
+}
+export default App
+```
+
+#### hook中的坑
+
+1 需要在顶级使用hook保证 正确的调用顺序
+
+2 使用useState时候，使用push，pop，splice等直接更改数组对象的坑，demo中使用push直接更改数组无法获取到新值，应该采用析构方式，但是在class里面不会有这个问题。(这个的原因是push，pop，splice是直接修改原数组，react会认为state并没有发生变化，无法更新)
+
+```
+const [firstData, setFirstData]:any = useState([])
+ const handleFirstAdd = () => {
+ 		// let temp = firstData // 不要这么写，直接修改原数组相当于没有更新
+        let temp = [...firstData]  // 必须这么写，多层数组也要这么写
+        temp.push({
+           value: '',
+        })
+        setFirstData(temp)
+  }
+```
+
+#### hoc Render Props Hooks
+
+1 HOC 接受一个组件返回新的组件 提取公共逻辑 降低耦合度
+
+2 RenderProps 把state状态封装入函数中
+
+3 主要对函数式组件的一种增强
+
+#### 生命周期
+
+```
+constructor  数据初始化
+// componentWillMount,() 数据初始化完成，但还未渲染DOM
+componentDidMount() 挂载DOM
+// componentWillReceiveProps(nextProps)
+getDerivedStateFromProps(componentWillMount,componentWillReceiveProps)
+防止我们修改this.props 造成一些错误 
+shouldComponentUpdate(nextProps,nextState)
+// componentWillUpdate()  组件返回true重新渲染
+getSnapshotBeforeUpdate(prevProps, prevState)
+使用原因react开启异步渲染胡componentWillUpdate和componentDidUpdate中状态不相同
+getSnapshotBeforeUpdate状态相同
+render()函数把JSX 编译为函数生成虚拟DOM通过diff算法对比新旧DOM 并显然更新后的节点
+componentDidUpdate(preProps,prevState) 重新渲染后执行
+componentWillUnmount() 组件卸载
+```
+
+
+
+#### jira
+
+###### json-server
+
+```
+npm install json-server -g
+```
+
+根目录下创建 db.json
+
+```json
+{
+    "users":[]
+}
+```
+
+启动
+
+```
+json-server --watch db.json --port 3001
+```
+
+根据id查找值
+
+```
+{users.find(user=>project.personId === user.id)?.name}
 ```
 

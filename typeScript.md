@@ -182,7 +182,6 @@ class Person{
 
 //泛型
 function fn<T>(a:T):T{
-    console.log();
     return a;
 }
 fn<string>("小明");

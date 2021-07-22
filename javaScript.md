@@ -359,3 +359,9 @@ console.log(add(2, 6)(1))
         }, 3000);
 ```
 
+RESTFUAL APi
+
+```
+用URL来唯一标识网络资源，用methods来标识对资源的操作方式
+```
+

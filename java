@@ -456,6 +456,19 @@ Java API JDK中提供的功能类
   通过new 关键字创建的字符串对象，每次new 都会开辟新的内存空间，有时虽然相同但是地址不同
   String s = "abc";只要字符相同 就是一个String对象
   
+String 与 new String()的区别
+
+jvm为了提升性能减少内存开销，在内部维护了内存空间 字符串实例池
+1 String str = 'test'
+通过直接赋值时 先查询字符串实例池是否存在'test'对象
+如果存在直接把实例池的地址返回给,如果不存在创建这个对象并返回这个对象的地址
+所以通过==比较是，str1，str2指向的是同一地址，所以返回true；
+
+2 String str = new String("test");
+
+若实例池存在则直接在堆中创建"test"这个对象，然后将堆中的这个对象的地址返回赋给引用str。
+若不存在则会在实例池中创建"test"对象，同时在堆中创建"test"这个对象，然后将堆中的这个对象的地址返回赋给引用str。
+这时str1和str2分别指向堆中不同的地址，所以返回false； 
 ```
 #### 字符串比较 
 
@@ -474,9 +487,9 @@ Java API JDK中提供的功能类
     }
 ```
 
+   #### StringBuilder StringBuffer
 
-
-   #### StringBuilder
+![image-20210615162114336](G:\note\image\image-20210615162114336.png)
 
 ```
 由于String的不可变性  StringBuilder 可变
@@ -607,7 +620,7 @@ public class Demo {
 同一对象，在不同时刻表现出来的不同形态
 多态的前提和体现
 
-1 有继承/实现关心
+1 有继承/实现关系
 2 有方法重写
 3 有父类引用指向子类对象
 多态成员访问特点
@@ -715,7 +728,7 @@ public abstract class Dog extends Animal {
 
 测试类
 
-```
+```java
 package com.AbstractDemo;
 
 public class AnimalDemo {
@@ -1422,17 +1435,15 @@ jc(int n){
 #### IO流
 
 按照数据类型分类
-  字节流
-  字符流
-  区别 如果数据通过记事本能打开不乱码  字符流
-  如果乱码 就是字节流 
+  字节流   8位字节 处理的是二进制流 
+  字符流  16位字节 在字节流的基础按照字符编码处理 处理的是char
   如果不知道属于什么类型，就用字节流(万能的流)
 
 ![image-20201210185934590](G:\note\image\image-20201210185934590.png)
 
 ```
 字节流数据类型
-  InputStream 所有输入流的超累 第二个参数为true时表示追加内容
+  InputStream 所有输入流的超类 第二个参数为true时表示追加内容
   OutputStream 所有输出流的超类
   //写入数据
   //创建输出流
@@ -1465,7 +1476,7 @@ jc(int n){
         int len =fis.read(bys);
 
         // 把读取的字节转为字符串
-        System.out.println(new String(bys,0,len));
+        System.out.println(new String(bys,,len));
         byte[] bys = new byte[1024];
         int len;
         while ((len=fis.read(bys))!= -1){

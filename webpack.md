@@ -47,6 +47,7 @@ output:{
   libraryTarget:'global'   // 变量名添加到node上
   libraryTarget:'commonjs'  // 变量名添加到common上
 }
+*
 ```
 
 ###### Loader
@@ -781,4 +782,8 @@ resolve:{
 ```
 
 #### webpack5
+
+```
+
+```
 
